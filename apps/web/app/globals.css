@@ -1,25 +1,123 @@
 @import "tailwindcss";
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Bharat Brand Tokens: Saffron Bronze & Deep Kashi Slate */
+  /* Bharat Brand Tokens: Saffron Amber & Deep Kashi Slate */
   --brand-50:  #fffbeb;
   --brand-100: #fef3c7;
-  --brand-500: #f59e0b;
+  --brand-200: #fde68a;
+  --brand-300: #fcd34d;
+  --brand-400: #fbbf24;
+  --brand-500: #f59e0b; /* Bharat Amber / Saffron Accent */
   --brand-600: #d97706;
   --brand-700: #b45309;
 
-  --primary-900: #0f172a;
+  /* Primary Surfaces: Deep Kashi Slate / Obsidian */
+  --primary-900: #0f172a; /* Main text & brand anchor */
   --primary-800: #1e293b;
   --primary-700: #334155;
 
-  --bg-canvas:  #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subtle:  #f1f5f9;
-  --border-subtle: #e2e8f0;
+  /* Neutral Backgrounds & Surfaces */
+  --bg-canvas:   #f8fafc; /* Crisp off-white app background */
+  --bg-surface:  #ffffff; /* Card and table surface */
+  --bg-subtle:   #f1f5f9; /* Table headers, input backdrops */
+  --bg-hover:    #e2e8f0;
+
+  /* Semantic Borders */
+  --border-subtle:  #e2e8f0;
   --border-default: #cbd5e1;
+  --border-focus:   #0f172a;
+
+  /* Status Tokens */
+  --success-bg:   #ecfdf5;
+  --success-border: #a7f3d0;
+  --success-text: #065f46;
+
+  --warning-bg:   #fffbeb;
+  --warning-border: #fde68a;
+  --warning-text: #92400e;
+
+  --error-bg:     #fef2f2;
+  --error-border:   #fecaca;
+  --error-text:   #991b1b;
+
+  --info-bg:      #eff6ff;
+  --info-border:    #bfdbfe;
+  --info-text:    #1e40af;
+
+  /* Typography Scale */
+  --text-2xs: 10px;
+  --text-xs:  12px;
+  --text-sm:  14px;
+  --text-base:16px;
+  --text-lg:  18px;
+  --text-xl:  20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+
+  /* Spacing (4px baseline grid) */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px;  --space-10: 40px; --space-12: 48px;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Shadows: Layered, crisp, non-muddy */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+}
+
+@theme {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+
+  --color-primary-900: var(--primary-900);
+  --color-primary-800: var(--primary-800);
+  --color-primary-700: var(--primary-700);
+
+  --color-bg-canvas: var(--bg-canvas);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-hover: var(--bg-hover);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-focus: var(--border-focus);
+
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-success-text: var(--success-text);
+
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
+  --color-warning-text: var(--warning-text);
+
+  --color-error-bg: var(--error-bg);
+  --color-error-border: var(--error-border);
+  --color-error-text: var(--error-text);
+
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
+  --color-info-text: var(--info-text);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 body {
@@ -29,7 +127,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.tabular-nums {
+.tabular-nums,
+.font-tabular {
   font-variant-numeric: tabular-nums;
 }
 
