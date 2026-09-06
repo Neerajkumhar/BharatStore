@@ -15,6 +15,7 @@ import {
   MapPin,
   Clock,
   Share2,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export default function StorefrontSettingsPage() {
@@ -158,6 +159,13 @@ export default function StorefrontSettingsPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/storefront/builder"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-900 rounded-lg text-sm font-bold hover:bg-slate-100 transition shadow-xs border border-slate-200"
+          >
+            <Layout className="h-4 w-4" />
+            <span>Open Builder</span>
+          </Link>
           <Link
             href={storefrontUrl}
             target="_blank"

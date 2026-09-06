@@ -54,8 +54,10 @@
   "52": "product.ts",
   "53": "staff/page.tsx",
   "54": "order.ts",
+  "55": "BharatStore — Production Deployment & Operational Manual",
   "56": "StorefrontSettingsPage",
   "57": "audit/page.tsx",
   "58": "security/page.tsx",
-  "59": "SettingsPage"
+  "59": "SettingsPage",
+  "60": "notifications.ts"
 }

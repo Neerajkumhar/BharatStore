@@ -1823,18 +1823,6 @@
       "source_location": "L55"
     },
     {
-      "id": "apps_web_app_api_notifications_route_get",
-      "label": "GET()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "authorizeRequest",
-      "file_type": "code",
-      "norm_label": "get()",
-      "source_file": "apps/web/app/api/notifications/route.ts",
-      "source_location": "L8"
-    },
-    {
       "id": "apps_web_app_api_notifications_templates_id_route_delete",
       "label": "DELETE()",
       "_callable": true,
@@ -2015,16 +2003,16 @@
       "source_location": "L6"
     },
     {
-      "id": "apps_web_app_api_notifications_send_route_post",
-      "label": "POST()",
+      "id": "apps_web_app_api_health_route_get",
+      "label": "GET()",
       "_callable": true,
       "_origin": "ast",
       "community": 4,
       "community_name": "database/src/index.ts",
       "file_type": "code",
-      "norm_label": "post()",
-      "source_file": "apps/web/app/api/notifications/send/route.ts",
-      "source_location": "L8"
+      "norm_label": "get()",
+      "source_file": "apps/web/app/api/health/route.ts",
+      "source_location": "L4"
     },
     {
       "id": "apps_web_app_api_store_slug_categories_route_get",
@@ -2265,6 +2253,18 @@
       "norm_label": "post()",
       "source_file": "apps/web/app/api/notifications/read/route.ts",
       "source_location": "L7"
+    },
+    {
+      "id": "apps_web_app_api_notifications_route_get",
+      "label": "GET()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 42,
+      "community_name": "authorization.ts",
+      "file_type": "code",
+      "norm_label": "get()",
+      "source_file": "apps/web/app/api/notifications/route.ts",
+      "source_location": "L8"
     },
     {
       "id": "packages_shared_src_utils_currency_formatinr",
@@ -2721,6 +2721,18 @@
       "norm_label": "post()",
       "source_file": "apps/web/app/api/khata/route.ts",
       "source_location": "L7"
+    },
+    {
+      "id": "apps_web_app_api_notifications_send_route_post",
+      "label": "POST()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "schemas/index.ts",
+      "file_type": "code",
+      "norm_label": "post()",
+      "source_file": "apps/web/app/api/notifications/send/route.ts",
+      "source_location": "L8"
     },
     {
       "id": "apps_web_app_dashboard_marketing_page_marketingpage",
@@ -3751,17 +3763,6 @@
       "source_location": "L4"
     },
     {
-      "id": "apps_web_app_api_notifications_route",
-      "label": "notifications/route.ts",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "notifications/route.ts",
-      "source_file": "apps/web/app/api/notifications/route.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "apps_web_lib_notification_engine",
       "label": "notification-engine.ts",
       "_origin": "ast",
@@ -3782,116 +3783,6 @@
       "norm_label": "notification.test.ts",
       "source_file": "packages/database/src/notification.test.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications",
-      "label": "notifications.ts",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "notifications.ts",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_createnotificationschema",
-      "label": "createNotificationSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "createnotificationschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L20"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_createtemplateschema",
-      "label": "createTemplateSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "createtemplateschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L32"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_markreadschema",
-      "label": "markReadSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "markreadschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L53"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_notificationchannelenum",
-      "label": "notificationChannelEnum",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "notificationchannelenum",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L16"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_notificationpriorityenum",
-      "label": "notificationPriorityEnum",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "notificationpriorityenum",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L18"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_notificationtypeenum",
-      "label": "notificationTypeEnum",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "notificationtypeenum",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L3"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_sendnotificationschema",
-      "label": "sendNotificationSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "sendnotificationschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L58"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_updatepreferenceschema",
-      "label": "updatePreferenceSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "updatepreferenceschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L44"
-    },
-    {
-      "id": "packages_shared_src_schemas_notifications_updatetemplateschema",
-      "label": "updateTemplateSchema",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "notification-engine.ts",
-      "file_type": "code",
-      "norm_label": "updatetemplateschema",
-      "source_file": "packages/shared/src/schemas/notifications.ts",
-      "source_location": "L42"
     },
     {
       "id": "packages_shared_package",
@@ -6787,14 +6678,14 @@
       "source_location": "L1"
     },
     {
-      "id": "apps_web_app_api_notifications_send_route",
-      "label": "send/route.ts",
+      "id": "apps_web_app_api_health_route",
+      "label": "health/route.ts",
       "_origin": "ast",
       "community": 4,
       "community_name": "database/src/index.ts",
       "file_type": "code",
-      "norm_label": "send/route.ts",
-      "source_file": "apps/web/app/api/notifications/send/route.ts",
+      "norm_label": "health/route.ts",
+      "source_file": "apps/web/app/api/health/route.ts",
       "source_location": "L1"
     },
     {
@@ -6938,6 +6829,28 @@
       "file_type": "code",
       "norm_label": "inventory.test.ts",
       "source_file": "packages/database/src/inventory.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "packages_database_src_preproduction_audit_test",
+      "label": "preproduction_audit.test.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "database/src/index.ts",
+      "file_type": "code",
+      "norm_label": "preproduction_audit.test.ts",
+      "source_file": "packages/database/src/preproduction_audit.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "packages_database_src_security_test",
+      "label": "security.test.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "database/src/index.ts",
+      "file_type": "code",
+      "norm_label": "security.test.ts",
+      "source_file": "packages/database/src/security.test.ts",
       "source_location": "L1"
     },
     {
@@ -7300,6 +7213,17 @@
       "source_location": "L1"
     },
     {
+      "id": "apps_web_app_api_notifications_route",
+      "label": "notifications/route.ts",
+      "_origin": "ast",
+      "community": 42,
+      "community_name": "authorization.ts",
+      "file_type": "code",
+      "norm_label": "notifications/route.ts",
+      "source_file": "apps/web/app/api/notifications/route.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "apps_web_lib_authorization",
       "label": "authorization.ts",
       "_origin": "ast",
@@ -7308,28 +7232,6 @@
       "file_type": "code",
       "norm_label": "authorization.ts",
       "source_file": "apps/web/lib/authorization.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "packages_database_src_preproduction_audit_test",
-      "label": "preproduction_audit.test.ts",
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "authorization.ts",
-      "file_type": "code",
-      "norm_label": "preproduction_audit.test.ts",
-      "source_file": "packages/database/src/preproduction_audit.test.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "packages_database_src_security_test",
-      "label": "security.test.ts",
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "authorization.ts",
-      "file_type": "code",
-      "norm_label": "security.test.ts",
-      "source_file": "packages/database/src/security.test.ts",
       "source_location": "L1"
     },
     {
@@ -7770,6 +7672,17 @@
       "file_type": "code",
       "norm_label": "api/khata/route.ts",
       "source_file": "apps/web/app/api/khata/route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_web_app_api_notifications_send_route",
+      "label": "send/route.ts",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "schemas/index.ts",
+      "file_type": "code",
+      "norm_label": "send/route.ts",
+      "source_file": "apps/web/app/api/notifications/send/route.ts",
       "source_location": "L1"
     },
     {
@@ -8554,6 +8467,150 @@
       "source_location": "L3"
     },
     {
+      "id": "deployment",
+      "label": "DEPLOYMENT.md",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "deployment.md",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "deployment_1_system_requirements_prerequisites",
+      "label": "1. System Requirements & Prerequisites",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. system requirements & prerequisites",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L7"
+    },
+    {
+      "id": "deployment_2_environment_configuration",
+      "label": "2. Environment Configuration",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. environment configuration",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L17"
+    },
+    {
+      "id": "deployment_3_database_deployment_migration_strategy",
+      "label": "3. Database Deployment & Migration Strategy",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. database deployment & migration strategy",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L31"
+    },
+    {
+      "id": "deployment_4_production_build_execution",
+      "label": "4. Production Build & Execution",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. production build & execution",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L46"
+    },
+    {
+      "id": "deployment_5_operational_health_check_verification",
+      "label": "5. Operational Health Check Verification",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. operational health check verification",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L63"
+    },
+    {
+      "id": "deployment_6_database_backup_recovery_strategy",
+      "label": "6. Database Backup & Recovery Strategy",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "6. database backup & recovery strategy",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L90"
+    },
+    {
+      "id": "deployment_7_notification_provider_configuration",
+      "label": "7. Notification Provider Configuration",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "7. notification provider configuration",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L104"
+    },
+    {
+      "id": "deployment_8_security_hardening_checklist",
+      "label": "8. Security & Hardening Checklist",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "8. security & hardening checklist",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L111"
+    },
+    {
+      "id": "deployment_automated_nightly_backup_command_cron",
+      "label": "Automated Nightly Backup Command (cron):",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "automated nightly backup command (cron):",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L92"
+    },
+    {
+      "id": "deployment_bharatstore_production_deployment_operational_manual",
+      "label": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "bharatstore \u2014 production deployment & operational manual",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "deployment_point_in_time_recovery_command",
+      "label": "Point-in-Time Recovery Command:",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "BharatStore \u2014 Production Deployment & Operational Manual",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "point-in-time recovery command:",
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L97"
+    },
+    {
       "id": "apps_web_app_dashboard_storefront_page",
       "label": "storefront/page.tsx",
       "_origin": "ast",
@@ -9136,6 +9193,116 @@
       "norm_label": "bharatstore \u2014 master product & technical blueprint",
       "source_file": "docs/BHARATSTORE_MASTER_BLUEPRINT.md",
       "source_location": "L1"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications",
+      "label": "notifications.ts",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "notifications.ts",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_createnotificationschema",
+      "label": "createNotificationSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "createnotificationschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_createtemplateschema",
+      "label": "createTemplateSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "createtemplateschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_markreadschema",
+      "label": "markReadSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "markreadschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_notificationchannelenum",
+      "label": "notificationChannelEnum",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "notificationchannelenum",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_notificationpriorityenum",
+      "label": "notificationPriorityEnum",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "notificationpriorityenum",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_notificationtypeenum",
+      "label": "notificationTypeEnum",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "notificationtypeenum",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_sendnotificationschema",
+      "label": "sendNotificationSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "sendnotificationschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_updatepreferenceschema",
+      "label": "updatePreferenceSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "updatepreferenceschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L44"
+    },
+    {
+      "id": "packages_shared_src_schemas_notifications_updatetemplateschema",
+      "label": "updateTemplateSchema",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "notifications.ts",
+      "file_type": "code",
+      "norm_label": "updatetemplateschema",
+      "source_file": "packages/shared/src/schemas/notifications.ts",
+      "source_location": "L42"
     },
     {
       "id": "docs_plans_2026_09_05_m0_m1_foundations_auth_tenant",
@@ -13038,6 +13205,18 @@
       "context": "import",
       "source_file": "apps/web/app/api/customers/route.ts",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_web_app_api_health_route",
+      "target": "packages_database_src_client_prisma",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "apps/web/app/api/health/route.ts",
+      "source_location": "L2",
       "weight": 1.0
     },
     {
@@ -17601,6 +17780,18 @@
       "weight": 1.0
     },
     {
+      "source": "apps_web_app_api_health_route",
+      "target": "packages_database_src_index",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "apps/web/app/api/health/route.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
       "source": "apps_web_app_api_inventory_adjust_route",
       "target": "packages_database_src_index",
       "relation": "imports_from",
@@ -20514,6 +20705,17 @@
       "weight": 1.0
     },
     {
+      "source": "apps_web_app_api_health_route",
+      "target": "apps_web_app_api_health_route_get",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/web/app/api/health/route.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
       "source": "apps_web_app_api_inventory_adjust_route",
       "target": "apps_web_app_api_inventory_adjust_route_post",
       "relation": "contains",
@@ -23173,6 +23375,127 @@
       "confidence_score": 1.0,
       "source_file": "apps/web/tsconfig.json",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment",
+      "target": "deployment_bharatstore_production_deployment_operational_manual",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_6_database_backup_recovery_strategy",
+      "target": "deployment_automated_nightly_backup_command_cron",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_6_database_backup_recovery_strategy",
+      "target": "deployment_point_in_time_recovery_command",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_7_notification_provider_configuration",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_8_security_hardening_checklist",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_2_environment_configuration",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_3_database_deployment_migration_strategy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_4_production_build_execution",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_5_operational_health_check_verification",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_1_system_requirements_prerequisites",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_bharatstore_production_deployment_operational_manual",
+      "target": "deployment_6_database_backup_recovery_strategy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "DEPLOYMENT.md",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -27091,5 +27414,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "29a3ede081d03c7d361d6d3b7ca02a9d6a726dd6"
+  "built_at_commit": "56f1ebcb81ce4034da885021dcb5fd126ad08c6f"
 }

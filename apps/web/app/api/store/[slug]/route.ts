@@ -53,6 +53,7 @@ export async function GET(
           contactEmail: theme?.contactEmail || tenant.email || '',
           socialLinks: theme?.socialLinks || {},
         },
+        publishedConfig: theme?.publishedConfig || null,
       },
     });
   } catch (error: any) {

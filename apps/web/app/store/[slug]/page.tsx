@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@bharatstore/database';
 import { ArrowRight, ShoppingBag, Layers, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { ProductCard } from '@/components/storefront/product-card';
+import { StorefrontRenderer } from '@/components/storefront/storefront-renderer';
 
 export default async function StorefrontHomePage({
   params,
@@ -25,7 +26,30 @@ export default async function StorefrontHomePage({
 
   const theme = tenant.storefrontTheme;
 
-  // Fetch Categories & Published Featured Products
+  // Check if published config exists - use config-driven renderer
+  const publishedConfig = theme?.publishedConfig as any;
+  if (publishedConfig && publishedConfig.sections && publishedConfig.sections.length > 0) {
+    return (
+      <StorefrontRenderer
+        config={publishedConfig}
+        slug={slug}
+        tenantId={tenant.id}
+        storeData={{
+          tradeName: tenant.tradeName,
+          phone: theme?.contactPhone || tenant.phone,
+          email: theme?.contactEmail || tenant.email || undefined,
+          address: tenant.addressLine1,
+          city: tenant.city,
+          pincode: tenant.pincode,
+          gstin: tenant.gstin || undefined,
+          businessHours: theme?.businessHours || undefined,
+          socialLinks: (theme?.socialLinks as any) || {},
+        }}
+      />
+    );
+  }
+
+  // Fallback: hardcoded storefront (backward compatible)
   const [categories, featuredProducts] = await Promise.all([
     prisma.category.findMany({
       where: { tenantId: tenant.id },

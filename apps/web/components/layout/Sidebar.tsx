@@ -63,6 +63,7 @@ const navigationGroups: NavGroup[] = [
     group: 'Storefront',
     items: [
       { label: 'Online Store', href: '/storefront', icon: Store },
+      { label: 'Store Builder', href: '/storefront/builder', icon: LayoutDashboard },
     ],
   },
   {

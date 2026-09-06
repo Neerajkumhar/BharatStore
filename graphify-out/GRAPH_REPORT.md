@@ -1,16 +1,16 @@
 # Graph Report - BharatStore  (2026-09-06)
 
 ## Corpus Check
-- 166 files · ~110,162 words
+- 196 files · ~128,355 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 860 nodes · 1504 edges · 61 communities (49 shown, 12 thin omitted)
+- 1042 nodes · 1810 edges · 76 communities (65 shown, 11 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `56f1ebcb`
+- Built from commit: `34e0bb6c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,7 +24,7 @@
 - 3.1 Detailed Module Breakdown (18 Core Modules)
 - BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core
 - scripts
-- login/route.ts
+- lib/auth.ts
 - compilerOptions
 - notification-engine.ts
 - shared/package.json
@@ -53,14 +53,14 @@
 - authorizeRequest
 - Global Constraints
 - Global Constraints
-- authorization.ts
+- constants/index.ts
 - reports/page.tsx
 - notifications/page.tsx
 - utils/index.ts
 - [slug]/layout.tsx
-- orders/route.ts
+- storefront-renderer.tsx
 - schemas/index.ts
-- marketing.ts
+- campaigns/route.ts
 - marketing/page.tsx
 - product.ts
 - staff/page.tsx
@@ -71,35 +71,50 @@
 - security/page.tsx
 - SettingsPage
 - notifications.ts
+- storefront-builder.ts
+- M10: No-Code Storefront Builder & Template System — Design
+- product-card.tsx
+- builder-settings.tsx
+- component-registry.ts
+- builder/page.tsx
+- M10: No-Code Storefront Builder & Template System — Implementation Plan
+- builder-sidebar.tsx
+- builder-canvas.tsx
+- products/[id]/page.tsx
+- categories-section.tsx
+- footer-section.tsx
+- hero-section.tsx
+- trust-section.tsx
+- testimonials-section.tsx
 
 ## God Nodes (most connected - your core abstractions)
-1. `authorizeRequest()` - 98 edges
-2. `getTenantDb()` - 85 edges
-3. `prisma` - 51 edges
-4. `PERMISSIONS` - 40 edges
+1. `authorizeRequest()` - 107 edges
+2. `getTenantDb()` - 92 edges
+3. `prisma` - 56 edges
+4. `PERMISSIONS` - 44 edges
 5. `7. Screen Architecture` - 28 edges
 6. `cn()` - 24 edges
 7. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
-8. `Button` - 19 edges
-9. `3.1 Detailed Module Breakdown (18 Core Modules)` - 19 edges
-10. `BharatStore — Product & Technical Blueprint` - 18 edges
+8. `M10: No-Code Storefront Builder & Template System — Design` - 22 edges
+9. `Button` - 19 edges
+10. `3.1 Detailed Module Breakdown (18 Core Modules)` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `BuilderSidebarProps` --references--> `SectionType`  [EXTRACTED]
+  apps/web/components/builder/builder-sidebar.tsx → packages/shared/src/constants/component-registry.ts
+- `POST()` --calls--> `getTenantDb()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/builder/publish/route.ts → packages/database/src/client.ts
+- `POST()` --calls--> `getTenantDb()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/builder/reset/route.ts → packages/database/src/client.ts
+- `POST()` --calls--> `getTemplateSections()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/builder/reset/route.ts → packages/shared/src/constants/storefront-templates.ts
 - `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
   apps/web/app/api/analytics/alerts/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/customers/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/inventory/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/khata/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/overview/route.ts → packages/database/src/client.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (61 total, 12 thin omitted)
+## Communities (76 total, 11 thin omitted)
 
 ### Community 0 - "button.tsx"
 Cohesion: 0.05
@@ -117,6 +132,10 @@ Nodes (30): dependencies, bcryptjs, @prisma/client, devDependencies, prisma, tsx
 Cohesion: 0.07
 Nodes (28): 7.10 Categories (`/dashboard/categories`), 7.11 Inventory (`/dashboard/inventory`), 7.12 Inventory Details (drawer `/dashboard/inventory/[id]`), 7.13 Orders (`/dashboard/orders`), 7.14 Order Details (`/dashboard/orders/[id]`), 7.15 Customers (`/dashboard/customers`), 7.16 Customer Details (`/dashboard/customers/[id]`), 7.17 Payments (`/dashboard/payments`) (+20 more)
 
+### Community 4 - "database/src/index.ts"
+Cohesion: 0.09
+Nodes (10): POST(), GET(), POST(), POST(), CartItemForCoupon, CouponValidationResult, validateCouponForCart(), prisma (+2 more)
+
 ### Community 5 - "dependencies"
 Cohesion: 0.04
 Nodes (48): dependencies, bcryptjs, @bharatstore/database, @bharatstore/shared, clsx, jose, lucide-react, next (+40 more)
@@ -133,8 +152,8 @@ Nodes (24): BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant
 Cohesion: 0.08
 Nodes (24): dependencies, bcryptjs, devDependencies, typescript, bcryptjs, typescript, name, private (+16 more)
 
-### Community 9 - "login/route.ts"
-Cohesion: 0.18
+### Community 9 - "lib/auth.ts"
+Cohesion: 0.16
 Nodes (15): loginSchema, POST(), POST(), registerSchema, getJwtSecret(), SESSION_COOKIE_NAME, signJWT(), UserSessionPayload (+7 more)
 
 ### Community 10 - "compilerOptions"
@@ -213,6 +232,10 @@ Nodes (4): 12.1 Conventions, 12.2 Endpoints by Module, 12.3 Error codes, 12. API
 Cohesion: 0.50
 Nodes (4): 2.1 Personas, 2.2 Role Model, 2.3 Permission Matrix, 2. User Types
 
+### Community 33 - "next.config.mjs"
+Cohesion: 0.50
+Nodes (3): __dirname, __filename, nextConfig
+
 ### Community 37 - "kpi-card.tsx"
 Cohesion: 0.06
 Nodes (17): CustomersContent(), InventoryContent(), KhataContent(), OverviewData, ProductData, SalesData, PaymentsContent(), ProductsContent() (+9 more)
@@ -223,7 +246,7 @@ Nodes (8): Global Constraints, Milestone 2: Product Catalog, Variants, HSN Tax M
 
 ### Community 39 - "authorizeRequest"
 Cohesion: 0.11
-Nodes (32): GET(), PUT(), GET(), POST(), DELETE(), GET(), PUT(), GET() (+24 more)
+Nodes (32): DELETE(), PUT(), GET(), PUT(), GET(), PUT(), GET(), POST() (+24 more)
 
 ### Community 40 - "Global Constraints"
 Cohesion: 0.20
@@ -233,33 +256,33 @@ Nodes (9): Global Constraints, Milestone 4: Business Analytics & Intelligence Im
 Cohesion: 0.25
 Nodes (7): Global Constraints, Milestone 3: Omnichannel Orders, Customer Directory, Khata Ledger & Counter POS Terminal Implementation Plan, Task 1: Shared Schemas & GST Tax Calculation Engine, Task 2: API Endpoints for Omnichannel Checkout, Customers & Khata Ledger, Task 3: Customer Directory & Khata Ledger UI, Task 4: Counter POS Terminal Interface, Task 5: Omnichannel Orders & GST Invoice Management UI
 
-### Community 42 - "authorization.ts"
-Cohesion: 0.10
-Nodes (21): GET(), GET(), DELETE(), PUT(), GET(), POST(), BusinessAlert, GET() (+13 more)
+### Community 42 - "constants/index.ts"
+Cohesion: 0.09
+Nodes (22): GET(), GET(), GET(), POST(), POST(), POST(), GET(), BusinessAlert (+14 more)
 
 ### Community 45 - "notifications/page.tsx"
 Cohesion: 0.40
 Nodes (3): NotificationAnalytics, NotificationItem, NotificationTemplate
 
 ### Community 46 - "utils/index.ts"
-Cohesion: 0.18
-Nodes (10): GET(), GET(), GET(), GET(), GET(), GET(), GET(), calculatePercentageChange() (+2 more)
+Cohesion: 0.16
+Nodes (11): GET(), GET(), GET(), GET(), GET(), GET(), GET(), calculatePercentageChange() (+3 more)
 
 ### Community 47 - "[slug]/layout.tsx"
-Cohesion: 0.11
-Nodes (16): indianStates, StorefrontCheckoutPage(), CartContext, CartContextType, CartItem, CartProvider(), useCart(), CartDrawer() (+8 more)
+Cohesion: 0.18
+Nodes (12): indianStates, StorefrontCheckoutPage(), CartContext, CartContextType, CartItem, CartProvider(), useCart(), CartDrawer() (+4 more)
 
-### Community 48 - "orders/route.ts"
-Cohesion: 0.25
-Nodes (9): POST(), GET(), POST(), POST(), CartItemForCoupon, CouponValidationResult, validateCouponForCart(), calculateGstTaxSplit() (+1 more)
+### Community 48 - "storefront-renderer.tsx"
+Cohesion: 0.11
+Nodes (19): AboutSection(), AboutSectionProps, AnnouncementSection(), AnnouncementSectionProps, BannerSection(), BannerSectionProps, ContactSection(), ContactSectionProps (+11 more)
 
 ### Community 49 - "schemas/index.ts"
 Cohesion: 0.16
 Nodes (8): GET(), POST(), POST(), POST(), POST(), createCustomerSchema, logKhataSchema, adjustInventorySchema
 
-### Community 50 - "marketing.ts"
-Cohesion: 0.33
-Nodes (5): createCampaignSchema, createCouponSchema, updateCampaignSchema, updateCouponSchema, validateCouponSchema
+### Community 50 - "campaigns/route.ts"
+Cohesion: 0.17
+Nodes (9): GET(), POST(), GET(), POST(), createCampaignSchema, createCouponSchema, updateCampaignSchema, updateCouponSchema (+1 more)
 
 ### Community 51 - "marketing/page.tsx"
 Cohesion: 0.40
@@ -277,22 +300,78 @@ Nodes (11): 1. System Requirements & Prerequisites, 2. Environment Configuration
 Cohesion: 0.20
 Nodes (9): createNotificationSchema, createTemplateSchema, markReadSchema, notificationChannelEnum, notificationPriorityEnum, notificationTypeEnum, sendNotificationSchema, updatePreferenceSchema (+1 more)
 
+### Community 61 - "storefront-builder.ts"
+Cohesion: 0.10
+Nodes (22): getSectionDefinition(), VALID_SECTION_TYPES, announcementConfigSchema, bannerConfigSchema, builderUpdateSchema, contactConfigSchema, faqConfigSchema, faqItemSchema (+14 more)
+
+### Community 62 - "M10: No-Code Storefront Builder & Template System — Design"
+Cohesion: 0.09
+Nodes (22): 10. Builder UI, 11. Image Management, 12. Real Commerce Data, 13. SEO, 14. Performance, 15. Security, 16. Audit Logging, 17. Testing (+14 more)
+
+### Community 63 - "product-card.tsx"
+Cohesion: 0.15
+Nodes (10): ProductCard(), ProductCardProps, colMap, FeaturedProductsSection(), FeaturedProductsSectionProps, Product, colMap, Product (+2 more)
+
+### Community 64 - "builder-settings.tsx"
+Cohesion: 0.12
+Nodes (7): BuilderSettingsProps, SectionItem, aboutConfigSchema, categoriesConfigSchema, featuredProductsConfigSchema, footerConfigSchema, testimonialsConfigSchema
+
+### Community 65 - "component-registry.ts"
+Cohesion: 0.26
+Nodes (9): StorefrontBuilderPage(), createDefaultSection(), SECTION_TYPES, SectionDefinition, SectionType, getTemplateById(), getTemplateSections(), makeSections() (+1 more)
+
+### Community 66 - "builder/page.tsx"
+Cohesion: 0.20
+Nodes (8): BuilderState, SectionItem, BuilderSettings(), BuilderToolbar(), BuilderToolbarProps, TemplateSelector(), TemplateSelectorProps, STOREFRONT_TEMPLATES
+
+### Community 67 - "M10: No-Code Storefront Builder & Template System — Implementation Plan"
+Cohesion: 0.25
+Nodes (7): File Structure Map, M10: No-Code Storefront Builder & Template System — Implementation Plan, Task 1: Add pageConfig columns to StorefrontTheme + Prisma migration, Task 2: Add STOREFRONT_BUILDER_WRITE permission + role map, Task 3: Shared storefront schemas (Zod), Task 4: Storefront types, templates, and serialize helpers, Task 5: Section components (shared public + preview)
+
+### Community 68 - "builder-sidebar.tsx"
+Cohesion: 0.29
+Nodes (6): ADDABLE_TYPES, BuilderSidebar(), BuilderSidebarProps, iconMap, SectionItem, COMPONENT_REGISTRY
+
+### Community 69 - "builder-canvas.tsx"
+Cohesion: 0.47
+Nodes (5): BuilderCanvas(), BuilderCanvasProps, escapeHTML(), generatePreviewHTML(), viewportWidths
+
+### Community 71 - "categories-section.tsx"
+Cohesion: 0.40
+Nodes (4): CategoriesSection(), CategoriesSectionProps, Category, colMap
+
+### Community 72 - "footer-section.tsx"
+Cohesion: 0.40
+Nodes (4): FooterSection(), FooterSectionProps, iconMap, ValueProp
+
+### Community 73 - "hero-section.tsx"
+Cohesion: 0.40
+Nodes (4): alignMap, heightMap, HeroSection(), HeroSectionProps
+
+### Community 74 - "trust-section.tsx"
+Cohesion: 0.40
+Nodes (4): iconMap, TrustBadge, TrustSection(), TrustSectionProps
+
+### Community 75 - "testimonials-section.tsx"
+Cohesion: 0.50
+Nodes (3): Testimonial, TestimonialsSection(), TestimonialsSectionProps
+
 ## Knowledge Gaps
-- **388 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+383 more)
+- **468 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+463 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `prisma` connect `database/src/index.ts` to `products/[id]/page.tsx`, `authorizeRequest`, `lib/auth.ts`, `constants/index.ts`, `notification-engine.ts`, `[slug]/layout.tsx`, `storefront-renderer.tsx`, `schemas/index.ts`, `campaigns/route.ts`, `storefront-builder.ts`, `product-card.tsx`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **Why does `cn()` connect `button.tsx` to `kpi-card.tsx`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `prisma` connect `database/src/index.ts` to `authorizeRequest`, `login/route.ts`, `authorization.ts`, `notification-engine.ts`, `[slug]/layout.tsx`, `orders/route.ts`, `schemas/index.ts`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `authorizeRequest()` connect `authorizeRequest` to `login/route.ts`, `authorization.ts`, `notification-engine.ts`, `utils/index.ts`, `orders/route.ts`, `schemas/index.ts`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `authorizeRequest()` connect `authorizeRequest` to `database/src/index.ts`, `lib/auth.ts`, `constants/index.ts`, `notification-engine.ts`, `utils/index.ts`, `schemas/index.ts`, `campaigns/route.ts`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **What connects `OverviewData`, `SalesData`, `ProductData` to the rest of the system?**
-  _388 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _468 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `button.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.0547022932884494 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**

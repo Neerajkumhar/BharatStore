@@ -988,5 +988,17 @@
     "seen": 1788684844.649617,
     "ast_hash": "f7747a3358012205430fc25b98c1149a",
     "semantic_hash": ""
+  },
+  "apps/web/app/api/health/route.ts": {
+    "mtime": 1788685095.2356956,
+    "seen": 1788685153.3647435,
+    "ast_hash": "808baa44020c4f4b7acc8cd00bb36fa7",
+    "semantic_hash": ""
+  },
+  "DEPLOYMENT.md": {
+    "mtime": 1788685116.63563,
+    "seen": 1788685153.3648415,
+    "ast_hash": "3491478567ecdf01b4ef709062f3c4f3",
+    "semantic_hash": ""
   }
 }
