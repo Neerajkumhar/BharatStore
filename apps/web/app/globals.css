@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Bharat Brand Tokens: Saffron Bronze & Deep Kashi Slate */
+  --brand-50:  #fffbeb;
+  --brand-100: #fef3c7;
+  --brand-500: #f59e0b;
+  --brand-600: #d97706;
+  --brand-700: #b45309;
+
+  --primary-900: #0f172a;
+  --primary-800: #1e293b;
+  --primary-700: #334155;
+
+  --bg-canvas:  #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle:  #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--primary-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

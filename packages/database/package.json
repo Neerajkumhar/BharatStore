@@ -1,0 +1,24 @@
+{
+  "name": "@bharatstore/database",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "generate": "prisma generate",
+    "push": "prisma db push",
+    "migrate": "prisma migrate dev",
+    "seed": "node --loader ts-node/esm seed/seed.ts || tsx seed/seed.ts",
+    "studio": "prisma studio",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "prisma": "^6.4.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^5.0.0"
+  }
+}

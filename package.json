@@ -1,0 +1,25 @@
+{
+  "name": "bharatstore",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "db:generate": "npm run generate --workspace=packages/database",
+    "db:migrate": "npm run migrate --workspace=packages/database",
+    "db:push": "npm run push --workspace=packages/database",
+    "db:seed": "npm run seed --workspace=packages/database",
+    "db:studio": "npm run studio --workspace=packages/database",
+    "docker:up": "sg docker -c \"docker compose -f docker/docker-compose.yml up -d\"",
+    "docker:down": "sg docker -c \"docker compose -f docker/docker-compose.yml down\"",
+    "docker:logs": "sg docker -c \"docker compose -f docker/docker-compose.yml logs -f\""
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

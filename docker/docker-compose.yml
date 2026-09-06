@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bharatstore_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bharatstore
+      POSTGRES_USER: bharatstore
+      POSTGRES_PASSWORD: bharatstore_dev_secret_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - bharatstore_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bharatstore -d bharatstore"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: bharatstore_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - bharatstore_redisdata:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  bharatstore_pgdata:
+    driver: local
+  bharatstore_redisdata:
+    driver: local
