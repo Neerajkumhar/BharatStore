@@ -33,9 +33,12 @@ interface OverviewData {
 }
 
 interface SalesData {
-  dailySales: Array<{ date: string; revenue: number; orders: number }>;
-  channelBreakdown: Record<string, { revenue: number; orders: number }>;
-  paymentMethodBreakdown: Record<string, { revenue: number; orders: number }>;
+  dailySales?: Array<{ date: string; revenue: number; orders: number }>;
+  salesTrend?: Array<{ date: string; revenue: number; orders: number }>;
+  channelBreakdown?: Record<string, { revenue: number; orders: number }>;
+  salesByChannel?: Array<{ channel: string; revenue: number; orders: number }>;
+  paymentMethodBreakdown?: Record<string, { revenue: number; orders: number }>;
+  salesByPaymentMethod?: Array<{ method: string; revenue: number; orders: number }>;
 }
 
 interface ProductData {
@@ -119,7 +122,10 @@ function OverviewContent() {
   }
 
   const { kpis, periodLabel } = overview;
-  const maxRevenue = Math.max(...(sales?.dailySales.map((s) => s.revenue) || [1]), 1);
+  const dailySales = sales?.dailySales || sales?.salesTrend || [];
+  const maxRevenue = dailySales.length > 0
+    ? Math.max(...dailySales.map((s) => s.revenue || 0), 1)
+    : 1;
 
   return (
     <div className="space-y-6">
@@ -195,10 +201,10 @@ function OverviewContent() {
             </span>
           </div>
 
-          {sales?.dailySales && sales.dailySales.length > 0 ? (
+          {dailySales && dailySales.length > 0 ? (
             <div className="pt-4">
               <div className="h-56 flex items-end gap-1.5 sm:gap-2 pb-6 border-b border-slate-200">
-                {sales.dailySales.map((day, idx) => {
+                {dailySales.map((day, idx) => {
                   const heightPercent = Math.max((day.revenue / maxRevenue) * 100, 4);
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
@@ -222,9 +228,9 @@ function OverviewContent() {
                 })}
               </div>
               <div className="flex items-center justify-between text-2xs text-slate-400 pt-2 px-1">
-                <span>{sales.dailySales[0]?.date}</span>
-                <span>{sales.dailySales[Math.floor(sales.dailySales.length / 2)]?.date}</span>
-                <span>{sales.dailySales[sales.dailySales.length - 1]?.date}</span>
+                <span>{dailySales[0]?.date}</span>
+                <span>{dailySales[Math.floor(dailySales.length / 2)]?.date}</span>
+                <span>{dailySales[dailySales.length - 1]?.date}</span>
               </div>
             </div>
           ) : (

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     const orders = await tenantDb.order.findMany({
       where: {
@@ -93,15 +93,44 @@ export async function GET(request: Request) {
       orders: val.orders,
     }));
 
+    const grossRevenue = Number(orders.reduce((acc, o) => acc + Number(o.grandTotal), 0).toFixed(2));
+    const orderCount = orders.length;
+    const avgOrderValue = orderCount > 0 ? Number((grossRevenue / orderCount).toFixed(2)) : 0;
+    const itemsSold = orders.reduce((acc, o) => acc + o.items.reduce((sum, i) => sum + i.quantity, 0), 0);
+
+    const totals = {
+      grossRevenue,
+      orderCount,
+      avgOrderValue,
+      itemsSold,
+    };
+
+    const dailySales = salesTrend;
+
+    const channelBreakdown: Record<string, { revenue: number; orders: number; units: number }> = {};
+    salesByChannel.forEach((c) => {
+      channelBreakdown[c.channel] = { revenue: c.revenue, orders: c.orders, units: c.units };
+    });
+
+    const paymentMethodBreakdown: Record<string, { revenue: number; orders: number }> = {};
+    salesByPaymentMethod.forEach((p) => {
+      paymentMethodBreakdown[p.method] = { revenue: p.revenue, orders: p.orders };
+    });
+
     return NextResponse.json({
       success: true,
       data: {
-        totalRevenue: Number(orders.reduce((acc, o) => acc + Number(o.grandTotal), 0).toFixed(2)),
-        totalOrders: orders.length,
-        totalUnits: orders.reduce((acc, o) => acc + o.items.reduce((sum, i) => sum + i.quantity, 0), 0),
+        periodLabel,
+        totalRevenue: grossRevenue,
+        totalOrders: orderCount,
+        totalUnits: itemsSold,
+        totals,
         salesTrend,
+        dailySales,
         salesByChannel,
+        channelBreakdown,
         salesByPaymentMethod,
+        paymentMethodBreakdown,
       },
     });
   } catch (error: any) {
