@@ -1,19 +1,16 @@
 import { z } from 'zod';
 
-export const OrderItemSchema = z.object({
+export const orderItemInputSchema = z.object({
   variantId: z.string().uuid(),
-  quantity: z.number().int().positive('Quantity must be at least 1'),
-  unitPrice: z.number().positive(),
+  quantity: z.number().int().positive(),
 });
 
-export const PosCheckoutSchema = z.object({
-  customerName: z.string().min(2).default('Walk-in Customer'),
-  customerPhone: z.string().optional().nullable(),
-  customerGstin: z.string().optional().nullable(),
-  items: z.array(OrderItemSchema).min(1, 'At least one item is required'),
-  paymentMethod: z.enum(['CASH', 'UPI_DIRECT', 'RAZORPAY', 'KHATA_CREDIT']),
-  discountAmount: z.number().nonnegative().default(0),
+export const createOrderSchema = z.object({
+  customerId: z.string().uuid().optional(),
+  channel: z.enum(['STOREFRONT', 'POS_COUNTER', 'WHATSAPP']).default('POS_COUNTER'),
+  items: z.array(orderItemInputSchema).min(1, 'Order must contain at least 1 item'),
+  paymentMethod: z.enum(['CASH', 'UPI_DIRECT', 'RAZORPAY', 'KHATA_CREDIT', 'SPLIT']),
+  paymentAmount: z.number().min(0),
   notes: z.string().optional(),
+  placeOfSupply: z.string().default('09'),
 });
-
-export type PosCheckoutInput = z.infer<typeof PosCheckoutSchema>;
