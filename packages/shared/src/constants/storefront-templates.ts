@@ -93,9 +93,14 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
       cardStyle: 'bordered',
     },
     defaultSections: [
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'medium', alignment: 'center' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'Clean. Simple. Just the Essentials.', subtitle: 'Thoughtfully chosen products for every day', ctaText: 'Shop Now', height: 'medium', alignment: 'left' } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Our Products', selectionMode: 'newest', limit: 8, columns: 4 } },
-      { type: SECTION_TYPES.TRUST, configOverrides: {} },
+      { type: SECTION_TYPES.TRUST, configOverrides: { badges: [
+        { icon: 'Truck', title: 'Fast Delivery', description: 'Pan-India shipping' },
+        { icon: 'ShieldCheck', title: 'Quality Checked', description: '100% genuine' },
+        { icon: 'CreditCard', title: 'Easy Payments', description: 'UPI, cards & COD' },
+        { icon: 'RefreshCw', title: 'Easy Returns', description: '7-day policy' },
+      ] } },
       { type: SECTION_TYPES.FOOTER, configOverrides: {} },
     ],
   },
@@ -126,7 +131,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     },
     defaultSections: [
       { type: SECTION_TYPES.ANNOUNCEMENT, configOverrides: { text: 'Free shipping on orders above ₹999!' } },
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'large', alignment: 'center' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'The Season, Reimagined.', subtitle: 'Ethnic heritage meets contemporary tailoring', ctaText: 'Shop New Arrivals', height: 'large', alignment: 'center' } },
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop by Collection', columns: 4, limit: 4 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Trending Now', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Summer Collection', description: 'Explore our latest seasonal styles', layout: 'center', bgColor: '#fef3c7', textColor: '#92400e' } },
@@ -164,7 +169,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
       cardStyle: 'shadow',
     },
     defaultSections: [
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'medium', alignment: 'left' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'Gadgets That Power Your Day.', subtitle: 'Phones, laptops, audio and smart-home gear', ctaText: 'Shop Electronics', height: 'medium', alignment: 'left' } },
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop by Category', columns: 4, limit: 4 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Best Sellers', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'New Arrivals', description: 'Check out the latest tech at best prices', layout: 'left', bgColor: '#eff6ff', textColor: '#1e40af' } },
@@ -208,7 +213,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     },
     defaultSections: [
       { type: SECTION_TYPES.ANNOUNCEMENT, configOverrides: { text: 'Fresh daily essentials delivered to your door!', bgColor: '#14532d', textColor: '#bbf7d0' } },
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'small', alignment: 'center' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'Fresh, Every Single Day.', subtitle: 'Farm-fresh staples and daily essentials', ctaText: 'Order Fresh', height: 'small', alignment: 'center' } },
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop by Category', columns: 6, limit: 6 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Daily Essentials', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Bulk Orders Welcome', description: 'Special prices for bulk and wholesale orders', layout: 'center', bgColor: '#dcfce7', textColor: '#166534' } },
@@ -247,7 +252,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     },
     defaultSections: [
       { type: SECTION_TYPES.ANNOUNCEMENT, configOverrides: { text: 'Flat 15% off on your first order! Use code BEAUTY15', bgColor: '#831843', textColor: '#fbcfe8' } },
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'large', alignment: 'center' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'Beauty That Cares Back.', subtitle: 'Clean formulas for every skin type', ctaText: 'Shop Skincare', height: 'large', alignment: 'center' } },
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop by Category', columns: 4, limit: 4 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Bestsellers', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.TESTIMONIALS, configOverrides: { title: 'Beauty Secrets Shared by Our Customers' } },
@@ -281,14 +286,22 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     },
     defaultSections: [
       { type: SECTION_TYPES.ANNOUNCEMENT, configOverrides: { text: 'Welcome to our online store!' } },
-      { type: SECTION_TYPES.HERO, configOverrides: { height: 'medium', alignment: 'center' } },
+      { type: SECTION_TYPES.HERO, configOverrides: { title: 'Everything Under One Roof.', subtitle: 'Daily essentials, fashion, electronics and more', ctaText: 'Shop Now', height: 'medium', alignment: 'center' } },
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop by Category', columns: 6, limit: 6 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Featured Products', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Special Offers', description: 'Check out our latest deals', layout: 'center' } },
       { type: SECTION_TYPES.ABOUT, configOverrides: { title: 'About Us', description: 'We are dedicated to bringing you the best products at great prices.', layout: 'left' } },
-      { type: SECTION_TYPES.TRUST, configOverrides: {} },
+      { type: SECTION_TYPES.TRUST, configOverrides: { badges: [
+        { icon: 'ShieldCheck', title: 'Secure Payments', description: 'UPI, cards & COD' },
+        { icon: 'Truck', title: 'Fast Shipping', description: 'Dispatched in 24h' },
+        { icon: 'RefreshCw', title: 'Easy Returns', description: '7-day policy' },
+        { icon: 'Headphones', title: 'Support 7 Days', description: 'Call or WhatsApp' },
+      ] } },
       { type: SECTION_TYPES.TESTIMONIALS, configOverrides: {} },
-      { type: SECTION_TYPES.FAQ, configOverrides: {} },
+      { type: SECTION_TYPES.FAQ, configOverrides: { title: 'Common Questions', items: [
+        { question: 'How long does delivery take?', answer: 'Orders are dispatched within 24 hours and typically arrive in 2-4 days across India.' },
+        { question: 'What payment methods do you accept?', answer: 'We accept UPI, all major cards, net banking and cash on delivery.' },
+      ] } },
       { type: SECTION_TYPES.CONTACT, configOverrides: {} },
       { type: SECTION_TYPES.FOOTER, configOverrides: {} },
     ],
@@ -323,6 +336,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Shop the Catalog', columns: 4, limit: 4, showProductCount: true } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Latest Drops', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Only XXL Left', description: 'Final call on our bestselling street edits', layout: 'right', bgColor: '#ecfccb', textColor: '#14532d', ctaText: 'Run It' } },
+      { type: SECTION_TYPES.TESTIMONIALS, configOverrides: { title: 'The Streets Rated Us' } },
       { type: SECTION_TYPES.TRUST, configOverrides: { badges: [
         { icon: 'Truck', title: 'Fast Dispatch', description: 'Shipped within 24 hours' },
         { icon: 'RefreshCw', title: '7-Day Exchange', description: 'Free size swaps' },
@@ -390,7 +404,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     preview: {
       bgColor: '#fafaf9',
       accentColor: '#c8a24a',
-      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.TESTIMONIALS, SECTION_TYPES.ABOUT, SECTION_TYPES.FOOTER],
+      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.TESTIMONIALS, SECTION_TYPES.ABOUT, SECTION_TYPES.CONTACT, SECTION_TYPES.FOOTER],
     },
     defaultTheme: {
       primaryColor: '#0a0a0a',
@@ -410,6 +424,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Private Appointments', description: 'By request in-store and online', layout: 'right', bgColor: '#e7e5e4', textColor: '#292524' } },
       { type: SECTION_TYPES.TESTIMONIALS, configOverrides: { title: 'In Their Words' } },
       { type: SECTION_TYPES.ABOUT, configOverrides: { title: 'Maison Story', description: 'Three generations of mastery in craft, design and material selection.', layout: 'right' } },
+      { type: SECTION_TYPES.CONTACT, configOverrides: { title: 'Private Consultations', showPhone: true, showEmail: true, showAddress: true } },
       { type: SECTION_TYPES.FOOTER, configOverrides: {
         showValueProps: false,
         showSocialLinks: true,
@@ -474,7 +489,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     preview: {
       bgColor: '#f5f3ff',
       accentColor: '#7c3aed',
-      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.TRUST, SECTION_TYPES.FOOTER],
+      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.TRUST, SECTION_TYPES.FAQ, SECTION_TYPES.FOOTER],
     },
     defaultTheme: {
       primaryColor: '#1e1b4b',
@@ -497,6 +512,10 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
         { icon: 'Truck', title: 'Fast Shipping', description: 'Dispatched in 24 hours' },
         { icon: 'CreditCard', title: 'Secure Checkout', description: 'UPI, cards & Khata' },
         { icon: 'RefreshCw', title: '7-Day Returns', description: 'No-questions asked' },
+      ] } },
+      { type: SECTION_TYPES.FAQ, configOverrides: { title: 'Good to Know', items: [
+        { question: 'Is the warranty valid across India?', answer: 'Yes, all products carry a 1-year brand warranty serviced nationwide.' },
+        { question: 'Do you offer exchange on damaged pieces?', answer: 'Absolutely — unused exchange within 7 days of delivery, no questions asked.' },
       ] } },
       { type: SECTION_TYPES.FOOTER, configOverrides: { valueProps: [
         { icon: 'ShieldCheck', title: 'Warranty Covered', description: '1-year standard warranty' },
@@ -635,7 +654,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
     preview: {
       bgColor: '#fff1f2',
       accentColor: '#be185d',
-      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.TRUST, SECTION_TYPES.FOOTER],
+      sections: [SECTION_TYPES.ANNOUNCEMENT, SECTION_TYPES.HERO, SECTION_TYPES.CATEGORIES, SECTION_TYPES.FEATURED_PRODUCTS, SECTION_TYPES.BANNER, SECTION_TYPES.ABOUT, SECTION_TYPES.TRUST, SECTION_TYPES.FOOTER],
     },
     defaultTheme: {
       primaryColor: '#18181b',
@@ -653,6 +672,7 @@ export const STOREFRONT_TEMPLATES: StorefrontTemplate[] = [
       { type: SECTION_TYPES.CATEGORIES, configOverrides: { title: 'Salon Essentials', columns: 4, limit: 4 } },
       { type: SECTION_TYPES.FEATURED_PRODUCTS, configOverrides: { title: 'Pro Picks', selectionMode: 'newest', limit: 8, columns: 4 } },
       { type: SECTION_TYPES.BANNER, configOverrides: { heading: 'Glow Up Set', description: 'Stage-ready kits curated by expert stylists', layout: 'center', bgColor: '#fce7f3', textColor: '#9d174d', ctaText: 'Shop the Set' } },
+      { type: SECTION_TYPES.ABOUT, configOverrides: { title: 'Pro Tools, Home Rituals', description: 'We source salon-grade tools and skin-first formulas so your daily routine feels like a spa visit — without the appointment.', layout: 'left' } },
       { type: SECTION_TYPES.TRUST, configOverrides: { badges: [
         { icon: 'ShieldCheck', title: '100% Authentic', description: 'Straight from brands' },
         { icon: 'Truck', title: 'Express Shipping', description: 'Dispatched in 24 hours' },

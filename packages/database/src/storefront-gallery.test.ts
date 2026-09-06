@@ -11,6 +11,8 @@ import {
   sortTemplates,
   isTemplateCurrent,
   buildTemplatePageConfig,
+  STOREFRONT_DEMO_IMAGE_POOLS,
+  STOREFRONT_TEMPLATE_HEROES,
 } from '@bharatstore/shared/constants';
 import {
   templateMetadataSchema,
@@ -93,6 +95,16 @@ describe('M10.x: Theme Gallery', () => {
         expect(types).toContain('hero');
         expect(types).toContain('footer');
       }
+    });
+
+    it('each template has a distinct section-type composition', () => {
+      const seen = new Set<string>();
+      for (const t of STOREFRONT_TEMPLATES) {
+        const key = getTemplateSections(t.id).map((s) => s.type).join('|');
+        expect(seen.has(key)).toBe(false);
+        seen.add(key);
+      }
+      expect(seen.size).toBe(STOREFRONT_TEMPLATES.length);
     });
   });
 
@@ -358,6 +370,68 @@ describe('M10.x: Theme Gallery', () => {
       expect(after?.draftConfig || null).toBeNull();
 
       await prisma.tenant.delete({ where: { id: tenantB.id } });
+    });
+  });
+
+  // -------------------------------------------------------
+  // Demo Preview Image Registry (offline, no network)
+  // -------------------------------------------------------
+  describe('Demo Preview Image Registry', () => {
+    it('supplies a hero image for every one of the 22 templates', () => {
+      expect(Object.keys(STOREFRONT_TEMPLATE_HEROES).length).toBe(STOREFRONT_TEMPLATES.length);
+      for (const t of STOREFRONT_TEMPLATES) {
+        expect(STOREFRONT_TEMPLATE_HEROES[t.id]).toBeTruthy();
+      }
+    });
+
+    it('all registered image URLs are deterministic Unsplash CDN links', () => {
+      const all = Object.values(STOREFRONT_TEMPLATE_HEROES)
+        .concat(
+          ...Object.values(STOREFRONT_DEMO_IMAGE_POOLS).flatMap((p) => [
+            ...p.hero, ...p.categories, ...p.products, ...p.banner, ...p.about,
+          ]),
+        );
+      expect(all.length).toBeGreaterThan(100);
+      for (const url of all) {
+        expect(url).toMatch(/^https:\/\/images\.unsplash\.com\/photo-[0-9a-f-]+\?auto=format&fit=crop&w=\d+&q=80$/);
+      }
+    });
+
+    it('every category pool is fully populated (hero, categories, products, banner, about)', () => {
+      for (const pool of Object.values(STOREFRONT_DEMO_IMAGE_POOLS)) {
+        for (const key of ['hero', 'categories', 'products', 'banner', 'about'] as const) {
+          expect(pool[key].length).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it('every template gets at least 6 category images and 8 product images', () => {
+      for (const t of STOREFRONT_TEMPLATES) {
+        const pool = STOREFRONT_DEMO_IMAGE_POOLS[t.category];
+        expect(pool, t.id).toBeDefined();
+        expect(pool.categories.length).toBeGreaterThanOrEqual(6);
+        expect(pool.products.length).toBeGreaterThanOrEqual(8);
+        expect(pool.banner.length).toBeGreaterThanOrEqual(2);
+      }
+    });
+
+    it('dedicated per-template hero never duplicates an image from its own visible pools', () => {
+      for (const t of STOREFRONT_TEMPLATES) {
+        const hero = STOREFRONT_TEMPLATE_HEROES[t.id];
+        const pool = STOREFRONT_DEMO_IMAGE_POOLS[t.category];
+        const visible = new Set([...pool.categories, ...pool.products, ...pool.banner, ...pool.about]);
+        expect(visible.has(hero), `${t.id} hero duplicates a pool image`).toBe(false);
+      }
+    });
+
+    it('template page configs remain free of demo image URLs', () => {
+      const unsafe = new Set(Object.values(STOREFRONT_TEMPLATE_HEROES));
+      for (const t of STOREFRONT_TEMPLATES) {
+        const serialized = JSON.stringify(buildTemplatePageConfig(t.id));
+        for (const url of unsafe) {
+          expect(serialized.includes(url)).toBe(false);
+        }
+      }
     });
   });
 });

@@ -5,7 +5,7 @@ import {
   type StorefrontTemplate,
   buildTemplatePageConfig,
 } from '@bharatstore/shared/constants';
-import { getDemoDataset } from '@/lib/storefront-demo-data';
+import { getDemoDataset, getPreviewDemoPayload } from '@/lib/storefront-demo-data';
 import { generateStorefrontPreviewHTML } from './preview-html';
 
 const PREVIEW_WIDTH = 1100;
@@ -41,10 +41,15 @@ export function ThemeCard({ template, isCurrent, onPreview, onUse }: ThemeCardPr
       .filter((s) => s.visible)
       .sort((a, b) => a.order - b.order);
     const demo = getDemoDataset(template.category);
+    const payload = getPreviewDemoPayload(template.category, template.id);
     const previewHtml = generateStorefrontPreviewHTML(visibleSections, config.theme, demo.store, template.id, {
-      store: demo.store,
-      categories: demo.categories,
-      products: demo.products,
+      store: payload.store,
+      categories: payload.categories,
+      products: payload.products,
+      heroImage: payload.heroImage,
+      bannerImages: payload.bannerImages,
+      aboutImage: payload.aboutImage,
+      testimonials: payload.testimonials,
     });
     return { html: previewHtml, meta: { demo } };
   }, [template.id, template.category]);

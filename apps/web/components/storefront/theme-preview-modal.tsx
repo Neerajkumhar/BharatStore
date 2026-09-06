@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, Monitor, Tablet, Smartphone } from 'lucide-react';
 import { type StorefrontTemplate, buildTemplatePageConfig } from '@bharatstore/shared/constants';
-import { getDemoDataset } from '@/lib/storefront-demo-data';
+import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
 import {
   generateStorefrontPreviewHTML,
   getPreviewViewportWidth,
@@ -30,11 +30,15 @@ export function ThemePreviewModal({ template, onClose }: ThemePreviewModalProps)
     const visibleSections = config.sections
       .filter((s) => s.visible)
       .sort((a, b) => a.order - b.order);
-    const demo = getDemoDataset(template.category);
-    return generateStorefrontPreviewHTML(visibleSections, config.theme, demo.store, template.id, {
-      store: demo.store,
-      categories: demo.categories,
-      products: demo.products,
+    const payload = getPreviewDemoPayload(template.category, template.id);
+    return generateStorefrontPreviewHTML(visibleSections, config.theme, payload.store, template.id, {
+      store: payload.store,
+      categories: payload.categories,
+      products: payload.products,
+      heroImage: payload.heroImage,
+      bannerImages: payload.bannerImages,
+      aboutImage: payload.aboutImage,
+      testimonials: payload.testimonials,
     });
   }, [template.id, template.category]);
 
