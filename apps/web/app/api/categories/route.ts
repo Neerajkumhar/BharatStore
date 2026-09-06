@@ -56,6 +56,7 @@ export async function POST(request: Request) {
 
     const category = await tenantDb.category.create({
       data: {
+        tenantId,
         name,
         slug,
         parentId: parentId || null,
