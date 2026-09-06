@@ -66,6 +66,7 @@ const navigationGroups: NavGroup[] = [
   {
     group: 'Administration',
     items: [
+      { label: 'Staff & Team RBAC', href: '/staff', icon: Users },
       { label: 'Security Center', href: '/security', icon: ShieldCheck },
       { label: 'Audit Logs', href: '/audit', icon: History },
       { label: 'Settings', href: '/settings', icon: Settings },
