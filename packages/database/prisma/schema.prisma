@@ -472,18 +472,24 @@ model Invoice {
 // -----------------------------------------------------------------------------
 
 model StorefrontTheme {
-  id           String    @id @default(uuid()) @db.Uuid
-  tenantId     String    @unique @map("tenant_id") @db.Uuid
-  themeName    String    @default("default") @map("theme_name")
-  primaryColor String    @default("#0f172a") @map("primary_color")
-  accentColor  String    @default("#d97706") @map("accent_color")
-  heroTitle    String?   @map("hero_title")
-  heroSubtitle String?   @map("hero_subtitle")
-  heroBannerUrl String?  @map("hero_banner_url")
-  logoUrl      String?   @map("logo_url")
-  publishedAt  DateTime? @map("published_at")
+  id             String    @id @default(uuid()) @db.Uuid
+  tenantId       String    @unique @map("tenant_id") @db.Uuid
+  themeName      String    @default("default") @map("theme_name")
+  primaryColor   String    @default("#0f172a") @map("primary_color")
+  accentColor    String    @default("#d97706") @map("accent_color")
+  heroTitle      String?   @map("hero_title")
+  heroSubtitle   String?   @map("hero_subtitle")
+  heroBannerUrl  String?   @map("hero_banner_url")
+  logoUrl        String?   @map("logo_url")
+  description    String?
+  businessHours  String?   @map("business_hours")
+  contactPhone   String?   @map("contact_phone")
+  contactEmail   String?   @map("contact_email")
+  socialLinks    Json?     @map("social_links")
+  isPublished    Boolean   @default(true) @map("is_published")
+  publishedAt    DateTime? @map("published_at")
 
-  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("storefront_themes")
 }

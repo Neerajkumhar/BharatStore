@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  BarChart3,
   Package,
   Layers,
   Boxes,
@@ -37,6 +38,7 @@ const navigationGroups: NavGroup[] = [
     group: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Analytics BI', href: '/analytics', icon: BarChart3, badge: 'Live' },
     ],
   },
   {
