@@ -86,7 +86,10 @@ model Tenant {
   couponRedemptions CouponRedemption[]
   auditLogs         AuditLog[]
   securityEvents    SecurityEvent[]
-  staffInvitations  StaffInvitation[]
+  staffInvitations       StaffInvitation[]
+  notifications          Notification[]
+  notificationTemplates  NotificationTemplate[]
+  notificationPreferences NotificationPreference[]
 
   @@index([slug])
   @@index([stateCode])
@@ -307,7 +310,9 @@ model Customer {
   tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   orders         Order[]
   khataRecords   KhataLedger[]
-  redemptions    CouponRedemption[]
+  redemptions            CouponRedemption[]
+  notifications          Notification[]
+  notificationPreferences NotificationPreference[]
 
   @@unique([tenantId, phone])
   @@index([tenantId])
@@ -706,3 +711,118 @@ model SecurityEvent {
   @@index([timestamp])
   @@map("security_events")
 }
+
+// -----------------------------------------------------------------------------
+// Milestone 8: Notifications & Customer Engagement
+// -----------------------------------------------------------------------------
+
+enum NotificationType {
+  ORDER_CONFIRMED
+  ORDER_PACKED
+  ORDER_DISPATCHED
+  ORDER_DELIVERED
+  PAYMENT_RECEIVED
+  KHATA_PAYMENT_DUE
+  LOW_STOCK
+  CAMPAIGN
+  COUPON
+  SYSTEM
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Notification {
+  id                String               @id @default(uuid()) @db.Uuid
+  tenantId          String               @map("tenant_id") @db.Uuid
+  customerId        String?              @map("customer_id") @db.Uuid
+  type              NotificationType
+  channel           NotificationChannel  @default(IN_APP)
+  title             String
+  message           String
+  status            NotificationStatus   @default(PENDING)
+  priority          NotificationPriority @default(NORMAL)
+  isRead            Boolean              @default(false) @map("is_read")
+  relatedEntityType String?              @map("related_entity_type")
+  relatedEntityId   String?              @map("related_entity_id")
+  scheduledAt       DateTime?            @map("scheduled_at")
+  sentAt            DateTime?            @map("sent_at")
+  deliveredAt       DateTime?            @map("delivered_at")
+  readAt            DateTime?            @map("read_at")
+  failureReason     String?              @map("failure_reason")
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+
+  tenant            Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer          Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([tenantId, customerId])
+  @@index([tenantId, type])
+  @@index([tenantId, status])
+  @@index([tenantId, isRead])
+  @@index([tenantId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationTemplate {
+  id        String              @id @default(uuid()) @db.Uuid
+  tenantId  String              @map("tenant_id") @db.Uuid
+  name      String
+  type      NotificationType
+  channel   NotificationChannel @default(IN_APP)
+  subject   String?
+  body      String
+  variables String[]            @default([])
+  isEnabled Boolean             @default(true) @map("is_enabled")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  tenant    Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([tenantId, type])
+  @@map("notification_templates")
+}
+
+model NotificationPreference {
+  id               String              @id @default(uuid()) @db.Uuid
+  tenantId         String              @map("tenant_id") @db.Uuid
+  customerId       String?             @map("customer_id") @db.Uuid
+  orderUpdates     Boolean             @default(true) @map("order_updates")
+  paymentUpdates   Boolean             @default(true) @map("payment_updates")
+  marketing        Boolean             @default(true) @map("marketing")
+  businessAlerts   Boolean             @default(true) @map("business_alerts")
+  preferredChannel NotificationChannel @default(IN_APP) @map("preferred_channel")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+
+  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer         Customer?           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, customerId])
+  @@index([tenantId])
+  @@map("notification_preferences")
+}
+

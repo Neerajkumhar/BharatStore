@@ -14,6 +14,7 @@ import {
   CreditCard,
   FileText,
   ShieldCheck,
+  Bell,
   History,
   Settings,
   Store,
@@ -67,6 +68,7 @@ const navigationGroups: NavGroup[] = [
   {
     group: 'Administration',
     items: [
+      { label: 'Notifications', href: '/notifications', icon: Bell },
       { label: 'Staff & Team RBAC', href: '/staff', icon: Users },
       { label: 'Security Center', href: '/security', icon: ShieldCheck },
       { label: 'Audit Logs', href: '/audit', icon: History },

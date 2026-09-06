@@ -226,6 +226,78 @@ export default function CustomerDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Communication & Notification History */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span>Customer Communication & Notification History</span>
+          </CardTitle>
+          <CardDescription>
+            Chronological audit of notifications, alerts, and SMS/WhatsApp messages sent to this customer
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {!customer.notifications || customer.notifications.length === 0 ? (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              No communication or notifications recorded for this customer yet.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="bg-slate-50 border-y border-slate-200 text-slate-500 uppercase tracking-wider text-2xs font-semibold">
+                  <tr>
+                    <th className="px-6 py-3">Sent Time</th>
+                    <th className="px-6 py-3">Channel & Type</th>
+                    <th className="px-6 py-3">Title & Message</th>
+                    <th className="px-6 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {customer.notifications.map((notif: any) => (
+                    <tr key={notif.id} className="hover:bg-slate-50 transition">
+                      <td className="px-6 py-3.5 font-mono text-2xs text-slate-500">
+                        {new Date(notif.createdAt).toLocaleString('en-IN', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className="font-semibold text-slate-800">{notif.channel}</span>
+                        <span className="block text-2xs text-slate-400">{notif.type}</span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className="font-bold text-slate-900 block">{notif.title}</span>
+                        <span className="text-2xs text-slate-600 font-sans">{notif.message}</span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span
+                          className={`text-2xs px-2 py-0.5 rounded-full font-semibold ${
+                            notif.status === 'DELIVERED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : notif.status === 'SENT'
+                              ? 'bg-blue-100 text-blue-800'
+                              : notif.status === 'FAILED'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {notif.status}
+                        </span>
+                        {notif.failureReason && (
+                          <span className="block text-2xs text-rose-500 mt-1 truncate max-w-[180px]">
+                            {notif.failureReason}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Payment Modal */}
       <KhataPaymentModal
         isOpen={isPaymentModalOpen}

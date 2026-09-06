@@ -59,6 +59,11 @@ export const PERMISSIONS = {
   MARKETING_READ: 'marketing:read',
   MARKETING_WRITE: 'marketing:write',
   MARKETING_MANAGE: 'marketing:manage',
+
+  // Notifications & Customer Engagement
+  NOTIFICATIONS_READ: 'notifications:read',
+  NOTIFICATIONS_WRITE: 'notifications:write',
+  NOTIFICATIONS_MANAGE: 'notifications:manage',
 } as const;
 
 export type PermissionCode = typeof PERMISSIONS[keyof typeof PERMISSIONS];
@@ -89,6 +94,9 @@ export const ROLE_PERMISSIONS: Record<SystemRole, PermissionCode[]> = {
     PERMISSIONS.MARKETING_READ,
     PERMISSIONS.MARKETING_WRITE,
     PERMISSIONS.MARKETING_MANAGE,
+    PERMISSIONS.NOTIFICATIONS_READ,
+    PERMISSIONS.NOTIFICATIONS_WRITE,
+    PERMISSIONS.NOTIFICATIONS_MANAGE,
   ],
   STAFF: [
     PERMISSIONS.PRODUCTS_READ,

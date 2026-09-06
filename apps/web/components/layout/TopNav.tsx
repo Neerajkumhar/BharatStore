@@ -107,18 +107,32 @@ export function TopNav() {
             <div className="absolute right-0 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg p-3 z-50 text-xs">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="font-bold text-slate-900">Notifications</span>
-                <span className="text-2xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-semibold">1 Alert</span>
+                <Link
+                  href="/notifications"
+                  onClick={() => setNotificationsOpen(false)}
+                  className="text-2xs text-amber-600 font-semibold hover:underline"
+                >
+                  View All
+                </Link>
               </div>
-              <div className="py-2.5 flex items-start gap-2.5">
-                <div className="h-7 w-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  ⚠️
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-800">Low Stock Alert</p>
-                  <p className="text-slate-500 text-2xs mt-0.5">
-                    Chanderi Zari Suit Set (CHAN-SUIT-MINT) has only 4 units remaining.
-                  </p>
-                  <p className="text-slate-400 text-2xs mt-1">10 minutes ago</p>
+              <div className="py-2 space-y-2 max-h-64 overflow-y-auto">
+                <div className="py-2 flex items-start gap-2.5">
+                  <div className="h-7 w-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    🔔
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">Notification Center Active</p>
+                    <p className="text-slate-500 text-2xs mt-0.5">
+                      Real-time customer engagement and order alerts configured.
+                    </p>
+                    <Link
+                      href="/notifications"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="text-amber-600 text-2xs font-semibold mt-1 inline-block"
+                    >
+                      Open Notification Dashboard →
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

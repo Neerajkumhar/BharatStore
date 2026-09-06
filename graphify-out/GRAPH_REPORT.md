@@ -1,16 +1,16 @@
 # Graph Report - BharatStore  (2026-09-06)
 
 ## Corpus Check
-- 151 files · ~101,981 words
+- 164 files · ~109,586 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 788 nodes · 1324 edges · 59 communities (46 shown, 13 thin omitted)
+- 846 nodes · 1490 edges · 59 communities (48 shown, 11 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `85bf42b5`
+- Built from commit: `29a3ede0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,7 +26,7 @@
 - scripts
 - login/route.ts
 - compilerOptions
-- onboarding/page.tsx
+- notification-engine.ts
 - shared/package.json
 - web/tsconfig.json
 - 13. Security Architecture
@@ -55,12 +55,12 @@
 - Global Constraints
 - authorization.ts
 - reports/page.tsx
-- DashboardShell.tsx
+- notifications/page.tsx
 - utils/index.ts
 - [slug]/layout.tsx
 - orders/route.ts
 - schemas/index.ts
-- campaigns/route.ts
+- marketing.ts
 - marketing/page.tsx
 - product.ts
 - staff/page.tsx
@@ -71,10 +71,10 @@
 - SettingsPage
 
 ## God Nodes (most connected - your core abstractions)
-1. `authorizeRequest()` - 74 edges
-2. `getTenantDb()` - 63 edges
-3. `prisma` - 44 edges
-4. `PERMISSIONS` - 31 edges
+1. `authorizeRequest()` - 98 edges
+2. `getTenantDb()` - 85 edges
+3. `prisma` - 50 edges
+4. `PERMISSIONS` - 40 edges
 5. `7. Screen Architecture` - 28 edges
 6. `cn()` - 24 edges
 7. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
@@ -97,11 +97,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (59 total, 13 thin omitted)
+## Communities (59 total, 11 thin omitted)
 
 ### Community 0 - "button.tsx"
-Cohesion: 0.07
-Nodes (44): sampleOrders, AnalyticsHeader(), analyticsTabs, dateRanges, CustomerModal(), CustomerModalProps, KhataPaymentModal(), KhataPaymentModalProps (+36 more)
+Cohesion: 0.05
+Nodes (52): sampleOrders, AnalyticsHeader(), analyticsTabs, dateRanges, CustomerModal(), CustomerModalProps, KhataPaymentModal(), KhataPaymentModalProps (+44 more)
 
 ### Community 1 - "schemas/auth.ts"
 Cohesion: 0.29
@@ -114,6 +114,10 @@ Nodes (30): dependencies, bcryptjs, @prisma/client, devDependencies, prisma, tsx
 ### Community 3 - "7. Screen Architecture"
 Cohesion: 0.07
 Nodes (28): 7.10 Categories (`/dashboard/categories`), 7.11 Inventory (`/dashboard/inventory`), 7.12 Inventory Details (drawer `/dashboard/inventory/[id]`), 7.13 Orders (`/dashboard/orders`), 7.14 Order Details (`/dashboard/orders/[id]`), 7.15 Customers (`/dashboard/customers`), 7.16 Customer Details (`/dashboard/customers/[id]`), 7.17 Payments (`/dashboard/payments`) (+20 more)
+
+### Community 4 - "database/src/index.ts"
+Cohesion: 0.11
+Nodes (3): POST(), prisma, TenantDb
 
 ### Community 5 - "dependencies"
 Cohesion: 0.04
@@ -138,6 +142,10 @@ Nodes (15): loginSchema, POST(), POST(), registerSchema, getJwtSecret(), SESSION
 ### Community 10 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): DOM, DOM.Iterable, ESNext, compilerOptions, allowJs, declaration, declarationMap, esModuleInterop (+11 more)
+
+### Community 11 - "notification-engine.ts"
+Cohesion: 0.09
+Nodes (23): POST(), dispatchNotification(), DispatchNotificationOptions, EmailProvider, getProviderAdapter(), InAppProvider, interpolateTemplate(), NotificationChannel (+15 more)
 
 ### Community 12 - "shared/package.json"
 Cohesion: 0.11
@@ -216,8 +224,8 @@ Cohesion: 0.22
 Nodes (8): Global Constraints, Milestone 2: Product Catalog, Variants, HSN Tax Mapping & Double-Entry Inventory Ledger Implementation Plan, Task 1: Shared Schemas & GST HSN Rate Constants, Task 2: API Endpoints for Categories & Product Catalog Management, Task 3: Double-Entry Inventory Ledger & Stock Adjustment API, Task 4: Product Catalog Management UI Pages, Task 5: Add/Edit Product & Variant Matrix Generator UI, Task 6: Double-Entry Inventory Ledger Management UI
 
 ### Community 39 - "authorizeRequest"
-Cohesion: 0.16
-Nodes (22): GET(), PUT(), GET(), POST(), GET(), GET(), GET(), DELETE() (+14 more)
+Cohesion: 0.11
+Nodes (33): GET(), PUT(), GET(), POST(), DELETE(), GET(), PUT(), GET() (+25 more)
 
 ### Community 40 - "Global Constraints"
 Cohesion: 0.20
@@ -228,12 +236,12 @@ Cohesion: 0.25
 Nodes (7): Global Constraints, Milestone 3: Omnichannel Orders, Customer Directory, Khata Ledger & Counter POS Terminal Implementation Plan, Task 1: Shared Schemas & GST Tax Calculation Engine, Task 2: API Endpoints for Omnichannel Checkout, Customers & Khata Ledger, Task 3: Customer Directory & Khata Ledger UI, Task 4: Counter POS Terminal Interface, Task 5: Omnichannel Orders & GST Invoice Management UI
 
 ### Community 42 - "authorization.ts"
-Cohesion: 0.15
-Nodes (14): GET(), GET(), DELETE(), PUT(), GET(), POST(), BusinessAlert, GET() (+6 more)
+Cohesion: 0.10
+Nodes (20): GET(), GET(), DELETE(), PUT(), GET(), POST(), BusinessAlert, GET() (+12 more)
 
-### Community 45 - "DashboardShell.tsx"
-Cohesion: 0.21
-Nodes (7): DashboardShell(), DashboardShellProps, NavGroup, navigationGroups, NavItem, Sidebar(), TopNav()
+### Community 45 - "notifications/page.tsx"
+Cohesion: 0.40
+Nodes (3): NotificationAnalytics, NotificationItem, NotificationTemplate
 
 ### Community 46 - "utils/index.ts"
 Cohesion: 0.18
@@ -251,9 +259,9 @@ Nodes (9): POST(), GET(), POST(), POST(), CartItemForCoupon, CouponValidationRes
 Cohesion: 0.19
 Nodes (7): GET(), POST(), POST(), POST(), createCustomerSchema, logKhataSchema, adjustInventorySchema
 
-### Community 50 - "campaigns/route.ts"
-Cohesion: 0.17
-Nodes (9): GET(), POST(), GET(), POST(), createCampaignSchema, createCouponSchema, updateCampaignSchema, updateCouponSchema (+1 more)
+### Community 50 - "marketing.ts"
+Cohesion: 0.33
+Nodes (5): createCampaignSchema, createCouponSchema, updateCampaignSchema, updateCouponSchema, validateCouponSchema
 
 ### Community 51 - "marketing/page.tsx"
 Cohesion: 0.40
@@ -264,23 +272,23 @@ Cohesion: 0.40
 Nodes (4): createCategorySchema, createProductSchema, updateProductSchema, variantInputSchema
 
 ## Knowledge Gaps
-- **368 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+363 more)
+- **379 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+374 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `button.tsx` to `DashboardShell.tsx`, `kpi-card.tsx`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `prisma` connect `database/src/index.ts` to `authorizeRequest`, `login/route.ts`, `authorization.ts`, `[slug]/layout.tsx`, `orders/route.ts`, `schemas/index.ts`, `campaigns/route.ts`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `BharatStore — Product & Technical Blueprint` connect `BharatStore — Product & Technical Blueprint` to `7. Screen Architecture`, `13. Security Architecture`, `15. Development Roadmap`, `6. UI/UX Design System`, `8. User Flows`, `9. Technical Architecture`, `10. Multi-Tenant Architecture`, `5. Application Navigation`, `11. Database Entity Model`, `1. Product Vision`, `12. API Architecture`, `2. User Types`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `cn()` connect `button.tsx` to `kpi-card.tsx`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+- **Why does `prisma` connect `database/src/index.ts` to `authorizeRequest`, `login/route.ts`, `authorization.ts`, `notification-engine.ts`, `[slug]/layout.tsx`, `orders/route.ts`, `schemas/index.ts`?**
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `authorizeRequest()` connect `authorizeRequest` to `database/src/index.ts`, `login/route.ts`, `authorization.ts`, `notification-engine.ts`, `utils/index.ts`, `orders/route.ts`, `schemas/index.ts`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **What connects `OverviewData`, `SalesData`, `ProductData` to the rest of the system?**
-  _368 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _379 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `button.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06964443138407288 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0547022932884494 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
 - **Should `7. Screen Architecture` be split into smaller, more focused modules?**

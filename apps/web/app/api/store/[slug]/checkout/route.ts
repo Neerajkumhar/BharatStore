@@ -198,6 +198,24 @@ export async function POST(
         },
       });
 
+      // Create Order Confirmed Notification
+      await tx.notification.create({
+        data: {
+          tenantId,
+          customerId: customer.id,
+          type: 'ORDER_CONFIRMED',
+          channel: 'IN_APP',
+          title: `Order ${orderNumber} Confirmed`,
+          message: `Thank you for your order! Your order ${orderNumber} of ₹${taxCalc.grandTotal} is confirmed.`,
+          status: 'DELIVERED',
+          priority: 'NORMAL',
+          relatedEntityType: 'order',
+          relatedEntityId: order.id,
+          sentAt: new Date(),
+          deliveredAt: new Date(),
+        },
+      });
+
       // Atomically update Coupon usage count and log redemption
       if (appliedCoupon) {
         if (appliedCoupon.usageLimit !== null) {

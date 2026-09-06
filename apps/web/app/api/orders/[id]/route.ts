@@ -69,6 +69,45 @@ export async function PUT(
       },
     });
 
+    // Trigger Notification on Status Change (Guard against duplicate notification for same status)
+    if (status && beforeState && beforeState.status !== status) {
+      const typeMap: Record<string, any> = {
+        CONFIRMED: 'ORDER_CONFIRMED',
+        PACKED: 'ORDER_PACKED',
+        DISPATCHED: 'ORDER_DISPATCHED',
+        DELIVERED: 'ORDER_DELIVERED',
+      };
+      const notifType = typeMap[status];
+
+      if (notifType) {
+        const existingNotif = await tenantDb.notification.findFirst({
+          where: {
+            relatedEntityType: 'order',
+            relatedEntityId: id,
+            type: notifType,
+          },
+        });
+
+        if (!existingNotif) {
+          const { dispatchNotification } = await import('@/lib/notification-engine');
+          await dispatchNotification({
+            tenantId: auth.tenantId,
+            customerId: updated.customerId,
+            type: notifType,
+            channel: 'IN_APP',
+            title: `Order ${updated.orderNumber} ${status.toLowerCase()}`,
+            message: `Your order ${updated.orderNumber} has been updated to ${status.toLowerCase()}.`,
+            relatedEntityType: 'order',
+            relatedEntityId: id,
+            variablesData: {
+              orderNumber: updated.orderNumber,
+              orderStatus: status,
+            },
+          });
+        }
+      }
+    }
+
     await prisma.auditLog.create({
       data: {
         tenantId: auth.tenantId,
