@@ -28,24 +28,46 @@ export function getTenantDb(tenantId: string) {
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }: any) {
-          // Verify model has tenantId field before enforcing
           const tenantModels = [
-            'Product', 'ProductVariant', 'Category', 'InventoryLedger',
+            'UserTenant', 'Role', 'Product', 'ProductVariant', 'Category', 'InventoryLedger',
             'Customer', 'KhataLedger', 'Order', 'OrderItem', 'Payment',
             'Invoice', 'StorefrontTheme', 'Coupon', 'AuditLog', 'SecurityEvent'
           ];
 
           if (tenantModels.includes(model)) {
-            if (['findMany', 'findFirst', 'findUnique', 'count', 'aggregate', 'groupBy'].includes(operation)) {
+            args = args || {};
+            const modelKey = model.charAt(0).toLowerCase() + model.slice(1);
+
+            if (operation === 'findUnique') {
+              return (prisma as any)[modelKey].findFirst({
+                ...args,
+                where: { ...args.where, tenantId },
+              });
+            }
+
+            if (operation === 'findUniqueOrThrow') {
+              return (prisma as any)[modelKey].findFirstOrThrow({
+                ...args,
+                where: { ...args.where, tenantId },
+              });
+            }
+
+            if (['findMany', 'findFirst', 'findFirstOrThrow', 'count', 'aggregate', 'groupBy'].includes(operation)) {
               args.where = { ...args.where, tenantId };
-            } else if (['create', 'createMany'].includes(operation)) {
+            } else if (['create', 'createMany', 'createManyAndReturn'].includes(operation)) {
               if (operation === 'create') {
                 args.data = { ...args.data, tenantId };
               } else if (Array.isArray(args.data)) {
                 args.data = args.data.map((item: any) => ({ ...item, tenantId }));
+              } else if (args.data) {
+                args.data = { ...args.data, tenantId };
               }
             } else if (['update', 'updateMany', 'delete', 'deleteMany'].includes(operation)) {
               args.where = { ...args.where, tenantId };
+            } else if (operation === 'upsert') {
+              args.where = { ...args.where, tenantId };
+              args.create = { ...args.create, tenantId };
+              args.update = { ...args.update, tenantId };
             }
           }
 
