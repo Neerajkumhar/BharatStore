@@ -11,8 +11,16 @@ export interface UserSessionPayload {
   role?: string;
 }
 
+const DEV_ONLY_JWT_SECRET = 'bharatstore-dev-only-fallback-secret-never-use-in-production';
+
 function getJwtSecret(): Uint8Array {
-  const secretKey = process.env.JWT_SECRET || 'bharatstore-vedic-industrial-secret-key-change-in-prod-2026';
+  const secretKey = process.env.JWT_SECRET;
+  if (!secretKey) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET is not configured. Refusing to sign/verify sessions with a fallback secret in production.');
+    }
+    return new TextEncoder().encode(DEV_ONLY_JWT_SECRET);
+  }
   return new TextEncoder().encode(secretKey);
 }
 
