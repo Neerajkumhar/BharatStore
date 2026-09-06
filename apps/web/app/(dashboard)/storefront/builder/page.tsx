@@ -6,8 +6,7 @@ import { BuilderToolbar } from '@/components/builder/builder-toolbar';
 import { BuilderSidebar } from '@/components/builder/builder-sidebar';
 import { BuilderCanvas } from '@/components/builder/builder-canvas';
 import { BuilderSettings } from '@/components/builder/builder-settings';
-import { TemplateSelector } from '@/components/builder/template-selector';
-import { createDefaultSection, type SectionType, getTemplateSections } from '@bharatstore/shared/constants';
+import { createDefaultSection, type SectionType } from '@bharatstore/shared/constants';
 
 interface SectionItem {
   id: string;
@@ -38,7 +37,6 @@ export default function StorefrontBuilderPage() {
   const [hasPublished, setHasPublished] = useState(false);
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showTheme, setShowTheme] = useState(false);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [storeData, setStoreData] = useState<any>(null);
   const [slug, setSlug] = useState('');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -195,17 +193,6 @@ export default function StorefrontBuilderPage() {
     }
   }, [handleSave]);
 
-  const handleTemplateSelect = useCallback(async (templateId: string) => {
-    const sections = getTemplateSections(templateId);
-    const template = (await import('@bharatstore/shared/constants')).getTemplateById(templateId);
-    setBuilderState({
-      sections,
-      theme: template?.defaultTheme || {},
-      seo: {},
-      templateId,
-    });
-  }, []);
-
   const handlePreview = useCallback(() => {
     if (slug) {
       window.open(`/store/${slug}`, '_blank');
@@ -269,7 +256,10 @@ export default function StorefrontBuilderPage() {
 
       <div className="bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-between text-2xs text-slate-400">
         <div className="flex items-center gap-4">
-          <button onClick={() => setShowTemplateSelector(true)} className="font-semibold text-amber-600 hover:underline">
+          <button
+            onClick={() => router.push('/storefront/themes')}
+            className="font-semibold text-amber-600 hover:underline"
+          >
             Change Template
           </button>
           <button onClick={() => {
@@ -290,13 +280,6 @@ export default function StorefrontBuilderPage() {
           {builderState.sections.length} sections | {builderState.sections.filter((s) => s.visible).length} visible
         </div>
       </div>
-
-      <TemplateSelector
-        isOpen={showTemplateSelector}
-        onClose={() => setShowTemplateSelector(false)}
-        onSelect={handleTemplateSelect}
-        currentTemplateId={builderState.templateId}
-      />
     </div>
   );
 }

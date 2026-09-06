@@ -183,6 +183,29 @@ export const templateSelectSchema = z.object({
   confirmReplace: z.boolean().default(false),
 });
 
+// Theme Gallery template metadata
+export const templateCategorySchema = z.enum(['general', 'fashion', 'electronics', 'grocery', 'beauty', 'food', 'home']);
+export const templateStyleSchema = z.enum(['minimal', 'modern', 'editorial', 'classic', 'playful']);
+export const templateLayoutSchema = z.enum(['centered', 'left-aligned', 'full', 'compact']);
+
+export const templateMetadataSchema = z.object({
+  id: z.string().min(1).max(60),
+  name: z.string().min(1).max(100),
+  description: z.string().min(1).max(300),
+  category: templateCategorySchema,
+  style: templateStyleSchema,
+  layout: templateLayoutSchema,
+  tags: z.array(z.string().min(1).max(30)).max(12).default([]),
+  featured: z.boolean().optional().nullable(),
+  popular: z.boolean().optional().nullable(),
+  isNew: z.boolean().optional().nullable(),
+});
+
+// Apply-theme request
+export const applyThemeRequestSchema = z.object({
+  templateId: z.string().trim().min(1, 'Template ID is required'),
+});
+
 // Section config validator by type
 export function validateSectionConfig(type: string, config: Record<string, unknown>) {
   const schemas: Record<string, z.ZodType> = {

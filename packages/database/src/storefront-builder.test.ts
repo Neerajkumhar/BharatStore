@@ -109,8 +109,9 @@ describe('M10: No-Code Storefront Builder', () => {
   // Template System Tests
   // -------------------------------------------------------
   describe('Template System', () => {
-    it('defines 6 templates', () => {
-      expect(STOREFRONT_TEMPLATES).toHaveLength(6);
+    it('defines the full theme gallery library', () => {
+      expect(STOREFRONT_TEMPLATES.length).toBeGreaterThanOrEqual(18);
+      expect(STOREFRONT_TEMPLATES).toHaveLength(22);
     });
 
     it('has all required template fields', () => {
@@ -133,7 +134,7 @@ describe('M10: No-Code Storefront Builder', () => {
     it('getTemplateById returns correct template', () => {
       const fashion = getTemplateById('fashion');
       expect(fashion).toBeDefined();
-      expect(fashion?.name).toBe('Fashion');
+      expect(fashion?.name).toBe('Fashion Editorial');
       expect(fashion?.category).toBe('fashion');
     });
 

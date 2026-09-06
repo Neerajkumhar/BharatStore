@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getTenantDb, prisma } from '@bharatstore/database';
+import { getTenantDb } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
 import { pageConfigSchema } from '@bharatstore/shared/schemas';
+import { saveStorefrontDraft } from '@/lib/storefront-config';
 
 export async function GET(request: Request) {
   try {
@@ -48,36 +49,18 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Invalid configuration', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const tenantDb = getTenantDb(auth.tenantId);
-    const config = { ...parsed.data, updatedAt: new Date().toISOString() };
-
-    const theme = await tenantDb.storefrontTheme.upsert({
-      where: { tenantId: auth.tenantId },
-      create: {
-        tenantId: auth.tenantId,
-        draftConfig: config,
-      },
-      update: {
-        draftConfig: config,
-      },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        tenantId: auth.tenantId,
-        actorId: auth.userId,
-        actorEmail: auth.userEmail || 'unknown',
-        action: 'storefront:builder:update_draft',
-        resourceType: 'storefront_theme',
-        resourceId: theme.id,
-        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
-        afterState: { sectionCount: parsed.data.sections?.length || 0, templateId: parsed.data.templateId },
-      },
+    const config = await saveStorefrontDraft({
+      tenantId: auth.tenantId,
+      actorId: auth.userId,
+      actorEmail: auth.userEmail,
+      config: parsed.data,
+      auditAction: 'storefront:builder:update_draft',
+      ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
     });
 
     return NextResponse.json({
       success: true,
-      data: { draftConfig: config },
+      data: { draftConfig: config.draftConfig },
     });
   } catch (error: any) {
     console.error('Update builder config error:', error);
