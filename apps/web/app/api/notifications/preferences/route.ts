@@ -81,6 +81,13 @@ export async function POST(request: Request) {
 
     let preference;
     if (customerId) {
+      const targetCustomer = await prisma.customer.findFirst({
+        where: { id: customerId, tenantId },
+      });
+      if (!targetCustomer) {
+        return NextResponse.json({ error: 'Customer not found for this store' }, { status: 404 });
+      }
+
       preference = await prisma.notificationPreference.upsert({
         where: {
           tenantId_customerId: {

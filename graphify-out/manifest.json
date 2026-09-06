@@ -930,9 +930,9 @@
     "semantic_hash": ""
   },
   "apps/web/app/api/notifications/preferences/route.ts": {
-    "mtime": 1788684625.4588563,
-    "seen": 1788684844.6495447,
-    "ast_hash": "3fc63d64898ddddecf30f8b92a91f3f9",
+    "mtime": 1788684930.0486639,
+    "seen": 1788684967.5182393,
+    "ast_hash": "24829269ea3f515255fdd9dbd6e5a889",
     "semantic_hash": ""
   },
   "apps/web/app/api/notifications/read-all/route.ts": {
