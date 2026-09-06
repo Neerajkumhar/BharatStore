@@ -7,32 +7,66 @@ import { ShieldCheck, ArrowRight, Lock, Phone, AlertCircle, Sparkles } from 'luc
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('sunil@bharatstore.in');
-  const [password, setPassword] = useState('Bharat@2026');
+  const [identifier, setIdentifier] = useState('owner@rajeshfabrics.com');
+  const [password, setPassword] = useState('Password@123');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // Validate
-    setTimeout(() => {
-      if (identifier === 'sunil@bharatstore.in' && password === 'Bharat@2026') {
-        router.push('/dashboard');
-      } else {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: identifier, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
         setIsLoading(false);
-        setError('Invalid credentials. Use the Demo Login button below.');
+        setError(data.error || 'Invalid credentials. Use the Demo Login button below.');
+        return;
       }
-    }, 400);
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setIsLoading(false);
+      setError('An unexpected network error occurred. Please try again.');
+    }
   };
 
-  const handleDemoFill = () => {
-    setIdentifier('sunil@bharatstore.in');
-    setPassword('Bharat@2026');
+  const handleDemoFill = async () => {
+    setIdentifier('owner@rajeshfabrics.com');
+    setPassword('Password@123');
+    setIsLoading(true);
     setError(null);
-    router.push('/dashboard');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'owner@rajeshfabrics.com', password: 'Password@123' }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setIsLoading(false);
+        setError(data.error || 'Demo login failed');
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setIsLoading(false);
+      setError('An unexpected network error occurred during demo login.');
+    }
   };
 
   return (

@@ -178,14 +178,17 @@ export function TopNav() {
                 <span>Business Settings</span>
               </Link>
               <div className="border-t border-slate-100 my-1" />
-              <Link
-                href="/login"
-                onClick={() => setProfileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition font-medium"
+              <button
+                onClick={async () => {
+                  setProfileMenuOpen(false);
+                  await fetch('/api/auth/logout', { method: 'POST' });
+                  window.location.href = '/login';
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 transition font-medium text-left"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>Sign Out</span>
-              </Link>
+              </button>
             </div>
           )}
         </div>
