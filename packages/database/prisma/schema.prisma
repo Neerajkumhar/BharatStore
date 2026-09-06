@@ -27,6 +27,7 @@ model User {
   sessions      Session[]
   auditLogs     AuditLog[]
   inventoryLogs InventoryLedger[]
+  campaigns     Campaign[]
 
   @@map("users")
 }
@@ -79,7 +80,10 @@ model Tenant {
   payments          Payment[]
   invoices          Invoice[]
   storefrontTheme   StorefrontTheme?
+  campaigns         Campaign[]
+  promotionRules    PromotionRule[]
   coupons           Coupon[]
+  couponRedemptions CouponRedemption[]
   auditLogs         AuditLog[]
   securityEvents    SecurityEvent[]
   staffInvitations  StaffInvitation[]
@@ -157,7 +161,7 @@ model StaffInvitation {
 
 model Permission {
   id          String           @id @default(uuid()) @db.Uuid
-  code        String           @unique @db.VarChar(100) // e.g. "orders:create", "products:read"
+  code        String           @unique @db.VarChar(100)
   description String?
 
   roles       RolePermission[]
@@ -208,10 +212,10 @@ model Product {
   title        String
   slug         String
   description  String?
-  hsnCode      String           @map("hsn_code") @db.VarChar(10) // Indian HSN/SAC code
-  gstRate      Decimal          @map("gst_rate") @db.Decimal(5, 2) // 0, 5, 12, 18, 28
+  hsnCode      String           @map("hsn_code") @db.VarChar(10)
+  gstRate      Decimal          @map("gst_rate") @db.Decimal(5, 2)
   baseCost     Decimal          @default(0) @map("base_cost") @db.Decimal(12, 2)
-  mrp          Decimal          @map("mrp") @db.Decimal(12, 2) // Maximum Retail Price (India)
+  mrp          Decimal          @map("mrp") @db.Decimal(12, 2)
   sellingPrice Decimal          @map("selling_price") @db.Decimal(12, 2)
   isPublished  Boolean          @default(true) @map("is_published")
   images       String[]         @default([])
@@ -234,7 +238,7 @@ model ProductVariant {
   productId     String            @map("product_id") @db.Uuid
   sku           String            @db.VarChar(50)
   barcode       String?           @db.VarChar(50)
-  variantName   String            @map("variant_name") // e.g. "Red / M", "1 Kg", "Default"
+  variantName   String            @map("variant_name")
   priceOverride Decimal?          @map("price_override") @db.Decimal(12, 2)
   weightGrams   Int               @default(0) @map("weight_grams")
   currentStock  Int               @default(0) @map("current_stock")
@@ -264,10 +268,10 @@ model InventoryLedger {
   id             String             @id @default(uuid()) @db.Uuid
   tenantId       String             @map("tenant_id") @db.Uuid
   variantId      String             @map("variant_id") @db.Uuid
-  changeQuantity Int                @map("change_quantity") // +/- count
+  changeQuantity Int                @map("change_quantity")
   balanceAfter   Int                @map("balance_after")
   eventType      InventoryEventType @map("event_type")
-  referenceId    String?            @map("reference_id") // Order ID or PO number
+  referenceId    String?            @map("reference_id")
   notes          String?
   createdById    String?            @map("created_by_id") @db.Uuid
   createdAt      DateTime           @default(now()) @map("created_at")
@@ -288,21 +292,22 @@ model InventoryLedger {
 // -----------------------------------------------------------------------------
 
 model Customer {
-  id             String        @id @default(uuid()) @db.Uuid
-  tenantId       String        @map("tenant_id") @db.Uuid
+  id             String             @id @default(uuid()) @db.Uuid
+  tenantId       String             @map("tenant_id") @db.Uuid
   name           String
-  phone          String        @db.VarChar(15)
+  phone          String             @db.VarChar(15)
   email          String?
-  gstin          String?       @db.VarChar(15) // For B2B registered buyers
-  creditLimit    Decimal       @default(0) @map("credit_limit") @db.Decimal(12, 2)
-  currentBalance Decimal       @default(0) @map("current_balance") @db.Decimal(12, 2)
+  gstin          String?            @db.VarChar(15)
+  creditLimit    Decimal            @default(0) @map("credit_limit") @db.Decimal(12, 2)
+  currentBalance Decimal            @default(0) @map("current_balance") @db.Decimal(12, 2)
   notes          String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
 
-  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   orders         Order[]
   khataRecords   KhataLedger[]
+  redemptions    CouponRedemption[]
 
   @@unique([tenantId, phone])
   @@index([tenantId])
@@ -311,8 +316,8 @@ model Customer {
 }
 
 enum KhataEntryType {
-  DEBIT_CREDIT_GIVEN    // Merchant gave goods on credit (Customer owes more)
-  CREDIT_PAYMENT_RECEIVED // Customer paid cash/UPI against their outstanding balance
+  DEBIT_CREDIT_GIVEN
+  CREDIT_PAYMENT_RECEIVED
 }
 
 model KhataLedger {
@@ -323,7 +328,7 @@ model KhataLedger {
   type         KhataEntryType
   amount       Decimal        @db.Decimal(12, 2)
   balanceAfter Decimal        @map("balance_after") @db.Decimal(12, 2)
-  paymentMode  String?        @map("payment_mode") // "CASH", "UPI", "BANK_TRANSFER"
+  paymentMode  String?        @map("payment_mode")
   notes        String?
   createdAt    DateTime       @default(now()) @map("created_at")
 
@@ -364,30 +369,34 @@ enum PaymentStatus {
 }
 
 model Order {
-  id              String        @id @default(uuid()) @db.Uuid
-  tenantId        String        @map("tenant_id") @db.Uuid
-  orderNumber     String        @map("order_number") // Sequential: BS-2026-0001
-  customerId      String?       @map("customer_id") @db.Uuid
-  channel         OrderChannel  @default(STOREFRONT)
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(UNPAID) @map("payment_status")
-  subtotal        Decimal       @db.Decimal(12, 2)
-  discountTotal   Decimal       @default(0) @map("discount_total") @db.Decimal(12, 2)
-  taxTotal        Decimal       @default(0) @map("tax_total") @db.Decimal(12, 2)
-  shippingTotal   Decimal       @default(0) @map("shipping_total") @db.Decimal(12, 2)
-  grandTotal      Decimal       @map("grand_total") @db.Decimal(12, 2)
-  shippingAddress Json?         @map("shipping_address")
-  billingAddress  Json?         @map("billing_address")
+  id              String             @id @default(uuid()) @db.Uuid
+  tenantId        String             @map("tenant_id") @db.Uuid
+  orderNumber     String             @map("order_number")
+  customerId      String?            @map("customer_id") @db.Uuid
+  couponId        String?            @map("coupon_id") @db.Uuid
+  couponCode      String?            @map("coupon_code")
+  channel         OrderChannel       @default(STOREFRONT)
+  status          OrderStatus        @default(PENDING)
+  paymentStatus   PaymentStatus      @default(UNPAID) @map("payment_status")
+  subtotal        Decimal            @db.Decimal(12, 2)
+  discountTotal   Decimal            @default(0) @map("discount_total") @db.Decimal(12, 2)
+  taxTotal        Decimal            @default(0) @map("tax_total") @db.Decimal(12, 2)
+  shippingTotal   Decimal            @default(0) @map("shipping_total") @db.Decimal(12, 2)
+  grandTotal      Decimal            @map("grand_total") @db.Decimal(12, 2)
+  shippingAddress Json?              @map("shipping_address")
+  billingAddress  Json?              @map("billing_address")
   notes           String?
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer        Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  coupon          Coupon?            @relation(fields: [couponId], references: [id], onDelete: SetNull)
   items           OrderItem[]
   payments        Payment[]
   invoices        Invoice[]
   khataRecords    KhataLedger[]
+  redemptions     CouponRedemption[]
 
   @@unique([tenantId, orderNumber])
   @@index([tenantId])
@@ -464,21 +473,21 @@ model Payment {
 // -----------------------------------------------------------------------------
 
 enum InvoiceType {
-  TAX_INVOICE     // Regular GST invoice
-  BILL_OF_SUPPLY  // Composition scheme or exempt goods
-  CREDIT_NOTE     // Return / Refund adjustment
+  TAX_INVOICE
+  BILL_OF_SUPPLY
+  CREDIT_NOTE
 }
 
 model Invoice {
   id             String      @id @default(uuid()) @db.Uuid
   tenantId       String      @map("tenant_id") @db.Uuid
   orderId        String      @map("order_id") @db.Uuid
-  invoiceNumber  String      @map("invoice_number") // Sequential: INV-2026-0001
+  invoiceNumber  String      @map("invoice_number")
   invoiceType    InvoiceType @default(TAX_INVOICE) @map("invoice_type")
   invoiceDate    DateTime    @default(now()) @map("invoice_date")
   supplierGstin  String      @map("supplier_gstin") @db.VarChar(15)
   recipientGstin String?     @map("recipient_gstin") @db.VarChar(15)
-  placeOfSupply  String      @map("place_of_supply") @db.VarChar(2) // 2-digit Indian State code
+  placeOfSupply  String      @map("place_of_supply") @db.VarChar(2)
   totalCgst      Decimal     @default(0) @map("total_cgst") @db.Decimal(12, 2)
   totalSgst      Decimal     @default(0) @map("total_sgst") @db.Decimal(12, 2)
   totalIgst      Decimal     @default(0) @map("total_igst") @db.Decimal(12, 2)
@@ -496,7 +505,7 @@ model Invoice {
 }
 
 // -----------------------------------------------------------------------------
-// Storefront Themes & Marketing
+// Storefront Themes & Marketing / Promotions Engine
 // -----------------------------------------------------------------------------
 
 model StorefrontTheme {
@@ -522,31 +531,131 @@ model StorefrontTheme {
   @@map("storefront_themes")
 }
 
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum PromotionTarget {
+  ALL_PRODUCTS
+  SELECTED_PRODUCTS
+  SELECTED_CATEGORIES
+}
+
 enum DiscountType {
   PERCENTAGE
   FLAT_AMOUNT
 }
 
-model Coupon {
-  id            String       @id @default(uuid()) @db.Uuid
-  tenantId      String       @map("tenant_id") @db.Uuid
-  code          String       @db.VarChar(30)
-  discountType  DiscountType @map("discount_type")
-  discountValue Decimal      @map("discount_value") @db.Decimal(10, 2)
-  minOrderValue Decimal      @default(0) @map("min_order_value") @db.Decimal(10, 2)
-  maxDiscount   Decimal?     @map("max_discount") @db.Decimal(10, 2)
-  validFrom     DateTime     @map("valid_from")
-  validUntil    DateTime     @map("valid_until")
-  usageLimit    Int?         @map("usage_limit")
-  usageCount    Int          @default(0) @map("usage_count")
-  isActive      Boolean      @default(true) @map("is_active")
-  createdAt     DateTime     @default(now()) @map("created_at")
+model Campaign {
+  id          String         @id @default(uuid()) @db.Uuid
+  tenantId    String         @map("tenant_id") @db.Uuid
+  name        String
+  description String?
+  status      CampaignStatus @default(DRAFT)
+  startAt     DateTime       @map("start_at")
+  endAt       DateTime       @map("end_at")
+  budget      Decimal?       @db.Decimal(12, 2)
+  usageLimit  Int?           @map("usage_limit")
+  usageCount  Int            @default(0) @map("usage_count")
+  createdById String?        @map("created_by_id") @db.Uuid
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
 
-  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy   User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  promotions  PromotionRule[]
+  coupons     Coupon[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("campaigns")
+}
+
+model PromotionRule {
+  id               String          @id @default(uuid()) @db.Uuid
+  tenantId         String          @map("tenant_id") @db.Uuid
+  campaignId       String?         @map("campaign_id") @db.Uuid
+  name             String
+  discountType     DiscountType    @map("discount_type")
+  discountValue    Decimal         @map("discount_value") @db.Decimal(10, 2)
+  targetType       PromotionTarget @default(ALL_PRODUCTS) @map("target_type")
+  targetIds        String[]        @default([]) @map("target_ids")
+  minOrderValue    Decimal         @default(0) @map("min_order_value") @db.Decimal(10, 2)
+  maxDiscount      Decimal?        @map("max_discount") @db.Decimal(10, 2)
+  startAt          DateTime?       @map("start_at")
+  endAt            DateTime?       @map("end_at")
+  usageLimit       Int?            @map("usage_limit")
+  usageCount       Int             @default(0) @map("usage_count")
+  perCustomerLimit Int?            @map("per_customer_limit")
+  isActive         Boolean         @default(true) @map("is_active")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  tenant           Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign         Campaign?       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  coupons          Coupon[]
+
+  @@index([tenantId])
+  @@index([campaignId])
+  @@map("promotion_rules")
+}
+
+model Coupon {
+  id               String             @id @default(uuid()) @db.Uuid
+  tenantId         String             @map("tenant_id") @db.Uuid
+  campaignId       String?            @map("campaign_id") @db.Uuid
+  promotionRuleId  String?            @map("promotion_rule_id") @db.Uuid
+  code             String             @db.VarChar(30)
+  discountType     DiscountType       @map("discount_type")
+  discountValue    Decimal            @map("discount_value") @db.Decimal(10, 2)
+  targetType       PromotionTarget    @default(ALL_PRODUCTS) @map("target_type")
+  targetIds        String[]           @default([]) @map("target_ids")
+  minOrderValue    Decimal            @default(0) @map("min_order_value") @db.Decimal(10, 2)
+  maxDiscount      Decimal?           @map("max_discount") @db.Decimal(10, 2)
+  validFrom        DateTime           @map("valid_from")
+  validUntil       DateTime           @map("valid_until")
+  usageLimit       Int?               @map("usage_limit")
+  usageCount       Int                @default(0) @map("usage_count")
+  perCustomerLimit Int?               @map("per_customer_limit")
+  isActive         Boolean            @default(true) @map("is_active")
+  createdAt        DateTime           @default(now()) @map("created_at")
+
+  tenant           Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign         Campaign?          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  promotionRule    PromotionRule?     @relation(fields: [promotionRuleId], references: [id], onDelete: SetNull)
+  redemptions      CouponRedemption[]
+  orders           Order[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
+  @@index([tenantId, isActive])
   @@map("coupons")
+}
+
+model CouponRedemption {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  couponId       String   @map("coupon_id") @db.Uuid
+  orderId        String   @map("order_id") @db.Uuid
+  customerId     String?  @map("customer_id") @db.Uuid
+  customerPhone  String?  @map("customer_phone") @db.VarChar(15)
+  discountAmount Decimal  @map("discount_amount") @db.Decimal(12, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  coupon         Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([tenantId, couponId])
+  @@index([tenantId, couponId, customerId])
+  @@index([tenantId, couponId, customerPhone])
+  @@map("coupon_redemptions")
 }
 
 // -----------------------------------------------------------------------------
@@ -558,7 +667,7 @@ model AuditLog {
   tenantId     String   @map("tenant_id") @db.Uuid
   actorId      String?  @map("actor_id") @db.Uuid
   actorEmail   String?  @map("actor_email")
-  action       String   @db.VarChar(100) // e.g. "product:price_change", "order:refund"
+  action       String   @db.VarChar(100)
   resourceType String   @map("resource_type") @db.VarChar(50)
   resourceId   String   @map("resource_id")
   ipAddress    String?  @map("ip_address") @db.VarChar(45)
@@ -585,7 +694,7 @@ enum SecuritySeverity {
 model SecurityEvent {
   id        String           @id @default(uuid()) @db.Uuid
   tenantId  String?          @map("tenant_id") @db.Uuid
-  eventType String           @map("event_type") @db.VarChar(50) // e.g. "BRUTE_FORCE_LOGIN", "CROSS_TENANT_ATTEMPT"
+  eventType String           @map("event_type") @db.VarChar(50)
   severity  SecuritySeverity @default(LOW)
   ipAddress String?          @map("ip_address") @db.VarChar(45)
   details   Json?

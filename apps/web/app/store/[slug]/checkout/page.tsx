@@ -12,7 +12,8 @@ import {
   Lock,
   ArrowRight,
   ShieldCheck,
-  Building2,
+  Tag,
+  XCircle,
 } from 'lucide-react';
 import { useCart } from '@/components/storefront/cart-context';
 
@@ -46,6 +47,14 @@ export default function StorefrontCheckoutPage({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
   const [form, setForm] = useState({
     customerName: '',
     customerPhone: '',
@@ -64,6 +73,54 @@ export default function StorefrontCheckoutPage({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    setValidatingCoupon(true);
+    setCouponError('');
+    setCouponSuccess('');
+
+    try {
+      const res = await fetch('/api/marketing/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          tenantSlug: slug,
+          customerPhone: form.customerPhone,
+          items: items.map((i) => ({
+            variantId: i.variantId,
+            quantity: i.quantity,
+          })),
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.valid) {
+        throw new Error(json.reason || 'Invalid coupon code');
+      }
+
+      setAppliedCoupon(json.coupon);
+      setDiscountAmount(json.discountAmount);
+      setCouponSuccess(`Coupon "${json.coupon.code}" applied! You saved ₹${json.discountAmount}`);
+    } catch (err: any) {
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
+      setCouponError(err.message || 'Failed to apply coupon');
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode('');
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    setCouponError('');
+    setCouponSuccess('');
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
@@ -80,6 +137,7 @@ export default function StorefrontCheckoutPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
           items: items.map((item) => ({
             variantId: item.variantId,
             quantity: item.quantity,
@@ -121,6 +179,8 @@ export default function StorefrontCheckoutPage({
       </div>
     );
   }
+
+  const finalPayable = Math.max(0, totalAmount - discountAmount);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -351,7 +411,7 @@ export default function StorefrontCheckoutPage({
             </div>
 
             {/* Items List */}
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1 divide-y divide-slate-100">
+            <div className="space-y-3 max-h-52 overflow-y-auto pr-1 divide-y divide-slate-100">
               {items.map((item) => (
                 <div key={item.variantId} className="pt-2 flex items-center justify-between text-xs">
                   <div>
@@ -365,12 +425,60 @@ export default function StorefrontCheckoutPage({
               ))}
             </div>
 
+            {/* Coupon Promo Box */}
+            <div className="pt-3 border-t border-slate-100 space-y-2">
+              <label className="block text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Tag className="h-3.5 w-3.5 text-amber-500" />
+                <span>Promo Coupon Code</span>
+              </label>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="ENTER CODE"
+                  disabled={Boolean(appliedCoupon)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                />
+                {appliedCoupon ? (
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="px-3 py-2 bg-rose-50 text-rose-700 rounded-xl text-xs font-bold hover:bg-rose-100 border border-rose-200 transition shrink-0"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={validatingCoupon || !couponCode.trim()}
+                    className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition disabled:opacity-50 shrink-0"
+                  >
+                    {validatingCoupon ? '...' : 'Apply'}
+                  </button>
+                )}
+              </div>
+
+              {couponError && <p className="text-2xs font-bold text-rose-600">{couponError}</p>}
+              {couponSuccess && <p className="text-2xs font-bold text-emerald-600">{couponSuccess}</p>}
+            </div>
+
             {/* Price Calculations */}
             <div className="pt-4 border-t border-slate-200 space-y-2 text-xs">
               <div className="flex items-center justify-between text-slate-600">
-                <span>Subtotal</span>
+                <span>Gross Subtotal</span>
                 <span className="font-semibold text-slate-900">₹{totalAmount.toLocaleString('en-IN')}</span>
               </div>
+
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded-lg">
+                  <span>Discount ({appliedCoupon?.code})</span>
+                  <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-slate-600">
                 <span>Estimated GST Tax</span>
                 <span className="font-semibold text-slate-900">Calculated on Server</span>
@@ -379,9 +487,10 @@ export default function StorefrontCheckoutPage({
                 <span>Store Delivery</span>
                 <span className="text-emerald-700 font-semibold text-2xs">FREE</span>
               </div>
+
               <div className="flex items-center justify-between text-sm font-extrabold text-slate-900 pt-3 border-t border-slate-200">
                 <span>Total Amount Payable</span>
-                <span className="text-amber-600 text-lg">₹{totalAmount.toLocaleString('en-IN')}</span>
+                <span className="text-amber-600 text-lg">₹{finalPayable.toLocaleString('en-IN')}</span>
               </div>
             </div>
 

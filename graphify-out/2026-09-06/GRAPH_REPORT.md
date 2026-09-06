@@ -1,16 +1,16 @@
 # Graph Report - BharatStore  (2026-09-06)
 
 ## Corpus Check
-- 140 files · ~92,007 words
+- 141 files · ~93,429 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 772 nodes · 1158 edges · 60 communities (47 shown, 13 thin omitted)
+- 754 nodes · 1214 edges · 50 communities (39 shown, 11 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `982724b5`
+- Built from commit: `fba3833d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,14 +19,14 @@
 - schemas/auth.ts
 - scripts
 - 7. Screen Architecture
-- database/src/index.ts
+- authorizeRequest
 - dependencies
 - 3.1 Detailed Module Breakdown (18 Core Modules)
 - BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core
 - scripts
-- prisma
+- login/route.ts
 - compilerOptions
-- getAnalyticsDateRange
+- onboarding/page.tsx
 - shared/package.json
 - web/tsconfig.json
 - 13. Security Architecture
@@ -50,63 +50,53 @@
 - next-env.d.ts
 - kpi-card.tsx
 - Global Constraints
-- api/categories/route.ts
 - Global Constraints
 - Global Constraints
-- api/products/route.ts
 - reports/page.tsx
 - DashboardShell.tsx
-- analytics-header.tsx
 - [slug]/layout.tsx
-- getTenantDb
-- orders/route.ts
-- overview/route.ts
-- alerts/route.ts
-- schemas/index.ts
 - staff/page.tsx
-- customers/[id]/route.ts
-- ledger/route.ts
 - StorefrontSettingsPage
 - audit/page.tsx
 - security/page.tsx
 - SettingsPage
 
 ## God Nodes (most connected - your core abstractions)
-1. `getTenantDb()` - 48 edges
-2. `prisma` - 46 edges
-3. `7. Screen Architecture` - 28 edges
-4. `cn()` - 24 edges
-5. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
-6. `Button` - 19 edges
-7. `3.1 Detailed Module Breakdown (18 Core Modules)` - 19 edges
-8. `BharatStore — Product & Technical Blueprint` - 18 edges
-9. `compilerOptions` - 16 edges
-10. `BharatStore — Master Product & Technical Blueprint` - 16 edges
+1. `authorizeRequest()` - 58 edges
+2. `getTenantDb()` - 48 edges
+3. `prisma` - 37 edges
+4. `7. Screen Architecture` - 28 edges
+5. `PERMISSIONS` - 26 edges
+6. `cn()` - 24 edges
+7. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
+8. `Button` - 19 edges
+9. `3.1 Detailed Module Breakdown (18 Core Modules)` - 19 edges
+10. `BharatStore — Product & Technical Blueprint` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `POST()` --calls--> `calculateGstTaxSplit()`  [EXTRACTED]
+  apps/web/app/api/store/[slug]/checkout/route.ts → packages/shared/src/utils/tax.ts
+- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/route.ts → packages/database/src/client.ts
+- `PUT()` --calls--> `getTenantDb()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/route.ts → packages/database/src/client.ts
 - `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
   apps/web/app/api/analytics/alerts/route.ts → packages/database/src/client.ts
 - `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
   apps/web/app/api/analytics/customers/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/inventory/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/khata/route.ts → packages/database/src/client.ts
-- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/overview/route.ts → packages/database/src/client.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (60 total, 13 thin omitted)
+## Communities (50 total, 11 thin omitted)
 
 ### Community 0 - "button.tsx"
-Cohesion: 0.08
-Nodes (41): sampleOrders, CustomerModal(), CustomerModalProps, KhataPaymentModal(), KhataPaymentModalProps, StockAdjustModal(), StockAdjustModalProps, CartItem (+33 more)
+Cohesion: 0.07
+Nodes (44): sampleOrders, AnalyticsHeader(), analyticsTabs, dateRanges, CustomerModal(), CustomerModalProps, KhataPaymentModal(), KhataPaymentModalProps (+36 more)
 
 ### Community 1 - "schemas/auth.ts"
-Cohesion: 0.17
-Nodes (9): getActiveTenantId(), POST(), LoginInput, LoginSchema, OnboardBusinessInput, OnboardBusinessSchema, RegisterInput, RegisterSchema (+1 more)
+Cohesion: 0.29
+Nodes (6): LoginInput, LoginSchema, OnboardBusinessInput, OnboardBusinessSchema, RegisterInput, RegisterSchema
 
 ### Community 2 - "scripts"
 Cohesion: 0.06
@@ -116,9 +106,9 @@ Nodes (30): dependencies, bcryptjs, @prisma/client, devDependencies, prisma, tsx
 Cohesion: 0.07
 Nodes (28): 7.10 Categories (`/dashboard/categories`), 7.11 Inventory (`/dashboard/inventory`), 7.12 Inventory Details (drawer `/dashboard/inventory/[id]`), 7.13 Orders (`/dashboard/orders`), 7.14 Order Details (`/dashboard/orders/[id]`), 7.15 Customers (`/dashboard/customers`), 7.16 Customer Details (`/dashboard/customers/[id]`), 7.17 Payments (`/dashboard/payments`) (+20 more)
 
-### Community 4 - "database/src/index.ts"
-Cohesion: 0.06
-Nodes (29): GET(), GET(), DELETE(), PUT(), GET(), POST(), loginSchema, POST() (+21 more)
+### Community 4 - "authorizeRequest"
+Cohesion: 0.05
+Nodes (59): GET(), GET(), DELETE(), PUT(), GET(), POST(), GET(), PUT() (+51 more)
 
 ### Community 5 - "dependencies"
 Cohesion: 0.04
@@ -136,13 +126,13 @@ Nodes (24): BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant
 Cohesion: 0.08
 Nodes (24): dependencies, bcryptjs, devDependencies, typescript, bcryptjs, typescript, name, private (+16 more)
 
+### Community 9 - "login/route.ts"
+Cohesion: 0.18
+Nodes (15): loginSchema, POST(), POST(), registerSchema, getJwtSecret(), SESSION_COOKIE_NAME, signJWT(), UserSessionPayload (+7 more)
+
 ### Community 10 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): DOM, DOM.Iterable, ESNext, compilerOptions, allowJs, declaration, declarationMap, esModuleInterop (+11 more)
-
-### Community 11 - "getAnalyticsDateRange"
-Cohesion: 0.16
-Nodes (14): GET(), getActiveTenantId(), GET(), getActiveTenantId(), GET(), getActiveTenantId(), GET(), getActiveTenantId() (+6 more)
 
 ### Community 12 - "shared/package.json"
 Cohesion: 0.11
@@ -220,10 +210,6 @@ Nodes (17): CustomersContent(), InventoryContent(), KhataContent(), OverviewData
 Cohesion: 0.22
 Nodes (8): Global Constraints, Milestone 2: Product Catalog, Variants, HSN Tax Mapping & Double-Entry Inventory Ledger Implementation Plan, Task 1: Shared Schemas & GST HSN Rate Constants, Task 2: API Endpoints for Categories & Product Catalog Management, Task 3: Double-Entry Inventory Ledger & Stock Adjustment API, Task 4: Product Catalog Management UI Pages, Task 5: Add/Edit Product & Variant Matrix Generator UI, Task 6: Double-Entry Inventory Ledger Management UI
 
-### Community 39 - "api/categories/route.ts"
-Cohesion: 0.28
-Nodes (7): GET(), getActiveTenantId(), POST(), createCategorySchema, createProductSchema, updateProductSchema, variantInputSchema
-
 ### Community 40 - "Global Constraints"
 Cohesion: 0.20
 Nodes (9): Global Constraints, Milestone 4: Business Analytics & Intelligence Implementation Plan, Task 1: Date Range & Timezone Analytics Utilities & Unit Tests, Task 2: Server-Side Analytics Aggregation REST APIs, Task 3: Analytics Layout & Header Date Filter Controls, Task 4: Analytics Overview & Business Alerts UI, Task 5: Sales, Product & Category Analytics Views, Task 6: Customer, Inventory, Payments & Khata Analytics Views (+1 more)
@@ -232,60 +218,32 @@ Nodes (9): Global Constraints, Milestone 4: Business Analytics & Intelligence Im
 Cohesion: 0.25
 Nodes (7): Global Constraints, Milestone 3: Omnichannel Orders, Customer Directory, Khata Ledger & Counter POS Terminal Implementation Plan, Task 1: Shared Schemas & GST Tax Calculation Engine, Task 2: API Endpoints for Omnichannel Checkout, Customers & Khata Ledger, Task 3: Customer Directory & Khata Ledger UI, Task 4: Counter POS Terminal Interface, Task 5: Omnichannel Orders & GST Invoice Management UI
 
-### Community 42 - "api/products/route.ts"
-Cohesion: 0.83
-Nodes (3): GET(), getActiveTenantId(), POST()
-
 ### Community 45 - "DashboardShell.tsx"
 Cohesion: 0.21
 Nodes (7): DashboardShell(), DashboardShellProps, NavGroup, navigationGroups, NavItem, Sidebar(), TopNav()
-
-### Community 46 - "analytics-header.tsx"
-Cohesion: 0.40
-Nodes (3): AnalyticsHeader(), analyticsTabs, dateRanges
 
 ### Community 47 - "[slug]/layout.tsx"
 Cohesion: 0.11
 Nodes (16): indianStates, StorefrontCheckoutPage(), CartContext, CartContextType, CartItem, CartProvider(), useCart(), CartDrawer() (+8 more)
 
-### Community 48 - "getTenantDb"
-Cohesion: 0.30
-Nodes (11): GET(), getActiveTenantId(), PUT(), GET(), getActiveTenantId(), PUT(), DELETE(), GET() (+3 more)
-
-### Community 49 - "orders/route.ts"
-Cohesion: 0.29
-Nodes (7): GET(), getActiveTenant(), POST(), POST(), createOrderSchema, orderItemInputSchema, calculateGstTaxSplit()
-
-### Community 50 - "overview/route.ts"
-Cohesion: 0.47
-Nodes (4): GET(), getActiveTenantId(), calculatePercentageChange(), DateRangeResult
-
-### Community 51 - "alerts/route.ts"
-Cohesion: 0.67
-Nodes (3): BusinessAlert, GET(), getActiveTenantId()
-
-### Community 52 - "schemas/index.ts"
-Cohesion: 0.24
-Nodes (7): GET(), getActiveTenantId(), POST(), getActiveTenantId(), POST(), createCustomerSchema, logKhataSchema
-
 ## Knowledge Gaps
-- **365 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+360 more)
+- **364 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+359 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `prisma` connect `prisma` to `schemas/auth.ts`, `database/src/index.ts`, `api/categories/route.ts`, `api/products/route.ts`, `getAnalyticsDateRange`, `[slug]/layout.tsx`, `getTenantDb`, `orders/route.ts`, `overview/route.ts`, `alerts/route.ts`, `schemas/index.ts`, `customers/[id]/route.ts`, `ledger/route.ts`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `cn()` connect `button.tsx` to `DashboardShell.tsx`, `kpi-card.tsx`, `analytics-header.tsx`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
-- **Why does `getTenantDb()` connect `getTenantDb` to `database/src/index.ts`, `api/categories/route.ts`, `prisma`, `api/products/route.ts`, `getAnalyticsDateRange`, `orders/route.ts`, `overview/route.ts`, `alerts/route.ts`, `schemas/index.ts`, `customers/[id]/route.ts`, `ledger/route.ts`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `cn()` connect `button.tsx` to `DashboardShell.tsx`, `kpi-card.tsx`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `prisma` connect `authorizeRequest` to `login/route.ts`, `[slug]/layout.tsx`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `BharatStore — Product & Technical Blueprint` connect `BharatStore — Product & Technical Blueprint` to `7. Screen Architecture`, `13. Security Architecture`, `15. Development Roadmap`, `6. UI/UX Design System`, `8. User Flows`, `9. Technical Architecture`, `10. Multi-Tenant Architecture`, `5. Application Navigation`, `11. Database Entity Model`, `1. Product Vision`, `12. API Architecture`, `2. User Types`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **What connects `OverviewData`, `SalesData`, `ProductData` to the rest of the system?**
-  _365 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _364 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `button.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07792207792207792 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06964443138407288 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
 - **Should `7. Screen Architecture` be split into smaller, more focused modules?**

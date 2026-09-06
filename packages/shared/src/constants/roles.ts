@@ -56,6 +56,8 @@ export const PERMISSIONS = {
 
   // Storefront & Marketing
   STOREFRONT_MANAGE: 'storefront:manage',
+  MARKETING_READ: 'marketing:read',
+  MARKETING_WRITE: 'marketing:write',
   MARKETING_MANAGE: 'marketing:manage',
 } as const;
 
@@ -84,6 +86,8 @@ export const ROLE_PERMISSIONS: Record<SystemRole, PermissionCode[]> = {
     PERMISSIONS.INVOICES_PRINT,
     PERMISSIONS.INVOICES_CREATE,
     PERMISSIONS.STOREFRONT_MANAGE,
+    PERMISSIONS.MARKETING_READ,
+    PERMISSIONS.MARKETING_WRITE,
     PERMISSIONS.MARKETING_MANAGE,
   ],
   STAFF: [

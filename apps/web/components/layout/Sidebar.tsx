@@ -47,6 +47,7 @@ const navigationGroups: NavGroup[] = [
       { label: 'Products', href: '/products', icon: Package },
       { label: 'Inventory', href: '/inventory', icon: Boxes, badge: '1 Alert' },
       { label: 'Orders', href: '/orders', icon: ShoppingCart, badge: '1' },
+      { label: 'Marketing & Promo', href: '/marketing', icon: Layers },
       { label: 'Customers & Khata', href: '/customers', icon: Users },
     ],
   },

@@ -4,6 +4,7 @@ import { createOrderSchema } from '@bharatstore/shared/schemas';
 import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
+import { validateCouponForCart } from '@/lib/marketing-engine';
 
 export async function GET(request: Request) {
   try {
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
     }
 
     const { customerId, channel, items, paymentMethod, notes, placeOfSupply } = parsed.data;
+    const couponCode = body.couponCode;
 
     // Execute atomic order transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -111,10 +113,61 @@ export async function POST(request: Request) {
         };
       });
 
-      // 3. Compute tax totals via calculation engine
-      const taxCalc = calculateGstTaxSplit(itemDetails, tenant.stateCode, placeOfSupply || tenant.stateCode);
+      // 3. Coupon validation & discount calculation
+      let discountTotal = 0;
+      let appliedCoupon: any = null;
+      let discountedItems = itemDetails;
 
-      // 4. Generate sequential IDs
+      if (couponCode && typeof couponCode === 'string' && couponCode.trim().length > 0) {
+        const customer = customerId ? await tx.customer.findUnique({ where: { id: customerId } }) : null;
+        const cartItemsForCoupon = itemDetails.map((detail) => ({
+          variantId: detail.variant.id,
+          productId: detail.variant.productId,
+          categoryId: detail.variant.product.categoryId,
+          title: detail.variant.product.title,
+          quantity: detail.quantity,
+          unitPrice: detail.unitPrice,
+        }));
+
+        const couponValidation = await validateCouponForCart(
+          tenantId,
+          couponCode,
+          cartItemsForCoupon,
+          { customerId: customer?.id, customerPhone: customer?.phone }
+        );
+
+        if (!couponValidation.valid) {
+          throw new Error(couponValidation.reason || 'Invalid coupon code');
+        }
+
+        appliedCoupon = couponValidation.coupon;
+        discountTotal = couponValidation.discountAmount;
+
+        if (discountTotal > 0 && couponValidation.eligibleSubtotal > 0) {
+          discountedItems = itemDetails.map((detail) => {
+            const lineSubtotal = detail.unitPrice * detail.quantity;
+            const isEligible =
+              appliedCoupon.targetType === 'ALL_PRODUCTS' ||
+              (appliedCoupon.targetType === 'SELECTED_PRODUCTS' && appliedCoupon.targetIds.includes(detail.variant.productId)) ||
+              (appliedCoupon.targetType === 'SELECTED_CATEGORIES' && appliedCoupon.targetIds.includes(detail.variant.product.categoryId));
+
+            if (!isEligible) return detail;
+
+            const lineDiscount = Number(((lineSubtotal / couponValidation.eligibleSubtotal) * discountTotal).toFixed(2));
+            const discountedUnitPrice = Math.max(0, Number(((lineSubtotal - lineDiscount) / detail.quantity).toFixed(2)));
+
+            return {
+              ...detail,
+              unitPrice: discountedUnitPrice,
+            };
+          });
+        }
+      }
+
+      // 4. Compute tax totals via calculation engine on discounted line prices
+      const taxCalc = calculateGstTaxSplit(discountedItems, tenant.stateCode, placeOfSupply || tenant.stateCode);
+
+      // 5. Generate sequential IDs
       const timestamp = Date.now().toString().slice(-6);
       const randomSuffix = Math.floor(100 + Math.random() * 900);
       const orderNumber = `BS-2026-${timestamp}${randomSuffix}`;
@@ -123,24 +176,64 @@ export async function POST(request: Request) {
       const isPaid = paymentMethod === 'CASH' || paymentMethod === 'UPI_DIRECT' || paymentMethod === 'RAZORPAY';
       const paymentStatus = isPaid ? 'PAID' : paymentMethod === 'KHATA_CREDIT' ? 'UNPAID' : 'UNPAID';
 
-      // 5. Create Order
+      // 6. Create Order
       const order = await tx.order.create({
         data: {
           tenantId,
           orderNumber,
           customerId: customerId || null,
+          couponId: appliedCoupon ? appliedCoupon.id : null,
+          couponCode: appliedCoupon ? appliedCoupon.code : null,
           channel,
           status: 'CONFIRMED',
           paymentStatus,
           subtotal: taxCalc.subtotal,
+          discountTotal,
           taxTotal: taxCalc.taxTotal,
           grandTotal: taxCalc.grandTotal,
           notes: notes || null,
         },
       });
 
-      // 6. Create OrderItems & Decrement Stock atomically
-      for (const detail of itemDetails) {
+      // Atomically update Coupon usage count and log redemption
+      if (appliedCoupon) {
+        if (appliedCoupon.usageLimit !== null) {
+          const incRes = await tx.coupon.updateMany({
+            where: { id: appliedCoupon.id, tenantId, usageCount: { lt: appliedCoupon.usageLimit } },
+            data: { usageCount: { increment: 1 } },
+          });
+          if (incRes.count === 0) {
+            throw new Error('Coupon usage limit reached during checkout');
+          }
+        } else {
+          await tx.coupon.update({
+            where: { id: appliedCoupon.id },
+            data: { usageCount: { increment: 1 } },
+          });
+        }
+
+        const customerObj = customerId ? await tx.customer.findUnique({ where: { id: customerId } }) : null;
+        await tx.couponRedemption.create({
+          data: {
+            tenantId,
+            couponId: appliedCoupon.id,
+            orderId: order.id,
+            customerId: customerId || null,
+            customerPhone: customerObj?.phone || null,
+            discountAmount: discountTotal,
+          },
+        });
+
+        if (appliedCoupon.campaignId) {
+          await tx.campaign.update({
+            where: { id: appliedCoupon.campaignId },
+            data: { usageCount: { increment: 1 } },
+          });
+        }
+      }
+
+      // 7. Create OrderItems & Decrement Stock atomically
+      for (const detail of discountedItems) {
         const lineSubtotal = detail.unitPrice * detail.quantity;
         const lineTax = (lineSubtotal * detail.gstRate) / 100;
         const cgst = taxCalc.isInterstate ? 0 : lineTax / 2;
@@ -191,7 +284,7 @@ export async function POST(request: Request) {
         });
       }
 
-      // 7. Create Payment record
+      // 8. Create Payment record
       const paymentGateway = paymentMethod === 'UPI_DIRECT'
         ? 'UPI_DIRECT'
         : paymentMethod === 'CASH'
@@ -210,7 +303,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // 8. Create Tax Invoice
+      // 9. Create Tax Invoice
       const invoice = await tx.invoice.create({
         data: {
           tenantId,
@@ -226,7 +319,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // 9. Log Khata Debit if customer purchased on credit
+      // 10. Log Khata Debit if customer purchased on credit
       if (paymentMethod === 'KHATA_CREDIT' && customerId) {
         const updatedCustomer = await tx.customer.update({
           where: { id: customerId },
@@ -255,7 +348,7 @@ export async function POST(request: Request) {
           resourceType: 'order',
           resourceId: order.id,
           ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
-          afterState: { orderNumber: order.orderNumber, grandTotal: order.grandTotal, channel },
+          afterState: { orderNumber: order.orderNumber, grandTotal: order.grandTotal, discountTotal, channel },
         },
       });
 

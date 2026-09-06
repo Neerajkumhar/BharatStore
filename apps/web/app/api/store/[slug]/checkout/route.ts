@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
 import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
+import { validateCouponForCart } from '@/lib/marketing-engine';
 
 export async function POST(
   request: Request,
@@ -38,6 +39,7 @@ export async function POST(
       paymentMethod,
       items,
       notes,
+      couponCode,
     } = body;
 
     // 2. Validate customer & cart inputs
@@ -112,9 +114,60 @@ export async function POST(
         };
       });
 
-      // Recalculate GST Tax via GST engine
+      // 5. Coupon validation & discount calculation (Server Authoritative)
+      let discountTotal = 0;
+      let appliedCoupon: any = null;
+      let discountedItems = itemDetails;
+
+      if (couponCode && typeof couponCode === 'string' && couponCode.trim().length > 0) {
+        const cartItemsForCoupon = itemDetails.map((detail) => ({
+          variantId: detail.variant.id,
+          productId: detail.variant.productId,
+          categoryId: detail.variant.product.categoryId,
+          title: detail.variant.product.title,
+          quantity: detail.quantity,
+          unitPrice: detail.unitPrice,
+        }));
+
+        const couponValidation = await validateCouponForCart(
+          tenantId,
+          couponCode,
+          cartItemsForCoupon,
+          { customerId: customer.id, customerPhone: customer.phone }
+        );
+
+        if (!couponValidation.valid) {
+          throw new Error(couponValidation.reason || 'Invalid coupon code');
+        }
+
+        appliedCoupon = couponValidation.coupon;
+        discountTotal = couponValidation.discountAmount;
+
+        // Apply discount proportionally to line subtotals before tax calculation
+        if (discountTotal > 0 && couponValidation.eligibleSubtotal > 0) {
+          discountedItems = itemDetails.map((detail) => {
+            const lineSubtotal = detail.unitPrice * detail.quantity;
+            const isEligible =
+              appliedCoupon.targetType === 'ALL_PRODUCTS' ||
+              (appliedCoupon.targetType === 'SELECTED_PRODUCTS' && appliedCoupon.targetIds.includes(detail.variant.productId)) ||
+              (appliedCoupon.targetType === 'SELECTED_CATEGORIES' && appliedCoupon.targetIds.includes(detail.variant.product.categoryId));
+
+            if (!isEligible) return detail;
+
+            const lineDiscount = Number(((lineSubtotal / couponValidation.eligibleSubtotal) * discountTotal).toFixed(2));
+            const discountedUnitPrice = Math.max(0, Number(((lineSubtotal - lineDiscount) / detail.quantity).toFixed(2)));
+
+            return {
+              ...detail,
+              unitPrice: discountedUnitPrice,
+            };
+          });
+        }
+      }
+
+      // Recalculate GST Tax via GST engine on discounted prices
       const placeOfSupply = stateCode || tenant.stateCode;
-      const taxCalc = calculateGstTaxSplit(itemDetails, tenant.stateCode, placeOfSupply);
+      const taxCalc = calculateGstTaxSplit(discountedItems, tenant.stateCode, placeOfSupply);
 
       // Generate sequential order & invoice numbers
       const timestamp = Date.now().toString().slice(-6);
@@ -132,18 +185,57 @@ export async function POST(
           tenantId,
           orderNumber,
           customerId: customer.id,
+          couponId: appliedCoupon ? appliedCoupon.id : null,
+          couponCode: appliedCoupon ? appliedCoupon.code : null,
           channel: 'STOREFRONT',
           status: 'CONFIRMED',
           paymentStatus,
           subtotal: taxCalc.subtotal,
+          discountTotal,
           taxTotal: taxCalc.taxTotal,
           grandTotal: taxCalc.grandTotal,
           notes: notes ? `Online Order (${shippingAddress}, ${city}, ${pincode}): ${notes}` : `Online Store Order (${shippingAddress}, ${city}, ${pincode})`,
         },
       });
 
+      // Atomically update Coupon usage count and log redemption
+      if (appliedCoupon) {
+        if (appliedCoupon.usageLimit !== null) {
+          const incRes = await tx.coupon.updateMany({
+            where: { id: appliedCoupon.id, tenantId, usageCount: { lt: appliedCoupon.usageLimit } },
+            data: { usageCount: { increment: 1 } },
+          });
+          if (incRes.count === 0) {
+            throw new Error('Coupon usage limit reached during checkout');
+          }
+        } else {
+          await tx.coupon.update({
+            where: { id: appliedCoupon.id },
+            data: { usageCount: { increment: 1 } },
+          });
+        }
+
+        await tx.couponRedemption.create({
+          data: {
+            tenantId,
+            couponId: appliedCoupon.id,
+            orderId: order.id,
+            customerId: customer.id,
+            customerPhone: customer.phone,
+            discountAmount: discountTotal,
+          },
+        });
+
+        if (appliedCoupon.campaignId) {
+          await tx.campaign.update({
+            where: { id: appliedCoupon.campaignId },
+            data: { usageCount: { increment: 1 } },
+          });
+        }
+      }
+
       // Create OrderItems & decrement stock atomically with guard
-      for (const detail of itemDetails) {
+      for (const detail of discountedItems) {
         const lineSubtotal = detail.unitPrice * detail.quantity;
         const lineTax = (lineSubtotal * detail.gstRate) / 100;
         const cgst = taxCalc.isInterstate ? 0 : lineTax / 2;

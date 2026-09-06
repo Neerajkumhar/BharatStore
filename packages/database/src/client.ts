@@ -31,7 +31,7 @@ export function getTenantDb(tenantId: string) {
           const tenantModels = [
             'UserTenant', 'Role', 'Product', 'ProductVariant', 'Category', 'InventoryLedger',
             'Customer', 'KhataLedger', 'Order', 'OrderItem', 'Payment',
-            'Invoice', 'StorefrontTheme', 'Coupon', 'AuditLog', 'SecurityEvent'
+            'Invoice', 'StorefrontTheme', 'Campaign', 'PromotionRule', 'Coupon', 'CouponRedemption', 'AuditLog', 'SecurityEvent'
           ];
 
           if (tenantModels.includes(model)) {

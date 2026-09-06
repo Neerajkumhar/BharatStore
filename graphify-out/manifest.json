@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "apps/web/components/layout/Sidebar.tsx": {
-    "mtime": 1788679877.0268078,
-    "seen": 1788680028.960409,
-    "ast_hash": "12f5163cf08ee9da504bb87dee23eaa4",
+    "mtime": 1788683865.4383235,
+    "seen": 1788684118.5978808,
+    "ast_hash": "0182407b69899bc61d725f99b4e3778c",
     "semantic_hash": ""
   },
   "apps/web/components/layout/TopNav.tsx": {
@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "packages/database/src/client.ts": {
-    "mtime": 1788676077.3156908,
-    "seen": 1788677134.6021986,
-    "ast_hash": "8da9497fef6e9d650e4fc330bef7bf93",
+    "mtime": 1788684012.5873213,
+    "seen": 1788684118.5979075,
+    "ast_hash": "f9643c1a73fe3b4233035eb2c963916e",
     "semantic_hash": ""
   },
   "packages/database/src/index.ts": {
@@ -216,9 +216,9 @@
     "semantic_hash": ""
   },
   "packages/shared/src/constants/roles.ts": {
-    "mtime": 1788627015.2316468,
-    "seen": 1788677134.602205,
-    "ast_hash": "cc230e879f8d9512b2d9b7a9a6c1a3fd",
+    "mtime": 1788683735.1050014,
+    "seen": 1788684118.5979164,
+    "ast_hash": "e38c936e6c7a3bc9071e647adf0185f1",
     "semantic_hash": ""
   },
   "packages/shared/src/index.ts": {
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "packages/shared/src/schemas/index.ts": {
-    "mtime": 1788677725.10739,
-    "seen": 1788677915.3878896,
-    "ast_hash": "805e29a081c99afccd6a7d0725027c94",
+    "mtime": 1788683766.0163636,
+    "seen": 1788684118.5979195,
+    "ast_hash": "205f958e60fe76c45e09d10182775790",
     "semantic_hash": ""
   },
   "packages/shared/src/schemas/order.ts": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "apps/web/app/api/orders/route.ts": {
-    "mtime": 1788682447.529383,
-    "seen": 1788682997.7307374,
-    "ast_hash": "c7c859856f638301bfcb247294ab4e9e",
+    "mtime": 1788683805.6435487,
+    "seen": 1788684118.5978596,
+    "ast_hash": "78d9414772fb6966b60f9a13032dd39b",
     "semantic_hash": ""
   },
   "apps/web/components/customers/customer-modal.tsx": {
@@ -666,9 +666,9 @@
     "semantic_hash": ""
   },
   "apps/web/app/api/store/[slug]/checkout/route.ts": {
-    "mtime": 1788682059.7699962,
-    "seen": 1788682997.7307413,
-    "ast_hash": "00d0fb2ce29a39494de5bb497a1eba22",
+    "mtime": 1788683795.8197505,
+    "seen": 1788684118.5978627,
+    "ast_hash": "dd071beea8627d991c1103e6c54202f7",
     "semantic_hash": ""
   },
   "apps/web/app/api/store/[slug]/orders/[orderId]/route.ts": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "apps/web/app/store/[slug]/checkout/page.tsx": {
-    "mtime": 1788679290.5929499,
-    "seen": 1788679340.7647748,
-    "ast_hash": "3c0312163a0b70b858b34408210b3570",
+    "mtime": 1788683851.1306164,
+    "seen": 1788684118.5978684,
+    "ast_hash": "1e48d0e5666a8c67fa24548beda49351",
     "semantic_hash": ""
   },
   "apps/web/app/store/[slug]/layout.tsx": {
@@ -849,6 +849,66 @@
     "mtime": 1788682350.9084725,
     "seen": 1788682997.7308028,
     "ast_hash": "8440b96b2a13345b7b791dc51c041c55",
+    "semantic_hash": ""
+  },
+  "apps/web/app/(dashboard)/marketing/page.tsx": {
+    "mtime": 1788683890.9498022,
+    "seen": 1788684118.5978277,
+    "ast_hash": "c2aa9db8cd829eab78971758920bb20c",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/analytics/route.ts": {
+    "mtime": 1788683837.1069036,
+    "seen": 1788684118.5978544,
+    "ast_hash": "c15df49b25d60b38fd400731561f61e8",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/campaigns/[id]/route.ts": {
+    "mtime": 1788683822.543202,
+    "seen": 1788684118.597855,
+    "ast_hash": "c6606bf06f7d556b5e218ea38657612b",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/campaigns/route.ts": {
+    "mtime": 1788683818.2432902,
+    "seen": 1788684118.5978558,
+    "ast_hash": "7145a6f2cd96ebb47898a5c6687b0c2b",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/coupons/[id]/route.ts": {
+    "mtime": 1788683832.391,
+    "seen": 1788684118.5978565,
+    "ast_hash": "117579118e66310d6b627d351caeb09a",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/coupons/route.ts": {
+    "mtime": 1788683827.863093,
+    "seen": 1788684118.597857,
+    "ast_hash": "92ef86e4eb76bbc56989f7fd206a4980",
+    "semantic_hash": ""
+  },
+  "apps/web/app/api/marketing/validate-coupon/route.ts": {
+    "mtime": 1788683814.2353723,
+    "seen": 1788684118.5978575,
+    "ast_hash": "33b5ee3d943af74b3b24c71e593919d9",
+    "semantic_hash": ""
+  },
+  "apps/web/lib/marketing-engine.ts": {
+    "mtime": 1788683772.5722287,
+    "seen": 1788684118.5978968,
+    "ast_hash": "09a42e169e72db564ebf2f2d629ea567",
+    "semantic_hash": ""
+  },
+  "packages/database/src/marketing.test.ts": {
+    "mtime": 1788684066.0382328,
+    "seen": 1788684118.5979097,
+    "ast_hash": "045cdc17f912c9e9d1b74fb3adebe30b",
+    "semantic_hash": ""
+  },
+  "packages/shared/src/schemas/marketing.ts": {
+    "mtime": 1788683762.3444393,
+    "seen": 1788684118.5979207,
+    "ast_hash": "da29ee769d57e3dd3d3dcc0928175ee7",
     "semantic_hash": ""
   }
 }
