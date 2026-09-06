@@ -249,6 +249,8 @@ model InventoryLedger {
   createdBy      User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, eventType])
   @@index([variantId])
   @@map("inventory_ledger")
 }
@@ -276,6 +278,7 @@ model Customer {
 
   @@unique([tenantId, phone])
   @@index([tenantId])
+  @@index([tenantId, createdAt])
   @@map("customers")
 }
 
@@ -301,6 +304,7 @@ model KhataLedger {
   order        Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
+  @@index([tenantId, createdAt])
   @@index([customerId])
   @@map("khata_ledger")
 }
@@ -421,6 +425,8 @@ model Payment {
   order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status])
   @@index([orderId])
   @@map("payments")
 }
