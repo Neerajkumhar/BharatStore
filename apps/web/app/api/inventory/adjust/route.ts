@@ -1,22 +1,18 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
 import { adjustInventorySchema } from '@bharatstore/shared/schemas';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function POST(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const userId = request.headers.get('x-user-id') || null;
+    const auth = await authorizeRequest(request, PERMISSIONS.INVENTORY_ADJUST);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantId = auth.tenantId;
+    const userId = auth.userId || null;
 
     const body = await request.json();
     const parsed = adjustInventorySchema.safeParse(body);
@@ -40,26 +36,53 @@ export async function POST(request: Request) {
         throw new Error('Product variant not found or access denied');
       }
 
-      const newStock = variant.currentStock + changeQuantity;
-      if (newStock < 0) {
-        throw new Error(`Insufficient stock available. Current stock: ${variant.currentStock}, requested change: ${changeQuantity}`);
+      if (changeQuantity < 0) {
+        const updateRes = await tx.productVariant.updateMany({
+          where: {
+            id: variantId,
+            tenantId,
+            currentStock: { gte: Math.abs(changeQuantity) },
+          },
+          data: {
+            currentStock: { decrement: Math.abs(changeQuantity) },
+          },
+        });
+        if (updateRes.count === 0) {
+          throw new Error(`Insufficient stock available. Current stock: ${variant.currentStock}, requested change: ${changeQuantity}`);
+        }
+      } else {
+        await tx.productVariant.update({
+          where: { id: variantId },
+          data: { currentStock: { increment: changeQuantity } },
+        });
       }
 
-      const updatedVariant = await tx.productVariant.update({
-        where: { id: variantId },
-        data: { currentStock: newStock },
-      });
+      const updatedVariant = await tx.productVariant.findUniqueOrThrow({ where: { id: variantId } });
 
       const ledgerEntry = await tx.inventoryLedger.create({
         data: {
           tenantId,
           variantId,
           changeQuantity,
-          balanceAfter: newStock,
+          balanceAfter: updatedVariant.currentStock,
           eventType,
           referenceId: referenceId || null,
           notes: notes || null,
           createdById: userId,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          actorId: userId,
+          actorEmail: auth.userEmail || 'unknown',
+          action: 'inventory:adjust',
+          resourceType: 'product_variant',
+          resourceId: variantId,
+          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          beforeState: { currentStock: variant.currentStock },
+          afterState: { currentStock: updatedVariant.currentStock, changeQuantity, eventType },
         },
       });
 

@@ -53,22 +53,22 @@ export async function authorizeRequest(
 
     // 2. Resolve active tenant context
     const headerTenantId = request.headers.get('x-tenant-id');
-    const tenantId = headerTenantId || session.tenantId;
+    let targetTenantId = headerTenantId || session.tenantId;
 
-    if (!tenantId) {
-      const firstTenant = await prisma.tenant.findFirst({
+    if (!targetTenantId) {
+      const activeTenant = await prisma.tenant.findFirst({
         where: { memberships: { some: { userId: session.userId, status: 'ACTIVE' } } },
       });
 
-      if (!firstTenant) {
+      if (!activeTenant) {
         return {
           authorized: false,
           response: NextResponse.json({ error: 'Forbidden: User is not associated with any active tenant' }, { status: 403 }),
         };
       }
-    }
 
-    const targetTenantId = tenantId || (await prisma.tenant.findFirst())?.id;
+      targetTenantId = activeTenant.id;
+    }
     if (!targetTenantId) {
       return {
         authorized: false,

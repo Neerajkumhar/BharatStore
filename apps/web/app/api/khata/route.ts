@@ -1,21 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
 import { logKhataSchema } from '@bharatstore/shared/schemas';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function POST(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
+    const auth = await authorizeRequest(request, PERMISSIONS.KHATA_WRITE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantId = auth.tenantId;
 
     const body = await request.json();
     const parsed = logKhataSchema.safeParse(body);
@@ -35,16 +31,18 @@ export async function POST(request: Request) {
       });
 
       if (!customer) {
-        throw new Error('Customer not found');
+        throw new Error('Customer not found or access denied');
       }
 
-      const balanceChange = type === 'DEBIT_CREDIT_GIVEN' ? amount : -amount;
-      const newBalance = Number(customer.currentBalance) + balanceChange;
-
+      const isDebit = type === 'DEBIT_CREDIT_GIVEN';
       const updatedCustomer = await tx.customer.update({
         where: { id: customerId },
-        data: { currentBalance: newBalance },
+        data: isDebit
+          ? { currentBalance: { increment: amount } }
+          : { currentBalance: { decrement: amount } },
       });
+
+      const newBalance = Number(updatedCustomer.currentBalance);
 
       const khataEntry = await tx.khataLedger.create({
         data: {
@@ -56,6 +54,20 @@ export async function POST(request: Request) {
           balanceAfter: newBalance,
           paymentMode: paymentMode || null,
           notes: notes || null,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          actorId: auth.userId,
+          actorEmail: auth.userEmail || 'unknown',
+          action: 'khata:transaction',
+          resourceType: 'customer',
+          resourceId: customerId,
+          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          beforeState: { currentBalance: Number(customer.currentBalance) },
+          afterState: { currentBalance: newBalance, type, amount },
         },
       });
 

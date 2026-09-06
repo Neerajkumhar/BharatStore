@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { updateProductSchema } from '@bharatstore/shared/schemas';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(
   request: Request,
@@ -19,8 +10,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.PRODUCTS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const product = await tenantDb.product.findUnique({
       where: { id },
@@ -54,8 +49,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.PRODUCTS_WRITE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const body = await request.json();
     const parsed = updateProductSchema.safeParse(body);
@@ -67,14 +66,30 @@ export async function PUT(
       );
     }
 
+    const beforeState = await tenantDb.product.findUnique({ where: { id } });
+
     const updated = await tenantDb.product.update({
       where: { id },
       data: {
         ...parsed.data,
-        variants: undefined, // Variants are updated via separate endpoints or transaction if provided
+        variants: undefined,
       },
       include: {
         variants: true,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId: auth.tenantId,
+        actorId: auth.userId,
+        actorEmail: auth.userEmail || 'unknown',
+        action: 'product:update',
+        resourceType: 'product',
+        resourceId: id,
+        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        beforeState: beforeState ? { title: beforeState.title, sellingPrice: beforeState.sellingPrice } : undefined,
+        afterState: { title: updated.title, sellingPrice: updated.sellingPrice },
       },
     });
 
@@ -91,13 +106,29 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.PRODUCTS_DELETE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    // Soft-delete by unpublishing to preserve inventory history
+    const tenantDb = getTenantDb(auth.tenantId);
+
     const product = await tenantDb.product.update({
       where: { id },
       data: { isPublished: false },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId: auth.tenantId,
+        actorId: auth.userId,
+        actorEmail: auth.userEmail || 'unknown',
+        action: 'product:delete',
+        resourceType: 'product',
+        resourceId: id,
+        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        afterState: { isPublished: false },
+      },
     });
 
     return NextResponse.json({ success: true, message: 'Product unpublished successfully', data: product });

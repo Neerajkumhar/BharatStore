@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { createCustomerSchema } from '@bharatstore/shared/schemas';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.CUSTOMERS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
@@ -49,7 +44,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
+    const auth = await authorizeRequest(request, PERMISSIONS.CUSTOMERS_WRITE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantId = auth.tenantId;
     const tenantDb = getTenantDb(tenantId);
 
     const body = await request.json();
@@ -84,6 +84,19 @@ export async function POST(request: Request) {
         gstin: gstin || null,
         creditLimit,
         notes: notes || null,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId,
+        actorId: auth.userId,
+        actorEmail: auth.userEmail || 'unknown',
+        action: 'customer:create',
+        resourceType: 'customer',
+        resourceId: customer.id,
+        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        afterState: { name: customer.name, phone: customer.phone },
       },
     });
 

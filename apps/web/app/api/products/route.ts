@@ -1,29 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { createProductSchema } from '@bharatstore/shared/schemas';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.PRODUCTS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '20', 10);
     const search = searchParams.get('search') || '';
     const categoryId = searchParams.get('categoryId');
-    const stockStatus = searchParams.get('stockStatus'); // 'low', 'out', 'in'
 
     const where: any = {};
 
@@ -55,7 +49,6 @@ export async function GET(request: Request) {
       tenantDb.product.count({ where }),
     ]);
 
-    // Calculate total stock per product and map stock status
     const data = products.map((product: any) => {
       const totalStock = product.variants.reduce((acc: number, v: any) => acc + v.currentStock, 0);
       const isLowStock = product.variants.some((v: any) => v.currentStock > 0 && v.currentStock <= v.lowStockAlert);
@@ -87,9 +80,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
-    const userId = request.headers.get('x-user-id') || null;
+    const auth = await authorizeRequest(request, PERMISSIONS.PRODUCTS_WRITE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantId = auth.tenantId;
+    const userId = auth.userId || null;
 
     const body = await request.json();
     const parsed = createProductSchema.safeParse(body);
@@ -167,6 +164,19 @@ export async function POST(request: Request) {
 
         createdVariants.push(variant);
       }
+
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          actorId: userId,
+          actorEmail: auth.userEmail || 'unknown',
+          action: 'product:create',
+          resourceType: 'product',
+          resourceId: product.id,
+          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          afterState: { title: product.title, sellingPrice: product.sellingPrice, gstRate: product.gstRate },
+        },
+      });
 
       return { product, variants: createdVariants };
     });

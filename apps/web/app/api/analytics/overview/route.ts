@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
-import { getTenantDb, prisma } from '@bharatstore/database';
+import { getTenantDb } from '@bharatstore/database';
 import { getAnalyticsDateRange, calculatePercentageChange } from '@bharatstore/shared/utils';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.SETTINGS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '30d';
@@ -95,8 +90,8 @@ export async function GET(request: Request) {
         },
         kpis: {
           revenue: {
-            value: currentRevenue,
-            previousValue: previousRevenue,
+            value: Number(currentRevenue.toFixed(2)),
+            previousValue: Number(previousRevenue.toFixed(2)),
             changePercent: calculatePercentageChange(currentRevenue, previousRevenue),
           },
           orders: {
@@ -114,7 +109,7 @@ export async function GET(request: Request) {
             totalRegistered: allCustomers.length,
           },
           outstandingKhata: {
-            value: totalOutstandingKhata,
+            value: Number(totalOutstandingKhata.toFixed(2)),
           },
           itemsSold: {
             value: currentItemsSold,

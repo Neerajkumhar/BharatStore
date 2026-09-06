@@ -2,25 +2,17 @@ import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { createOrderSchema } from '@bharatstore/shared/schemas';
 import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
-
-async function getActiveTenant(request: Request) {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) {
-    const tenant = await prisma.tenant.findUnique({ where: { id: headerTenantId } });
-    if (tenant) return tenant;
-  }
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
-    const tenant = await getActiveTenant(request);
-    const tenantDb = getTenantDb(tenant.id);
+    const auth = await authorizeRequest(request, PERMISSIONS.ORDERS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
@@ -66,9 +58,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const tenant = await getActiveTenant(request);
-    const tenantId = tenant.id;
-    const userId = request.headers.get('x-user-id') || null;
+    const auth = await authorizeRequest(request, PERMISSIONS.ORDERS_CREATE);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantId = auth.tenantId;
+    const userId = auth.userId || null;
+    const tenant = await prisma.tenant.findUniqueOrThrow({ where: { id: tenantId } });
 
     const body = await request.json();
     const parsed = createOrderSchema.safeParse(body);
@@ -80,7 +77,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { customerId, channel, items, paymentMethod, paymentAmount, notes, placeOfSupply } = parsed.data;
+    const { customerId, channel, items, paymentMethod, notes, placeOfSupply } = parsed.data;
 
     // Execute atomic order transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -142,7 +139,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // 6. Create OrderItems & Decrement Stock
+      // 6. Create OrderItems & Decrement Stock atomically
       for (const detail of itemDetails) {
         const lineSubtotal = detail.unitPrice * detail.quantity;
         const lineTax = (lineSubtotal * detail.gstRate) / 100;
@@ -168,19 +165,24 @@ export async function POST(request: Request) {
           },
         });
 
-        // Double-entry inventory SALE log & atomic stock decrement
-        const newStock = detail.variant.currentStock - detail.quantity;
-        await tx.productVariant.update({
-          where: { id: detail.variant.id },
-          data: { currentStock: newStock },
+        // Double-entry inventory SALE log & atomic stock decrement guard
+        const updateRes = await tx.productVariant.updateMany({
+          where: { id: detail.variant.id, tenantId, currentStock: { gte: detail.quantity } },
+          data: { currentStock: { decrement: detail.quantity } },
         });
+
+        if (updateRes.count === 0) {
+          throw new Error(`Insufficient stock for ${detail.variant.product.title} (${detail.variant.variantName})`);
+        }
+
+        const updatedVariant = await tx.productVariant.findUniqueOrThrow({ where: { id: detail.variant.id } });
 
         await tx.inventoryLedger.create({
           data: {
             tenantId,
             variantId: detail.variant.id,
             changeQuantity: -detail.quantity,
-            balanceAfter: newStock,
+            balanceAfter: updatedVariant.currentStock,
             eventType: 'SALE',
             referenceId: orderNumber,
             notes: `POS Sale Order ${orderNumber}`,
@@ -226,12 +228,9 @@ export async function POST(request: Request) {
 
       // 9. Log Khata Debit if customer purchased on credit
       if (paymentMethod === 'KHATA_CREDIT' && customerId) {
-        const customer = await tx.customer.findUniqueOrThrow({ where: { id: customerId } });
-        const newBalance = Number(customer.currentBalance) + taxCalc.grandTotal;
-
-        await tx.customer.update({
+        const updatedCustomer = await tx.customer.update({
           where: { id: customerId },
-          data: { currentBalance: newBalance },
+          data: { currentBalance: { increment: taxCalc.grandTotal } },
         });
 
         await tx.khataLedger.create({
@@ -241,11 +240,24 @@ export async function POST(request: Request) {
             orderId: order.id,
             type: 'DEBIT_CREDIT_GIVEN',
             amount: taxCalc.grandTotal,
-            balanceAfter: newBalance,
+            balanceAfter: Number(updatedCustomer.currentBalance),
             notes: `Store Purchase Order ${orderNumber}`,
           },
         });
       }
+
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          actorId: userId,
+          actorEmail: auth.userEmail || 'unknown',
+          action: 'order:create',
+          resourceType: 'order',
+          resourceId: order.id,
+          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          afterState: { orderNumber: order.orderNumber, grandTotal: order.grandTotal, channel },
+        },
+      });
 
       return { order, invoice, payment, taxCalc };
     });

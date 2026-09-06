@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
-import { getTenantDb, prisma } from '@bharatstore/database';
+import { getTenantDb } from '@bharatstore/database';
 import { getAnalyticsDateRange } from '@bharatstore/shared/utils';
-
-async function getActiveTenantId(request: Request): Promise<string> {
-  const headerTenantId = request.headers.get('x-tenant-id');
-  if (headerTenantId) return headerTenantId;
-
-  const firstTenant = await prisma.tenant.findFirst();
-  if (!firstTenant) {
-    throw new Error('No active tenant found in system');
-  }
-  return firstTenant.id;
-}
+import { authorizeRequest } from '@/lib/authorization';
+import { PERMISSIONS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
-    const tenantId = await getActiveTenantId(request);
-    const tenantDb = getTenantDb(tenantId);
+    const auth = await authorizeRequest(request, PERMISSIONS.SETTINGS_READ);
+    if (!auth.authorized || !auth.tenantId) {
+      return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const tenantDb = getTenantDb(auth.tenantId);
 
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '30d';
@@ -37,14 +32,12 @@ export async function GET(request: Request) {
     payments.forEach((p) => {
       const amt = Number(p.amount);
 
-      // Status
       const existingStatus = statusMap.get(p.status) || { count: 0, totalAmount: 0 };
       statusMap.set(p.status, {
         count: existingStatus.count + 1,
         totalAmount: existingStatus.totalAmount + amt,
       });
 
-      // Gateway
       const existingGateway = gatewayMap.get(p.gateway) || { count: 0, totalAmount: 0 };
       gatewayMap.set(p.gateway, {
         count: existingGateway.count + 1,

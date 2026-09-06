@@ -65,7 +65,6 @@ export async function POST(
         },
       });
     } else {
-      // Update email/gstin if provided
       if (customerEmail || gstin || customerName) {
         customer = await prisma.customer.update({
           where: { id: customer.id },
@@ -143,7 +142,7 @@ export async function POST(
         },
       });
 
-      // Create OrderItems & decrement stock atomically
+      // Create OrderItems & decrement stock atomically with guard
       for (const detail of itemDetails) {
         const lineSubtotal = detail.unitPrice * detail.quantity;
         const lineTax = (lineSubtotal * detail.gstRate) / 100;
@@ -169,19 +168,24 @@ export async function POST(
           },
         });
 
-        // Double-entry inventory SALE log & atomic stock decrement
-        const newStock = detail.variant.currentStock - detail.quantity;
-        await tx.productVariant.update({
-          where: { id: detail.variant.id },
-          data: { currentStock: newStock },
+        // Double-entry inventory SALE log & atomic stock decrement guard
+        const updateRes = await tx.productVariant.updateMany({
+          where: { id: detail.variant.id, tenantId, currentStock: { gte: detail.quantity } },
+          data: { currentStock: { decrement: detail.quantity } },
         });
+
+        if (updateRes.count === 0) {
+          throw new Error(`Insufficient stock for ${detail.variant.product.title} (${detail.variant.variantName})`);
+        }
+
+        const updatedVariant = await tx.productVariant.findUniqueOrThrow({ where: { id: detail.variant.id } });
 
         await tx.inventoryLedger.create({
           data: {
             tenantId,
             variantId: detail.variant.id,
             changeQuantity: -detail.quantity,
-            balanceAfter: newStock,
+            balanceAfter: updatedVariant.currentStock,
             eventType: 'SALE',
             referenceId: orderNumber,
             notes: `Storefront Web Checkout Order ${orderNumber}`,
@@ -226,10 +230,9 @@ export async function POST(
 
       // Debit Khata if credit purchase
       if (validMethod === 'KHATA_CREDIT') {
-        const newBalance = Number(customer.currentBalance) + taxCalc.grandTotal;
-        await tx.customer.update({
+        const updatedCustomer = await tx.customer.update({
           where: { id: customer.id },
-          data: { currentBalance: newBalance },
+          data: { currentBalance: { increment: taxCalc.grandTotal } },
         });
 
         await tx.khataLedger.create({
@@ -239,7 +242,7 @@ export async function POST(
             orderId: order.id,
             type: 'DEBIT_CREDIT_GIVEN',
             amount: taxCalc.grandTotal,
-            balanceAfter: newBalance,
+            balanceAfter: Number(updatedCustomer.currentBalance),
             notes: `Online Store Checkout Order ${orderNumber}`,
           },
         });

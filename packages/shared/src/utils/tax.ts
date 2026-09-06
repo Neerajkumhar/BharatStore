@@ -35,13 +35,20 @@ export function calculateGstTaxSplit(
   const taxTotal = cgstTotal + sgstTotal + igstTotal;
   const grandTotal = subtotal + taxTotal;
 
+  const roundedSubtotal = Number(subtotal.toFixed(2));
+  const roundedCgst = Number(cgstTotal.toFixed(2));
+  const roundedSgst = Number(sgstTotal.toFixed(2));
+  const roundedIgst = Number(igstTotal.toFixed(2));
+  const roundedTaxTotal = Number((roundedCgst + roundedSgst + roundedIgst).toFixed(2));
+  const roundedGrandTotal = Number((roundedSubtotal + roundedTaxTotal).toFixed(2));
+
   return {
-    subtotal,
-    cgstTotal: Number(cgstTotal.toFixed(2)),
-    sgstTotal: Number(sgstTotal.toFixed(2)),
-    igstTotal: Number(igstTotal.toFixed(2)),
-    taxTotal: Number(taxTotal.toFixed(2)),
-    grandTotal: Number(grandTotal.toFixed(2)),
+    subtotal: roundedSubtotal,
+    cgstTotal: roundedCgst,
+    sgstTotal: roundedSgst,
+    igstTotal: roundedIgst,
+    taxTotal: roundedTaxTotal,
+    grandTotal: roundedGrandTotal,
     isInterstate,
   };
 }

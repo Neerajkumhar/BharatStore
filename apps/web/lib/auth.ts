@@ -1,8 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET || 'bharatstore-vedic-industrial-secret-key-change-in-prod-2026';
-const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_KEY);
-
 export const SESSION_COOKIE_NAME = 'bharatstore_session';
 
 export interface UserSessionPayload {
@@ -14,17 +11,22 @@ export interface UserSessionPayload {
   role?: string;
 }
 
+function getJwtSecret(): Uint8Array {
+  const secretKey = process.env.JWT_SECRET || 'bharatstore-vedic-industrial-secret-key-change-in-prod-2026';
+  return new TextEncoder().encode(secretKey);
+}
+
 export async function signJWT(payload: UserSessionPayload, expiresIn = '7d'): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expiresIn)
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifyJWT(token: string): Promise<UserSessionPayload | null> {
   try {
-    const verified = await jwtVerify(token, JWT_SECRET);
+    const verified = await jwtVerify(token, getJwtSecret());
     return verified.payload as unknown as UserSessionPayload;
   } catch (error) {
     return null;
