@@ -33,17 +33,23 @@ export function DashboardShell({
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // The Store Builder is a full-bleed tool: it provides its own top toolbar,
+  // mobile nav, and side panels, so hide the dashboard chrome for that route.
+  const isBuilderRoute = pathname?.startsWith('/storefront/builder');
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col pb-16 sm:pb-0">
       {/* Top Navigation */}
-      <TopNav />
+      {!isBuilderRoute && <TopNav />}
 
       {/* Body container */}
       <div className="flex-1 flex">
         {/* Desktop Sidebar */}
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
+        {!isBuilderRoute && (
+          <div className="hidden md:block">
+            <Sidebar />
+          </div>
+        )}
 
         {/* Mobile Sidebar Overlay */}
         {mobileMenuOpen && (
@@ -69,7 +75,7 @@ export function DashboardShell({
         {/* Main Workspace Canvas */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Breadcrumbs and Page Header (if provided) */}
-          {(breadcrumbs || title) && (
+          {!isBuilderRoute && (breadcrumbs || title) && (
             <div className="border-b border-slate-200 bg-white px-4 sm:px-8 py-4">
               {breadcrumbs && breadcrumbs.length > 0 && (
                 <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-1.5">
@@ -99,12 +105,21 @@ export function DashboardShell({
           )}
 
           {/* Page Content Body */}
-          <div className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">{children}</div>
+          <div
+            className={
+              isBuilderRoute
+                ? 'flex-1 flex flex-col overflow-hidden'
+                : 'flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto'
+            }
+          >
+            {children}
+          </div>
         </main>
       </div>
 
       {/* Mobile Bottom Navigation Bar (High Frequency Actions) */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex sm:hidden items-center justify-around h-16 px-2 shadow-lg">
+      {!isBuilderRoute && (
+        <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex sm:hidden items-center justify-around h-16 px-2 shadow-lg">
         <Link
           href="/dashboard"
           className={cn(
@@ -149,6 +164,7 @@ export function DashboardShell({
           <span>Menu</span>
         </button>
       </nav>
+      )}
     </div>
   );
 }

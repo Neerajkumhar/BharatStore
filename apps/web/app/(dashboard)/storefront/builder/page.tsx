@@ -6,7 +6,10 @@ import { BuilderToolbar } from '@/components/builder/builder-toolbar';
 import { BuilderSidebar } from '@/components/builder/builder-sidebar';
 import { BuilderCanvas } from '@/components/builder/builder-canvas';
 import { BuilderSettings } from '@/components/builder/builder-settings';
+import { BuilderWorkspace, type BuilderWorkspaceHandle } from '@/components/builder/builder-workspace';
+import { SectionPickerModal } from '@/components/builder/section-picker-modal';
 import { createDefaultSection, type SectionType } from '@bharatstore/shared/constants';
+import { Layers, Sliders, Palette, Eye, X } from 'lucide-react';
 
 interface SectionItem {
   id: string;
@@ -32,11 +35,44 @@ export default function StorefrontBuilderPage() {
     seo: {},
     templateId: null,
   });
+
+  // Undo / Redo History Stacks
+  const [historyStack, setHistoryStack] = useState<BuilderState[]>([]);
+  const [redoStack, setRedoStack] = useState<BuilderState[]>([]);
+
+  const pushHistory = (newState: BuilderState) => {
+    setHistoryStack((prev) => [...prev.slice(-20), builderState]);
+    setRedoStack([]);
+    setBuilderState(newState);
+  };
+
+  const handleUndo = () => {
+    if (historyStack.length === 0) return;
+    const previous = historyStack[historyStack.length - 1];
+    setHistoryStack((prev) => prev.slice(0, -1));
+    setRedoStack((prev) => [builderState, ...prev]);
+    setBuilderState(previous);
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[0];
+    setRedoStack((prev) => prev.slice(1));
+    setHistoryStack((prev) => [...prev, builderState]);
+    setBuilderState(next);
+  };
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [hasPublished, setHasPublished] = useState(false);
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showTheme, setShowTheme] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [mobileActiveSheet, setMobileActiveSheet] = useState<'none' | 'sections' | 'edit' | 'theme'>('none');
+  const [fullscreen, setFullscreen] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  const workspaceRef = useRef<BuilderWorkspaceHandle>(null);
   const [storeData, setStoreData] = useState<any>(null);
   const [slug, setSlug] = useState('');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,7 +84,7 @@ export default function StorefrontBuilderPage() {
         const res = await fetch('/api/admin/storefront/builder');
         const json = await res.json();
         if (json.success) {
-          const { draftConfig, publishedConfig, theme } = json.data;
+          const { draftConfig, publishedConfig } = json.data;
           if (draftConfig) {
             setBuilderState({
               sections: draftConfig.sections || [],
@@ -98,69 +134,10 @@ export default function StorefrontBuilderPage() {
 
   useEffect(() => {
     if (!loading) scheduleSave();
-  }, [builderState]);
+  }, [builderState, loading, scheduleSave]);
 
-  // Warn about unsaved changes
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (saveState === 'unsaved') {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [saveState]);
-
-  const updateSection = useCallback((id: string, config: Record<string, unknown>) => {
-    setBuilderState((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s) => (s.id === id ? { ...s, config } : s)),
-    }));
-  }, []);
-
-  const toggleVisibility = useCallback((id: string) => {
-    setBuilderState((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s)),
-    }));
-  }, []);
-
-  const deleteSection = useCallback((id: string) => {
-    setBuilderState((prev) => ({
-      ...prev,
-      sections: prev.sections.filter((s) => s.id !== id),
-    }));
-    if (selectedSectionId === id) setSelectedSectionId(null);
-  }, [selectedSectionId]);
-
-  const addSection = useCallback((type: SectionType) => {
-    const section = createDefaultSection(type);
-    section.order = builderState.sections.length;
-    setBuilderState((prev) => ({
-      ...prev,
-      sections: [...prev.sections, section],
-    }));
-    setSelectedSectionId(section.id);
-  }, [builderState.sections.length]);
-
-  const reorderSections = useCallback((fromIndex: number, toIndex: number) => {
-    setBuilderState((prev) => {
-      const sorted = [...prev.sections].sort((a, b) => a.order - b.order);
-      const [moved] = sorted.splice(fromIndex, 1);
-      sorted.splice(toIndex, 0, moved);
-      return {
-        ...prev,
-        sections: sorted.map((s, i) => ({ ...s, order: i })),
-      };
-    });
-  }, []);
-
-  const updateTheme = useCallback((theme: Record<string, unknown>) => {
-    setBuilderState((prev) => ({ ...prev, theme }));
-  }, []);
-
-  const handleSave = useCallback(async () => {
+  // Actions
+  const handleSave = async () => {
     setSaveState('saving');
     try {
       const res = await fetch('/api/admin/storefront/builder', {
@@ -170,50 +147,119 @@ export default function StorefrontBuilderPage() {
       });
       const json = await res.json();
       if (json.success) setSaveState('saved');
+      else setSaveState('unsaved');
     } catch {
       setSaveState('unsaved');
     }
-  }, [builderState]);
+  };
 
-  const handlePublish = useCallback(async () => {
-    if (!confirm('Publish your storefront? This will make your changes live to customers.')) return;
-    await handleSave();
+  const handlePublish = async () => {
+    if (!confirm('Publish draft to live store? This will make your storefront live.')) return;
     try {
       const res = await fetch('/api/admin/storefront/builder/publish', { method: 'POST' });
       const json = await res.json();
       if (json.success) {
         setHasPublished(true);
-        setSaveState('saved');
-        alert('Storefront published successfully!');
+        alert('Published successfully! Your store is now live.');
       } else {
         alert(json.error || 'Failed to publish');
       }
-    } catch (err: any) {
-      alert('Failed to publish: ' + err.message);
+    } catch (err) {
+      alert('Network error while publishing');
     }
-  }, [handleSave]);
+  };
 
-  const handlePreview = useCallback(() => {
+  const handlePreview = () => {
     if (slug) {
       window.open(`/store/${slug}`, '_blank');
     }
-  }, [slug]);
+  };
+
+  const handleAddSection = (type: SectionType) => {
+    const defaultSec = createDefaultSection(type);
+    const maxOrder = builderState.sections.reduce((max, s) => Math.max(max, s.order), 0);
+    const newSection: SectionItem = {
+      id: `${type}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type,
+      config: defaultSec.config,
+      visible: true,
+      order: maxOrder + 10,
+    };
+    pushHistory({
+      ...builderState,
+      sections: [...builderState.sections, newSection],
+    });
+    setSelectedSectionId(newSection.id);
+  };
+
+  const handleDuplicateSection = (id: string) => {
+    const target = builderState.sections.find((s) => s.id === id);
+    if (!target) return;
+    const newSection: SectionItem = {
+      ...target,
+      id: `${target.type}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      config: JSON.parse(JSON.stringify(target.config)),
+      order: target.order + 5,
+    };
+    pushHistory({
+      ...builderState,
+      sections: [...builderState.sections, newSection].sort((a, b) => a.order - b.order),
+    });
+    setSelectedSectionId(newSection.id);
+  };
+
+  const handleToggleVisibility = (id: string) => {
+    pushHistory({
+      ...builderState,
+      sections: builderState.sections.map((s) =>
+        s.id === id ? { ...s, visible: !s.visible } : s
+      ),
+    });
+  };
+
+  const handleDeleteSection = (id: string) => {
+    pushHistory({
+      ...builderState,
+      sections: builderState.sections.filter((s) => s.id !== id),
+    });
+    if (selectedSectionId === id) setSelectedSectionId(null);
+  };
+
+  const handleReorder = (fromIndex: number, toIndex: number) => {
+    const sorted = [...builderState.sections].sort((a, b) => a.order - b.order);
+    const [moved] = sorted.splice(fromIndex, 1);
+    sorted.splice(toIndex, 0, moved);
+    const reordered = sorted.map((s, idx) => ({ ...s, order: (idx + 1) * 10 }));
+    pushHistory({ ...builderState, sections: reordered });
+  };
+
+  const handleUpdateSection = (id: string, config: Record<string, unknown>) => {
+    pushHistory({
+      ...builderState,
+      sections: builderState.sections.map((s) => (s.id === id ? { ...s, config } : s)),
+    });
+  };
+
+  const handleUpdateTheme = (newTheme: Record<string, unknown>) => {
+    pushHistory({ ...builderState, theme: newTheme });
+  };
 
   const selectedSection = builderState.sections.find((s) => s.id === selectedSectionId) || null;
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-full w-full">
         <div className="text-center space-y-3">
           <div className="h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-slate-400">Loading builder...</p>
+          <p className="text-xs text-slate-400">Loading Store Builder...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] -m-4 sm:-m-8">
+    <div className="flex flex-col h-full w-full bg-slate-100">
+      {/* Top Toolbar */}
       <BuilderToolbar
         slug={slug}
         saveState={saveState}
@@ -223,63 +269,151 @@ export default function StorefrontBuilderPage() {
         viewport={viewport}
         onViewportChange={setViewport}
         onPreview={handlePreview}
+        canUndo={historyStack.length > 0}
+        canRedo={redoStack.length > 0}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        onToggleLeft={() => workspaceRef.current?.toggleLeft()}
+        onToggleRight={() => workspaceRef.current?.toggleRight()}
+        fullscreen={fullscreen}
+        onToggleFullscreen={() => setFullscreen((v) => !v)}
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        <BuilderSidebar
-          sections={builderState.sections}
-          selectedSectionId={selectedSectionId}
-          onSelectSection={(id) => { setSelectedSectionId(id); setShowTheme(false); }}
-          onToggleVisibility={toggleVisibility}
-          onDeleteSection={deleteSection}
-          onReorder={reorderSections}
-          onAddSection={addSection}
-          templateId={builderState.templateId}
-        />
+      {/* Main Resizable Studio Builder Workspace */}
+      <BuilderWorkspace
+        ref={workspaceRef}
+        onPanelStateChange={({ leftOpen: lo, rightOpen: ro }) => {
+          setLeftOpen(lo);
+          setRightOpen(ro);
+        }}
+        left={
+          <BuilderSidebar
+            sections={builderState.sections}
+            selectedSectionId={selectedSectionId}
+            onSelectSection={(id) => { setSelectedSectionId(id); setShowTheme(false); }}
+            onToggleVisibility={handleToggleVisibility}
+            onDeleteSection={handleDeleteSection}
+            onDuplicateSection={handleDuplicateSection}
+            onReorder={handleReorder}
+            onOpenAddModal={() => setIsAddModalOpen(true)}
+            templateId={builderState.templateId}
+          />
+        }
+        right={
+          <BuilderSettings
+            section={selectedSection}
+            theme={builderState.theme}
+            onUpdateSection={handleUpdateSection}
+            onUpdateTheme={handleUpdateTheme}
+            showTheme={showTheme}
+            onToggleTheme={() => setShowTheme(!showTheme)}
+          />
+        }
+        center={
+          <BuilderCanvas
+            slug={slug}
+            draftConfig={builderState}
+            storeData={storeData || {}}
+            viewport={viewport}
+            selectedSectionId={selectedSectionId}
+            onSelectSection={(id) => { setSelectedSectionId(id); setShowTheme(false); }}
+            onReorder={handleReorder}
+            onDuplicateSection={handleDuplicateSection}
+            onToggleVisibility={handleToggleVisibility}
+            onDeleteSection={handleDeleteSection}
+          />
+        }
+        leftLabel="Sections"
+        rightLabel="Design"
+        fullscreen={fullscreen}
+      />
 
-        <BuilderCanvas
-          slug={slug}
-          draftConfig={builderState}
-          storeData={storeData || {}}
-          viewport={viewport}
-        />
-
-        <BuilderSettings
-          section={selectedSection}
-          theme={builderState.theme}
-          onUpdateSection={updateSection}
-          onUpdateTheme={updateTheme}
-          showTheme={showTheme}
-          onToggleTheme={() => setShowTheme(!showTheme)}
-        />
+      {/* Mobile Bottom Navigation Toolbar (< 768px) */}
+      <div className="md:hidden bg-slate-900 text-white border-t border-slate-800 px-4 py-2 flex items-center justify-around z-30 shadow-lg">
+        <button
+          onClick={() => setMobileActiveSheet('sections')}
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+        >
+          <Layers className="h-4 w-4" />
+          <span>Outline</span>
+        </button>
+        <button
+          onClick={() => setMobileActiveSheet('edit')}
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+        >
+          <Sliders className="h-4 w-4" />
+          <span>Edit Section</span>
+        </button>
+        <button
+          onClick={() => setMobileActiveSheet('theme')}
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+        >
+          <Palette className="h-4 w-4" />
+          <span>Theme</span>
+        </button>
+        <button
+          onClick={handlePreview}
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+        >
+          <Eye className="h-4 w-4" />
+          <span>Live Store</span>
+        </button>
       </div>
 
-      <div className="bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-between text-2xs text-slate-400">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push('/storefront/themes')}
-            className="font-semibold text-amber-600 hover:underline"
-          >
-            Change Template
-          </button>
-          <button onClick={() => {
-            if (confirm('Reset to template defaults? This will clear your current draft.')) {
-              fetch('/api/admin/storefront/builder/reset', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId: builderState.templateId || 'general' }),
-              }).then(r => r.json()).then(json => {
-                if (json.success) window.location.reload();
-              });
-            }
-          }} className="hover:text-red-500 transition">
-            Reset to Default
-          </button>
+      {/* Mobile Bottom Sheet Drawer (< 768px) */}
+      {mobileActiveSheet !== 'none' && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-t-2xl max-h-[80vh] h-[80vh] flex flex-col shadow-2xl overflow-hidden border-t border-slate-200">
+            <div className="p-3 border-b border-slate-100 bg-slate-900 text-white flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {mobileActiveSheet === 'sections' ? 'Sections List' : mobileActiveSheet === 'edit' ? 'Edit Selected Section' : 'Store Design Settings'}
+              </span>
+              <button
+                onClick={() => setMobileActiveSheet('none')}
+                className="p-1 rounded-md text-slate-400 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {mobileActiveSheet === 'sections' && (
+                <BuilderSidebar
+                  sections={builderState.sections}
+                  selectedSectionId={selectedSectionId}
+                  onSelectSection={(id) => { setSelectedSectionId(id); setMobileActiveSheet('edit'); }}
+                  onToggleVisibility={handleToggleVisibility}
+                  onDeleteSection={handleDeleteSection}
+                  onDuplicateSection={handleDuplicateSection}
+                  onReorder={handleReorder}
+                  onOpenAddModal={() => { setMobileActiveSheet('none'); setIsAddModalOpen(true); }}
+                  templateId={builderState.templateId}
+                />
+              )}
+
+              {(mobileActiveSheet === 'edit' || mobileActiveSheet === 'theme') && (
+                <BuilderSettings
+                  section={mobileActiveSheet === 'edit' ? selectedSection : null}
+                  theme={builderState.theme}
+                  onUpdateSection={handleUpdateSection}
+                  onUpdateTheme={handleUpdateTheme}
+                  showTheme={mobileActiveSheet === 'theme'}
+                  onToggleTheme={() => setShowTheme(!showTheme)}
+                />
+              )}
+            </div>
+          </div>
         </div>
-        <div>
-          {builderState.sections.length} sections | {builderState.sections.filter((s) => s.visible).length} visible
-        </div>
-      </div>
+      )}
+
+      {/* Add Section Picker Modal */}
+      <SectionPickerModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddSection={handleAddSection}
+      />
     </div>
   );
 }
