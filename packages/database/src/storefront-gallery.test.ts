@@ -92,8 +92,8 @@ describe('M10.x: Theme Gallery', () => {
     it('every template composes hero and footer sections', () => {
       for (const t of STOREFRONT_TEMPLATES) {
         const types = getTemplateSections(t.id).map((s) => s.type);
-        expect(types).toContain('hero');
-        expect(types).toContain('footer');
+        expect(types.some((tp) => tp === 'hero' || tp.startsWith('hero'))).toBe(true);
+        expect(types.some((tp) => tp === 'footer' || tp.startsWith('footer'))).toBe(true);
       }
     });
 

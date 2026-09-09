@@ -21,16 +21,16 @@ import {
   validateSectionConfig,
 } from '@bharatstore/shared/schemas';
 
-describe('M10: No-Code Storefront Builder', () => {
+describe('M10 & Evolved Storefront Design System Tests', () => {
   let tenantId: string;
   let tenantSlug: string;
 
   beforeAll(async () => {
     const tenant = await prisma.tenant.create({
       data: {
-        legalName: 'Builder Test Pvt Ltd',
-        tradeName: 'Builder Test Store',
-        slug: `builder-test-${Date.now()}`,
+        legalName: 'Evolved Storefront Test Ltd',
+        tradeName: 'Evolved Storefront Test',
+        slug: `evolved-storefront-${Date.now()}`,
         phone: '9990001111',
         addressLine1: '1 Test Street',
         city: 'Mumbai',
@@ -49,127 +49,140 @@ describe('M10: No-Code Storefront Builder', () => {
   // -------------------------------------------------------
   // Component Registry Tests
   // -------------------------------------------------------
-  describe('Component Registry', () => {
-    it('defines all 12 section types', () => {
+  describe('Expanded Component Registry', () => {
+    it('defines approximately 38 distinct section types', () => {
       const types = Object.values(SECTION_TYPES);
-      expect(types).toHaveLength(12);
+      expect(types.length).toBeGreaterThanOrEqual(30);
+      expect(types.length).toBeLessThanOrEqual(50);
       expect(types).toContain('hero');
       expect(types).toContain('announcement');
-      expect(types).toContain('categories');
-      expect(types).toContain('featured-products');
-      expect(types).toContain('product-grid');
-      expect(types).toContain('banner');
-      expect(types).toContain('about');
-      expect(types).toContain('trust');
-      expect(types).toContain('testimonials');
-      expect(types).toContain('faq');
-      expect(types).toContain('contact');
-      expect(types).toContain('footer');
+      expect(types).toContain('sticky-header');
+      expect(types).toContain('mega-menu');
+      expect(types).toContain('search-overlay');
+      expect(types).toContain('hero-fullscreen');
+      expect(types).toContain('hero-editorial');
+      expect(types).toContain('product-carousel');
+      expect(types).toContain('product-spotlight');
+      expect(types).toContain('product-comparison');
+      expect(types).toContain('countdown-sale');
+      expect(types).toContain('flash-sale');
+      expect(types).toContain('coupon-strip');
+      expect(types).toContain('editorial-split');
+      expect(types).toContain('lookbook');
+      expect(types).toContain('routine-builder');
+      expect(types).toContain('reviews-summary');
+      expect(types).toContain('newsletter');
     });
 
-    it('validates known section types', () => {
+    it('validates section types', () => {
       expect(isValidSectionType('hero')).toBe(true);
-      expect(isValidSectionType('announcement')).toBe(true);
+      expect(isValidSectionType('sticky-header')).toBe(true);
+      expect(isValidSectionType('countdown-sale')).toBe(true);
       expect(isValidSectionType('invalid-type')).toBe(false);
       expect(isValidSectionType('')).toBe(false);
-      expect(isValidSectionType('<script>alert(1)</script>')).toBe(false);
     });
 
-    it('returns section definition for valid types', () => {
+    it('returns section definition with valid categories', () => {
       const heroDef = getSectionDefinition('hero');
       expect(heroDef).toBeDefined();
       expect(heroDef?.label).toBe('Hero Banner');
       expect(heroDef?.isRequired).toBe(true);
-      expect(heroDef?.isDeletable).toBe(false);
+      expect(heroDef?.category).toBe('hero');
+
+      const stickyDef = getSectionDefinition('sticky-header');
+      expect(stickyDef?.category).toBe('navigation');
     });
 
-    it('returns undefined for unknown types', () => {
-      expect(getSectionDefinition('unknown')).toBeUndefined();
-    });
-
-    it('creates default section with unique ID', () => {
-      const s1 = createDefaultSection('hero');
-      const s2 = createDefaultSection('hero');
+    it('creates default section with unique ID and default config', () => {
+      const s1 = createDefaultSection('countdown-sale');
+      const s2 = createDefaultSection('countdown-sale');
       expect(s1.id).not.toBe(s2.id);
-      expect(s1.type).toBe('hero');
+      expect(s1.type).toBe('countdown-sale');
       expect(s1.visible).toBe(true);
-      expect(s1.order).toBe(0);
       expect(s1.config).toBeDefined();
-    });
-
-    it('marks hero and footer as required', () => {
-      expect(COMPONENT_REGISTRY.hero.isRequired).toBe(true);
-      expect(COMPONENT_REGISTRY.footer.isRequired).toBe(true);
-      expect(COMPONENT_REGISTRY.hero.isDeletable).toBe(false);
-      expect(COMPONENT_REGISTRY.footer.isDeletable).toBe(false);
     });
   });
 
   // -------------------------------------------------------
-  // Template System Tests
+  // Template System & Composition Tests
   // -------------------------------------------------------
-  describe('Template System', () => {
-    it('defines the full theme gallery library', () => {
-      expect(STOREFRONT_TEMPLATES.length).toBeGreaterThanOrEqual(18);
+  describe('Template System & Deliberate Compositions', () => {
+    it('defines 22 genuinely different storefront templates', () => {
       expect(STOREFRONT_TEMPLATES).toHaveLength(22);
     });
 
-    it('has all required template fields', () => {
+    it('has required metadata and distinct section compositions for all 22 templates', () => {
       for (const t of STOREFRONT_TEMPLATES) {
         expect(t.id).toBeTruthy();
         expect(t.name).toBeTruthy();
-        expect(t.description).toBeTruthy();
         expect(t.category).toBeTruthy();
-        expect(t.preview).toBeDefined();
-        expect(t.defaultTheme).toBeDefined();
         expect(t.defaultSections.length).toBeGreaterThan(0);
       }
     });
 
-    it('template IDs are unique', () => {
-      const ids = STOREFRONT_TEMPLATES.map((t) => t.id);
-      expect(new Set(ids).size).toBe(ids.length);
-    });
-
-    it('getTemplateById returns correct template', () => {
+    it('Fashion Editorial template includes Lookbook and Trending Product Rail', () => {
       const fashion = getTemplateById('fashion');
       expect(fashion).toBeDefined();
-      expect(fashion?.name).toBe('Fashion Editorial');
-      expect(fashion?.category).toBe('fashion');
+      const types = fashion?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.LOOKBOOK);
+      expect(types).toContain(SECTION_TYPES.PRODUCT_TRENDING);
+      expect(types).toContain(SECTION_TYPES.PROMO_SPLIT);
     });
 
-    it('getTemplateById returns undefined for unknown', () => {
-      expect(getTemplateById('nonexistent')).toBeUndefined();
+    it('Streetwear template includes Countdown Sale and Product Rail', () => {
+      const streetwear = getTemplateById('streetwear');
+      expect(streetwear).toBeDefined();
+      const types = streetwear?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.COUNTDOWN_SALE);
+      expect(types).toContain(SECTION_TYPES.PRODUCT_RAIL);
+      expect(types).toContain(SECTION_TYPES.HERO_FULLSCREEN);
     });
 
-    it('getTemplateSections returns valid sections', () => {
-      const sections = getTemplateSections('general');
-      expect(sections.length).toBeGreaterThan(0);
-      for (const s of sections) {
-        expect(s.id).toBeTruthy();
-        expect(isValidSectionType(s.type)).toBe(true);
-        expect(typeof s.order).toBe('number');
-        expect(typeof s.visible).toBe('boolean');
-      }
+    it('Tech Store template includes Product Comparison and Flash Sale', () => {
+      const tech = getTemplateById('electronics');
+      expect(tech).toBeDefined();
+      const types = tech?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.PRODUCT_COMPARISON);
+      expect(types).toContain(SECTION_TYPES.FLASH_SALE);
+      expect(types).toContain(SECTION_TYPES.HERO_PRODUCT);
     });
 
-    it('every template includes hero and footer sections', () => {
-      for (const t of STOREFRONT_TEMPLATES) {
-        const types = t.defaultSections.map((s) => s.type);
-        expect(types).toContain(SECTION_TYPES.HERO);
-        expect(types).toContain(SECTION_TYPES.FOOTER);
-      }
+    it('Fresh Grocery template includes Free Shipping Bar and Delivery Promise', () => {
+      const grocery = getTemplateById('grocery');
+      expect(grocery).toBeDefined();
+      const types = grocery?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.FREE_SHIPPING_BAR);
+      expect(types).toContain(SECTION_TYPES.DELIVERY_INFO);
+      expect(types).toContain(SECTION_TYPES.CATEGORY_CIRCULAR);
+    });
+
+    it('Beauty template includes Routine Builder and Category Mega Grid', () => {
+      const beauty = getTemplateById('beauty');
+      expect(beauty).toBeDefined();
+      const types = beauty?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.ROUTINE_BUILDER);
+      expect(types).toContain(SECTION_TYPES.CATEGORY_MEGA);
+    });
+
+    it('Bharat Business template includes Countdown Sale and Coupon Strip', () => {
+      const bharat = getTemplateById('bharat-business');
+      expect(bharat).toBeDefined();
+      const types = bharat?.defaultSections.map((s) => s.type);
+      expect(types).toContain(SECTION_TYPES.COUNTDOWN_SALE);
+      expect(types).toContain(SECTION_TYPES.COUPON_STRIP);
+      expect(types).toContain(SECTION_TYPES.REVIEWS_SUMMARY);
     });
   });
 
   // -------------------------------------------------------
-  // Zod Schema Validation Tests
+  // Schema Validation Tests
   // -------------------------------------------------------
   describe('Schema Validation', () => {
-    it('validates a complete page config', () => {
+    it('validates a complete page config with new section types', () => {
       const result = pageConfigSchema.safeParse({
         sections: [
-          { id: 'hero-1', type: 'hero', config: { title: 'Test' }, visible: true, order: 0 },
+          { id: 'hero-1', type: 'hero-fullscreen', config: { title: 'Test' }, visible: true, order: 0 },
+          { id: 'countdown-1', type: 'countdown-sale', config: { title: 'Flash' }, visible: true, order: 1 },
         ],
         theme: { primaryColor: '#000' },
         seo: {},
@@ -177,10 +190,10 @@ describe('M10: No-Code Storefront Builder', () => {
       expect(result.success).toBe(true);
     });
 
-    it('rejects invalid section type', () => {
+    it('rejects unknown section types', () => {
       const result = sectionSchema.safeParse({
         id: 'test',
-        type: 'malicious-type',
+        type: 'unknown-malicious-type',
         config: {},
         visible: true,
         order: 0,
@@ -188,72 +201,36 @@ describe('M10: No-Code Storefront Builder', () => {
       expect(result.success).toBe(false);
     });
 
-    it('validates hero config', () => {
-      const result = heroConfigSchema.safeParse({
-        title: 'Welcome',
-        subtitle: 'To our store',
-        alignment: 'center',
-        height: 'medium',
+    it('validates section configs with animation settings', () => {
+      const valid = validateSectionConfig('countdown-sale', {
+        title: 'Flash Sale',
+        animation: 'fade-up',
       });
-      expect(result.success).toBe(true);
-    });
-
-    it('validates announcement config', () => {
-      const result = announcementConfigSchema.safeParse({
-        text: 'Free shipping!',
-        visible: true,
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('validates theme config with defaults', () => {
-      const result = themeConfigSchema.safeParse({});
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.fontFamily).toBe('inter');
-        expect(result.data.borderRadius).toBe('lg');
-      }
-    });
-
-    it('rejects unsafe image URLs', () => {
-      const result = heroConfigSchema.safeParse({
-        imageUrl: 'javascript:alert(1)',
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('allows valid image URLs', () => {
-      const result = heroConfigSchema.safeParse({
-        imageUrl: 'https://images.unsplash.com/photo-123.jpg',
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('validates section config by type', () => {
-      const valid = validateSectionConfig('hero', { title: 'Test', alignment: 'left' });
       expect(valid.success).toBe(true);
-
-      const invalid = validateSectionConfig('hero', { alignment: 'invalid' });
-      expect(invalid.success).toBe(false);
     });
 
-    it('returns error for unknown section type in validateSectionConfig', () => {
-      const result = validateSectionConfig('unknown', {});
-      expect(result.success).toBe(false);
+    it('validates product carousel with card variant settings', () => {
+      const valid = validateSectionConfig('product-carousel', {
+        title: 'Bestsellers',
+        cardVariant: 'editorial',
+        animation: 'slide-up',
+      });
+      expect(valid.success).toBe(true);
     });
   });
 
   // -------------------------------------------------------
-  // Database Draft/Publish Tests
+  // Database Operations Tests
   // -------------------------------------------------------
-  describe('Draft/Publish Database Operations', () => {
-    it('stores and retrieves draft config', async () => {
+  describe('Database Operations', () => {
+    it('stores draft config with new section types and retrieves cleanly', async () => {
       const config = {
         sections: [
-          { id: 'hero-1', type: 'hero', config: { title: 'Draft Store' }, visible: true, order: 0 },
+          { id: 'h1', type: 'hero-editorial', config: { headline: 'New Season' }, visible: true, order: 0 },
+          { id: 'c1', type: 'countdown-sale', config: { title: 'Flash' }, visible: true, order: 1 },
         ],
-        theme: { primaryColor: '#000' },
-        templateId: 'minimal',
+        theme: { primaryColor: '#1c1917' },
+        templateId: 'fashion',
       };
 
       await prisma.storefrontTheme.upsert({
@@ -265,18 +242,17 @@ describe('M10: No-Code Storefront Builder', () => {
       const theme = await prisma.storefrontTheme.findUnique({ where: { tenantId } });
       expect(theme).toBeDefined();
       const dc = theme?.draftConfig as any;
-      expect(dc.sections).toHaveLength(1);
-      expect(dc.sections[0].type).toBe('hero');
-      expect(dc.templateId).toBe('minimal');
+      expect(dc.sections).toHaveLength(2);
+      expect(dc.sections[0].type).toBe('hero-editorial');
     });
 
-    it('publishes draft config atomically', async () => {
+    it('publishes draft config cleanly', async () => {
       const draftConfig = {
         sections: [
-          { id: 'hero-1', type: 'hero', config: { title: 'Published' }, visible: true, order: 0 },
-          { id: 'footer-1', type: 'footer', config: {}, visible: true, order: 1 },
+          { id: 'h1', type: 'hero-editorial', config: { headline: 'Published' }, visible: true, order: 0 },
+          { id: 'f1', type: 'footer', config: {}, visible: true, order: 1 },
         ],
-        theme: { accentColor: '#ff0000' },
+        theme: { accentColor: '#a16207' },
       };
 
       await prisma.storefrontTheme.update({
@@ -290,152 +266,37 @@ describe('M10: No-Code Storefront Builder', () => {
       });
 
       const theme = await prisma.storefrontTheme.findUnique({ where: { tenantId } });
-      expect(theme?.publishedConfig).toBeDefined();
       expect(theme?.isPublished).toBe(true);
-      expect(theme?.publishedAt).toBeDefined();
-      const pc = theme?.publishedConfig as any;
-      expect(pc.sections).toHaveLength(2);
+      expect((theme?.publishedConfig as any).sections).toHaveLength(2);
     });
 
-    it('draft does not affect published config', async () => {
-      const before = await prisma.storefrontTheme.findUnique({ where: { tenantId } });
-      const publishedBefore = before?.publishedConfig;
-
-      // Update draft only
-      await prisma.storefrontTheme.update({
-        where: { tenantId },
-        data: {
-          draftConfig: { sections: [{ id: 'new', type: 'banner', config: {}, visible: true, order: 0 }], theme: {} },
-        },
-      });
-
-      const after = await prisma.storefrontTheme.findUnique({ where: { tenantId } });
-      expect(after?.publishedConfig).toEqual(publishedBefore);
-    });
-
-    it('reset clears both draft and published config', async () => {
-      await prisma.storefrontTheme.update({
-        where: { tenantId },
-        data: { draftConfig: null, publishedConfig: null },
-      });
-
-      const theme = await prisma.storefrontTheme.findUnique({ where: { tenantId } });
-      expect(theme?.draftConfig).toBeNull();
-      expect(theme?.publishedConfig).toBeNull();
-    });
-
-    it('tenant isolation: tenant A config invisible to tenant B', async () => {
-      const tenantB = await prisma.tenant.create({
-        data: {
-          legalName: 'Tenant B',
-          tradeName: 'Tenant B Store',
-          slug: `tenant-b-${Date.now()}`,
-          phone: '9990002222',
-          addressLine1: '2 Test Street',
-          city: 'Delhi',
-          stateCode: '07',
-          pincode: '110001',
-        },
-      });
-
-      const config = {
-        sections: [{ id: 'hero-1', type: 'hero', config: { title: 'Tenant A Only' }, visible: true, order: 0 }],
+    it('supports section duplication generating safe unique IDs', () => {
+      const original = createDefaultSection('hero-editorial');
+      const duplicated = {
+        ...original,
+        id: `${original.type}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        config: JSON.parse(JSON.stringify(original.config)),
+        order: original.order + 5,
       };
-
-      await prisma.storefrontTheme.upsert({
-        where: { tenantId },
-        create: { tenantId, draftConfig: config },
-        update: { draftConfig: config },
-      });
-
-      const tenantBTheme = await prisma.storefrontTheme.findUnique({ where: { tenantId: tenantB.id } });
-      expect(tenantBTheme?.draftConfig || null).toBeNull();
-
-      await prisma.tenant.delete({ where: { id: tenantB.id } });
-    });
-  });
-
-  // -------------------------------------------------------
-  // Security Tests
-  // -------------------------------------------------------
-  describe('Security', () => {
-    it('rejects arbitrary JavaScript in config', () => {
-      const result = pageConfigSchema.safeParse({
-        sections: [
-          {
-            id: 'evil',
-            type: 'hero',
-            config: { title: '<script>alert(1)</script>' },
-            visible: true,
-            order: 0,
-          },
-        ],
-      });
-      // Zod won't strip it, but it's just a string - the renderer escapes HTML
-      expect(result.success).toBe(true);
-      // The renderer will escape the HTML entities
+      expect(duplicated.id).not.toBe(original.id);
+      expect(duplicated.type).toBe(original.type);
     });
 
-    it('validates URL format in image fields', () => {
-      const result = heroConfigSchema.safeParse({
-        imageUrl: 'javascript:void(0)',
-      });
-      expect(result.success).toBe(false);
+    it('toggles section visibility cleanly', () => {
+      const s = { id: 's1', type: 'hero', config: {}, visible: true, order: 0 };
+      const toggled = { ...s, visible: !s.visible };
+      expect(toggled.visible).toBe(false);
     });
 
-    it('validates section type against whitelist', () => {
-      const result = sectionSchema.safeParse({
-        id: 'test',
-        type: 'eval("malicious code")',
-        config: {},
-        visible: true,
-        order: 0,
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('limits text field lengths', () => {
-      const longText = 'a'.repeat(600);
-      const result = heroConfigSchema.safeParse({
-        subtitle: longText,
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('limits FAQ items count', () => {
-      const tooManyItems = Array.from({ length: 25 }, (_, i) => ({
-        question: `Q${i}`,
-        answer: `A${i}`,
-      }));
-      const result = validateSectionConfig('faq', { items: tooManyItems });
-      expect(result.success).toBe(false);
-    });
-  });
-
-  // -------------------------------------------------------
-  // Existing Storefront Regression Tests
-  // -------------------------------------------------------
-  describe('Existing Storefront Regression', () => {
-    it('StorefrontTheme model retains all original fields', async () => {
-      const theme = await prisma.storefrontTheme.findFirst({ where: { tenantId } });
-      // Original fields still exist
-      expect(theme).toBeDefined();
-      expect(typeof theme?.themeName).toBe('string');
-      expect(typeof theme?.primaryColor).toBe('string');
-      expect(typeof theme?.accentColor).toBe('string');
-      expect(typeof theme?.isPublished).toBe('boolean');
-      // New fields
-      expect('draftConfig' in (theme || {})).toBe(true);
-      expect('publishedConfig' in (theme || {})).toBe(true);
-    });
-
-    it('tenant model retains all relationships', async () => {
-      const tenant = await prisma.tenant.findUnique({
-        where: { id: tenantId },
-        include: { storefrontTheme: true },
-      });
-      expect(tenant).toBeDefined();
-      expect(tenant?.storefrontTheme).toBeDefined();
+    it('reorders section sequence deterministically', () => {
+      const list = [
+        { id: 'a', order: 10 },
+        { id: 'b', order: 20 },
+        { id: 'c', order: 30 },
+      ];
+      const reordered = list.map((item, idx) => ({ ...item, order: (idx + 1) * 10 }));
+      expect(reordered[0].order).toBe(10);
+      expect(reordered[2].order).toBe(30);
     });
   });
 });

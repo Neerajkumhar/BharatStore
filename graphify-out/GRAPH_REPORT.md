@@ -1,16 +1,16 @@
-# Graph Report - BharatStore  (2026-09-06)
+# Graph Report - BharatStore  (2026-09-08)
 
 ## Corpus Check
-- 196 files · ~128,355 words
+- 261 files · ~164,579 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1042 nodes · 1810 edges · 76 communities (65 shown, 11 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 1366 nodes · 2541 edges · 90 communities (72 shown, 18 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `34e0bb6c`
+- Built from commit: `9f961edb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -42,8 +42,8 @@
 - 5. Application Navigation
 - 11. Database Entity Model
 - 1. Product Vision
-- 12. API Architecture
-- 2. User Types
+- component-registry.ts
+- component-preview-registry.ts
 - seed.ts
 - app/layout.tsx
 - next.config.mjs
@@ -53,68 +53,82 @@
 - authorizeRequest
 - Global Constraints
 - Global Constraints
-- constants/index.ts
+- animation-wrapper.tsx
 - reports/page.tsx
 - notifications/page.tsx
-- utils/index.ts
-- [slug]/layout.tsx
-- storefront-renderer.tsx
+- constants/index.ts
+- useCart
+- section-component-map.ts
 - schemas/index.ts
 - campaigns/route.ts
 - marketing/page.tsx
-- product.ts
+- countdown-sale-section.tsx
 - staff/page.tsx
-- order.ts
+- builder/page.tsx
 - BharatStore — Production Deployment & Operational Manual
 - StorefrontSettingsPage
 - audit/page.tsx
 - security/page.tsx
 - SettingsPage
-- notifications.ts
+- send/route.ts
 - storefront-builder.ts
 - M10: No-Code Storefront Builder & Template System — Design
+- storefront-variant-driven.test.ts
+- builder-workspace.tsx
+- storefront-demo-adapters.ts
 - product-card.tsx
-- builder-settings.tsx
-- component-registry.ts
-- builder/page.tsx
 - M10: No-Code Storefront Builder & Template System — Implementation Plan
-- builder-sidebar.tsx
-- builder-canvas.tsx
-- products/[id]/page.tsx
+- section-preview-loader.ts
+- storefront-templates.ts
+- builder/route.ts
 - categories-section.tsx
-- footer-section.tsx
-- hero-section.tsx
-- trust-section.tsx
-- testimonials-section.tsx
+- storefront-section-preview.tsx
+- 2. User Types
+- storefront-demo-data.ts
+- product-carousel-section.tsx
+- theme-preview-modal.tsx
+- faq-section.tsx
+- preview-html.ts
+- storefront-renderer.tsx
+- hero-editorial-section.tsx
+- hero-split-section.tsx
+- lookbook-section.tsx
+- product-spotlight-section.tsx
+- mega-menu-section.tsx
+- 12. API Architecture
+- routine-builder-section.tsx
+- template-selector.tsx
+- editorial-split-section.tsx
+- reviews-summary-section.tsx
 
 ## God Nodes (most connected - your core abstractions)
-1. `authorizeRequest()` - 107 edges
-2. `getTenantDb()` - 92 edges
-3. `prisma` - 56 edges
-4. `PERMISSIONS` - 44 edges
-5. `7. Screen Architecture` - 28 edges
-6. `cn()` - 24 edges
-7. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
-8. `M10: No-Code Storefront Builder & Template System — Design` - 22 edges
-9. `Button` - 19 edges
-10. `3.1 Detailed Module Breakdown (18 Core Modules)` - 19 edges
+1. `authorizeRequest()` - 109 edges
+2. `getTenantDb()` - 93 edges
+3. `prisma` - 57 edges
+4. `PERMISSIONS` - 45 edges
+5. `AnimationWrapper()` - 33 edges
+6. `7. Screen Architecture` - 28 edges
+7. `cn()` - 24 edges
+8. `BharatStore M0+M1 Implementation Plan — Foundations, Auth & Tenant Core` - 24 edges
+9. `M10: No-Code Storefront Builder & Template System — Design` - 22 edges
+10. `Button` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `BuilderSidebarProps` --references--> `SectionType`  [EXTRACTED]
-  apps/web/components/builder/builder-sidebar.tsx → packages/shared/src/constants/component-registry.ts
+- `POST()` --calls--> `buildTemplatePageConfig()`  [EXTRACTED]
+  apps/web/app/api/admin/storefront/builder/apply-theme/route.ts → packages/shared/src/constants/storefront-templates.ts
 - `POST()` --calls--> `getTenantDb()`  [EXTRACTED]
   apps/web/app/api/admin/storefront/builder/publish/route.ts → packages/database/src/client.ts
-- `POST()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/admin/storefront/builder/reset/route.ts → packages/database/src/client.ts
 - `POST()` --calls--> `getTemplateSections()`  [EXTRACTED]
   apps/web/app/api/admin/storefront/builder/reset/route.ts → packages/shared/src/constants/storefront-templates.ts
 - `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
-  apps/web/app/api/analytics/alerts/route.ts → packages/database/src/client.ts
+  apps/web/app/api/admin/storefront/builder/route.ts → packages/database/src/client.ts
+- `GET()` --calls--> `getTenantDb()`  [EXTRACTED]
+  apps/web/app/api/analytics/customers/route.ts → packages/database/src/client.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (76 total, 11 thin omitted)
+## Communities (90 total, 18 thin omitted)
 
 ### Community 0 - "button.tsx"
 Cohesion: 0.05
@@ -133,8 +147,8 @@ Cohesion: 0.07
 Nodes (28): 7.10 Categories (`/dashboard/categories`), 7.11 Inventory (`/dashboard/inventory`), 7.12 Inventory Details (drawer `/dashboard/inventory/[id]`), 7.13 Orders (`/dashboard/orders`), 7.14 Order Details (`/dashboard/orders/[id]`), 7.15 Customers (`/dashboard/customers`), 7.16 Customer Details (`/dashboard/customers/[id]`), 7.17 Payments (`/dashboard/payments`) (+20 more)
 
 ### Community 4 - "database/src/index.ts"
-Cohesion: 0.09
-Nodes (10): POST(), GET(), POST(), POST(), CartItemForCoupon, CouponValidationResult, validateCouponForCart(), prisma (+2 more)
+Cohesion: 0.08
+Nodes (11): POST(), GET(), POST(), POST(), CartItemForCoupon, CouponValidationResult, validateCouponForCart(), prisma (+3 more)
 
 ### Community 5 - "dependencies"
 Cohesion: 0.04
@@ -161,8 +175,8 @@ Cohesion: 0.10
 Nodes (19): DOM, DOM.Iterable, ESNext, compilerOptions, allowJs, declaration, declarationMap, esModuleInterop (+11 more)
 
 ### Community 11 - "notification-engine.ts"
-Cohesion: 0.15
-Nodes (14): POST(), dispatchNotification(), DispatchNotificationOptions, EmailProvider, getProviderAdapter(), InAppProvider, interpolateTemplate(), NotificationChannel (+6 more)
+Cohesion: 0.16
+Nodes (13): dispatchNotification(), DispatchNotificationOptions, EmailProvider, getProviderAdapter(), InAppProvider, interpolateTemplate(), NotificationChannel, NotificationPriority (+5 more)
 
 ### Community 12 - "shared/package.json"
 Cohesion: 0.11
@@ -224,13 +238,13 @@ Nodes (5): 11.1 Global Tables (non-tenant), 11.2 Tenant Tables (all carry `busin
 Cohesion: 0.40
 Nodes (5): 1.1 The Problem, 1.2 The Vision, 1.3 Key Differentiators, 1.4 Product Principles, 1. Product Vision
 
-### Community 27 - "12. API Architecture"
-Cohesion: 0.50
-Nodes (4): 12.1 Conventions, 12.2 Endpoints by Module, 12.3 Error codes, 12. API Architecture
+### Community 27 - "component-registry.ts"
+Cohesion: 0.20
+Nodes (10): BuilderSidebar(), BuilderSidebarProps, iconMap, SectionItem, COMPONENT_CATEGORIES, COMPONENT_REGISTRY, getSectionDefinition(), SECTION_TYPES (+2 more)
 
-### Community 28 - "2. User Types"
-Cohesion: 0.50
-Nodes (4): 2.1 Personas, 2.2 Role Model, 2.3 Permission Matrix, 2. User Types
+### Community 28 - "component-preview-registry.ts"
+Cohesion: 0.10
+Nodes (28): getStoreSectionIcon(), STORE_ICON_MAP, ComponentPreviewModal(), ComponentPreviewModalProps, industryLabel(), SectionAddPayload, industryLabel(), MiniPreviewCard() (+20 more)
 
 ### Community 33 - "next.config.mjs"
 Cohesion: 0.50
@@ -245,8 +259,8 @@ Cohesion: 0.22
 Nodes (8): Global Constraints, Milestone 2: Product Catalog, Variants, HSN Tax Mapping & Double-Entry Inventory Ledger Implementation Plan, Task 1: Shared Schemas & GST HSN Rate Constants, Task 2: API Endpoints for Categories & Product Catalog Management, Task 3: Double-Entry Inventory Ledger & Stock Adjustment API, Task 4: Product Catalog Management UI Pages, Task 5: Add/Edit Product & Variant Matrix Generator UI, Task 6: Double-Entry Inventory Ledger Management UI
 
 ### Community 39 - "authorizeRequest"
-Cohesion: 0.11
-Nodes (32): DELETE(), PUT(), GET(), PUT(), GET(), PUT(), GET(), POST() (+24 more)
+Cohesion: 0.10
+Nodes (34): GET(), POST(), GET(), PUT(), BusinessAlert, GET(), GET(), GET() (+26 more)
 
 ### Community 40 - "Global Constraints"
 Cohesion: 0.20
@@ -256,29 +270,29 @@ Nodes (9): Global Constraints, Milestone 4: Business Analytics & Intelligence Im
 Cohesion: 0.25
 Nodes (7): Global Constraints, Milestone 3: Omnichannel Orders, Customer Directory, Khata Ledger & Counter POS Terminal Implementation Plan, Task 1: Shared Schemas & GST Tax Calculation Engine, Task 2: API Endpoints for Omnichannel Checkout, Customers & Khata Ledger, Task 3: Customer Directory & Khata Ledger UI, Task 4: Counter POS Terminal Interface, Task 5: Omnichannel Orders & GST Invoice Management UI
 
-### Community 42 - "constants/index.ts"
-Cohesion: 0.09
-Nodes (22): GET(), GET(), GET(), POST(), POST(), POST(), GET(), BusinessAlert (+14 more)
+### Community 42 - "animation-wrapper.tsx"
+Cohesion: 0.07
+Nodes (29): AnimationType, AnimationWrapper(), AnimationWrapperProps, AsymmetricGallerySection(), AsymmetricGallerySectionProps, BrandStorySection(), BrandStorySectionProps, CategoryCircularSection() (+21 more)
 
 ### Community 45 - "notifications/page.tsx"
 Cohesion: 0.40
 Nodes (3): NotificationAnalytics, NotificationItem, NotificationTemplate
 
-### Community 46 - "utils/index.ts"
-Cohesion: 0.16
-Nodes (11): GET(), GET(), GET(), GET(), GET(), GET(), GET(), calculatePercentageChange() (+3 more)
-
-### Community 47 - "[slug]/layout.tsx"
-Cohesion: 0.18
-Nodes (12): indianStates, StorefrontCheckoutPage(), CartContext, CartContextType, CartItem, CartProvider(), useCart(), CartDrawer() (+4 more)
-
-### Community 48 - "storefront-renderer.tsx"
+### Community 46 - "constants/index.ts"
 Cohesion: 0.11
-Nodes (19): AboutSection(), AboutSectionProps, AnnouncementSection(), AnnouncementSectionProps, BannerSection(), BannerSectionProps, ContactSection(), ContactSectionProps (+11 more)
+Nodes (23): GET(), DELETE(), PUT(), GET(), POST(), POST(), GET(), GET() (+15 more)
+
+### Community 47 - "useCart"
+Cohesion: 0.11
+Nodes (18): indianStates, StorefrontCheckoutPage(), CartContext, CartContextType, CartItem, CartProvider(), useCart(), CartDrawer() (+10 more)
+
+### Community 48 - "section-component-map.ts"
+Cohesion: 0.06
+Nodes (28): SectionRenderDigest, SectionRenderExtraProps, SECTIONS_NEEDING_CATEGORIES, SECTIONS_NEEDING_PRODUCTS, SECTIONS_NEEDING_STORE_DATA, SECTIONS_NEEDING_THEME, AboutSection(), AboutSectionProps (+20 more)
 
 ### Community 49 - "schemas/index.ts"
-Cohesion: 0.16
-Nodes (8): GET(), POST(), POST(), POST(), POST(), createCustomerSchema, logKhataSchema, adjustInventorySchema
+Cohesion: 0.08
+Nodes (17): GET(), POST(), GET(), POST(), POST(), POST(), GET(), POST() (+9 more)
 
 ### Community 50 - "campaigns/route.ts"
 Cohesion: 0.17
@@ -288,90 +302,118 @@ Nodes (9): GET(), POST(), GET(), POST(), createCampaignSchema, createCouponSchem
 Cohesion: 0.40
 Nodes (3): Campaign, Coupon, MarketingAnalytics
 
-### Community 52 - "product.ts"
-Cohesion: 0.40
-Nodes (4): createCategorySchema, createProductSchema, updateProductSchema, variantInputSchema
+### Community 54 - "builder/page.tsx"
+Cohesion: 0.13
+Nodes (9): BuilderState, SectionItem, BuilderSettings(), BuilderSettingsProps, SectionItem, BuilderToolbar(), BuilderToolbarProps, SectionType (+1 more)
 
 ### Community 55 - "BharatStore — Production Deployment & Operational Manual"
 Cohesion: 0.17
 Nodes (11): 1. System Requirements & Prerequisites, 2. Environment Configuration, 3. Database Deployment & Migration Strategy, 4. Production Build & Execution, 5. Operational Health Check Verification, 6. Database Backup & Recovery Strategy, 7. Notification Provider Configuration, 8. Security & Hardening Checklist (+3 more)
 
-### Community 60 - "notifications.ts"
-Cohesion: 0.20
-Nodes (9): createNotificationSchema, createTemplateSchema, markReadSchema, notificationChannelEnum, notificationPriorityEnum, notificationTypeEnum, sendNotificationSchema, updatePreferenceSchema (+1 more)
+### Community 60 - "send/route.ts"
+Cohesion: 0.12
+Nodes (12): GET(), POST(), POST(), POST(), createTemplateSchema, markReadSchema, notificationChannelEnum, notificationPriorityEnum (+4 more)
 
 ### Community 61 - "storefront-builder.ts"
-Cohesion: 0.10
-Nodes (22): getSectionDefinition(), VALID_SECTION_TYPES, announcementConfigSchema, bannerConfigSchema, builderUpdateSchema, contactConfigSchema, faqConfigSchema, faqItemSchema (+14 more)
+Cohesion: 0.04
+Nodes (53): aboutConfigSchema, animationSchema, asymmetricGalleryConfigSchema, bannerConfigSchema, brandLogosConfigSchema, brandStoryConfigSchema, builderUpdateSchema, cardVariantSchema (+45 more)
 
 ### Community 62 - "M10: No-Code Storefront Builder & Template System — Design"
 Cohesion: 0.09
 Nodes (22): 10. Builder UI, 11. Image Management, 12. Real Commerce Data, 13. SEO, 14. Performance, 15. Security, 16. Audit Logging, 17. Testing (+14 more)
 
-### Community 63 - "product-card.tsx"
-Cohesion: 0.15
-Nodes (10): ProductCard(), ProductCardProps, colMap, FeaturedProductsSection(), FeaturedProductsSectionProps, Product, colMap, Product (+2 more)
-
-### Community 64 - "builder-settings.tsx"
+### Community 63 - "storefront-variant-driven.test.ts"
 Cohesion: 0.12
-Nodes (7): BuilderSettingsProps, SectionItem, aboutConfigSchema, categoriesConfigSchema, featuredProductsConfigSchema, footerConfigSchema, testimonialsConfigSchema
+Nodes (13): CARD_VARIANT_LABELS, CARD_VARIANT_VALUES, DEFAULT_CARD_VARIANT, SECTION_VARIANT_REGISTRY, SectionCardVariantDefinition, categoriesConfigSchema, ingredientHighlightsConfigSchema, megaMenuConfigSchema (+5 more)
 
-### Community 65 - "component-registry.ts"
-Cohesion: 0.26
-Nodes (9): StorefrontBuilderPage(), createDefaultSection(), SECTION_TYPES, SectionDefinition, SectionType, getTemplateById(), getTemplateSections(), makeSections() (+1 more)
+### Community 64 - "builder-workspace.tsx"
+Cohesion: 0.33
+Nodes (8): BuilderWorkspace, BuilderWorkspaceHandle, BuilderWorkspaceProps, clamp(), DEFAULT_PREFS, loadPrefs(), useIsDesktop(), WorkspacePrefs
 
-### Community 66 - "builder/page.tsx"
-Cohesion: 0.20
-Nodes (8): BuilderState, SectionItem, BuilderSettings(), BuilderToolbar(), BuilderToolbarProps, TemplateSelector(), TemplateSelectorProps, STOREFRONT_TEMPLATES
+### Community 65 - "storefront-demo-adapters.ts"
+Cohesion: 0.25
+Nodes (10): DemoCategoryShape, DemoPreviewBundle, DemoProductCardShape, DemoStoreDataShape, getDemoPreviewBundle(), slugify(), toDemoCategories(), toDemoProductCards() (+2 more)
+
+### Community 66 - "product-card.tsx"
+Cohesion: 0.09
+Nodes (23): TabItem, TabsPrimitive(), TabsPrimitiveProps, ProductCard(), ProductCardProps, ProductCardVariant, colMap, FeaturedProductsSection() (+15 more)
 
 ### Community 67 - "M10: No-Code Storefront Builder & Template System — Implementation Plan"
 Cohesion: 0.25
 Nodes (7): File Structure Map, M10: No-Code Storefront Builder & Template System — Implementation Plan, Task 1: Add pageConfig columns to StorefrontTheme + Prisma migration, Task 2: Add STOREFRONT_BUILDER_WRITE permission + role map, Task 3: Shared storefront schemas (Zod), Task 4: Storefront types, templates, and serialize helpers, Task 5: Section components (shared public + preview)
 
-### Community 68 - "builder-sidebar.tsx"
-Cohesion: 0.29
-Nodes (6): ADDABLE_TYPES, BuilderSidebar(), BuilderSidebarProps, iconMap, SectionItem, COMPONENT_REGISTRY
+### Community 68 - "section-preview-loader.ts"
+Cohesion: 0.09
+Nodes (17): SECTION_PREVIEW_LOADERS, DeliveryInfoSection(), DeliveryInfoSectionProps, FooterSection(), FooterSectionProps, iconMap, ValueProp, alignMap (+9 more)
 
-### Community 69 - "builder-canvas.tsx"
-Cohesion: 0.47
-Nodes (5): BuilderCanvas(), BuilderCanvasProps, escapeHTML(), generatePreviewHTML(), viewportWidths
+### Community 69 - "storefront-templates.ts"
+Cohesion: 0.12
+Nodes (25): StorefrontBuilderPage(), StorefrontThemesPage(), ThemeGallery(), ThemeGalleryProps, createDefaultSection(), filterTemplates(), getGalleryCategories(), getTemplateById() (+17 more)
+
+### Community 70 - "builder/route.ts"
+Cohesion: 0.33
+Nodes (6): POST(), GET(), PUT(), saveStorefrontDraft(), SaveStorefrontDraftOptions, applyThemeRequestSchema
 
 ### Community 71 - "categories-section.tsx"
 Cohesion: 0.40
 Nodes (4): CategoriesSection(), CategoriesSectionProps, Category, colMap
 
-### Community 72 - "footer-section.tsx"
-Cohesion: 0.40
-Nodes (4): FooterSection(), FooterSectionProps, iconMap, ValueProp
+### Community 72 - "storefront-section-preview.tsx"
+Cohesion: 0.39
+Nodes (7): getSectionExtraProps(), getPreviewLoader(), PREVIEW_DESIGN_WIDTH, StorefrontSectionPreview(), StorefrontSectionPreviewProps, useElementSize(), useInView()
 
-### Community 73 - "hero-section.tsx"
-Cohesion: 0.40
-Nodes (4): alignMap, heightMap, HeroSection(), HeroSectionProps
-
-### Community 74 - "trust-section.tsx"
-Cohesion: 0.40
-Nodes (4): iconMap, TrustBadge, TrustSection(), TrustSectionProps
-
-### Community 75 - "testimonials-section.tsx"
+### Community 73 - "2. User Types"
 Cohesion: 0.50
-Nodes (3): Testimonial, TestimonialsSection(), TestimonialsSectionProps
+Nodes (4): 2.1 Personas, 2.2 Role Model, 2.3 Permission Matrix, 2. User Types
+
+### Community 74 - "storefront-demo-data.ts"
+Cohesion: 0.12
+Nodes (14): bannerSeed, categoryNames, DemoBanner, DemoDataset, demoDatasets, DemoTestimonial, PreviewDemoPayload, productSeeds (+6 more)
+
+### Community 75 - "product-carousel-section.tsx"
+Cohesion: 0.24
+Nodes (7): CarouselPrimitive(), CarouselPrimitiveProps, ProductCarouselSection(), ProductCarouselSectionProps, Testimonial, TestimonialsSection(), TestimonialsSectionProps
+
+### Community 76 - "theme-preview-modal.tsx"
+Cohesion: 0.21
+Nodes (14): ApplyThemeDialog(), ApplyThemeDialogProps, getPreviewViewportWidth(), ThemeCard(), ThemeCardProps, PreviewViewport, ThemePreviewModal(), ThemePreviewModalProps (+6 more)
+
+### Community 77 - "faq-section.tsx"
+Cohesion: 0.32
+Nodes (6): AccordionItem, AccordionPrimitive(), AccordionPrimitiveProps, FaqItem, FaqSection(), FaqSectionProps
+
+### Community 78 - "preview-html.ts"
+Cohesion: 0.23
+Nodes (12): BuilderCanvas(), BuilderCanvasProps, SectionItem, discountPercent(), esc(), generateStorefrontPreviewHTML(), PreviewDemoData, stars() (+4 more)
+
+### Community 79 - "storefront-renderer.tsx"
+Cohesion: 0.25
+Nodes (10): SECTION_COMPONENT_MAP, getBorderRadius(), getFontFamily(), PageConfig, resolveSectionData(), SectionConfig, SectionRenderContext, StorefrontRenderer() (+2 more)
+
+### Community 84 - "mega-menu-section.tsx"
+Cohesion: 0.40
+Nodes (4): defaultGroups, MegaMenuSection(), MegaMenuSectionProps, tileColors
+
+### Community 85 - "12. API Architecture"
+Cohesion: 0.50
+Nodes (4): 12.1 Conventions, 12.2 Endpoints by Module, 12.3 Error codes, 12. API Architecture
 
 ## Knowledge Gaps
-- **468 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+463 more)
+- **589 isolated node(s):** `OverviewData`, `SalesData`, `ProductData`, `AuditLogEntry`, `sampleOrders` (+584 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `prisma` connect `database/src/index.ts` to `products/[id]/page.tsx`, `authorizeRequest`, `lib/auth.ts`, `constants/index.ts`, `notification-engine.ts`, `[slug]/layout.tsx`, `storefront-renderer.tsx`, `schemas/index.ts`, `campaigns/route.ts`, `storefront-builder.ts`, `product-card.tsx`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **Why does `cn()` connect `button.tsx` to `kpi-card.tsx`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
-- **Why does `authorizeRequest()` connect `authorizeRequest` to `database/src/index.ts`, `lib/auth.ts`, `constants/index.ts`, `notification-engine.ts`, `utils/index.ts`, `schemas/index.ts`, `campaigns/route.ts`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `prisma` connect `database/src/index.ts` to `product-card.tsx`, `storefront-templates.ts`, `builder/route.ts`, `authorizeRequest`, `lib/auth.ts`, `notification-engine.ts`, `constants/index.ts`, `useCart`, `storefront-renderer.tsx`, `schemas/index.ts`, `campaigns/route.ts`, `send/route.ts`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `SECTION_TYPES` connect `component-registry.ts` to `section-preview-loader.ts`, `storefront-templates.ts`, `storefront-renderer.tsx`, `section-component-map.ts`, `component-preview-registry.ts`, `storefront-builder.ts`, `storefront-variant-driven.test.ts`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **What connects `OverviewData`, `SalesData`, `ProductData` to the rest of the system?**
-  _468 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _589 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `button.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.0547022932884494 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**

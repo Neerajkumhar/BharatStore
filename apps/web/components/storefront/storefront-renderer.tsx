@@ -1,18 +1,8 @@
 import React from 'react';
 import { prisma } from '@bharatstore/database';
-import { isValidSectionType } from '@bharatstore/shared/constants';
-import { AnnouncementSection } from './sections/announcement-section';
-import { HeroSection } from './sections/hero-section';
-import { CategoriesSection } from './sections/categories-section';
-import { FeaturedProductsSection } from './sections/featured-products-section';
-import { ProductGridSection } from './sections/product-grid-section';
-import { BannerSection } from './sections/banner-section';
-import { AboutSection } from './sections/about-section';
-import { TrustSection } from './sections/trust-section';
-import { TestimonialsSection } from './sections/testimonials-section';
-import { FaqSection } from './sections/faq-section';
-import { ContactSection } from './sections/contact-section';
-import { FooterSection } from './sections/footer-section';
+import { isValidSectionType, SECTION_TYPES } from '@bharatstore/shared/constants';
+
+import { SECTION_COMPONENT_MAP, getSectionExtraProps } from './section-component-map';
 
 interface SectionConfig {
   id: string;
@@ -48,8 +38,11 @@ interface StorefrontRendererProps {
 
 async function resolveSectionData(section: SectionConfig, tenantId: string, slug: string) {
   switch (section.type) {
-    case 'categories': {
-      const limit = (section.config.limit as number) || 6;
+    case SECTION_TYPES.CATEGORIES:
+    case SECTION_TYPES.CATEGORY_CIRCULAR:
+    case SECTION_TYPES.CATEGORY_MEGA:
+    case SECTION_TYPES.MEGA_MENU: {
+      const limit = (section.config.limit as number) || 8;
       const categories = await prisma.category.findMany({
         where: { tenantId },
         take: limit,
@@ -57,9 +50,15 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
       });
       return { categories };
     }
-    case 'featured-products':
-    case 'product-grid': {
-      const limit = (section.config.limit as number) || 8;
+
+    case SECTION_TYPES.FEATURED_PRODUCTS:
+    case SECTION_TYPES.PRODUCT_GRID:
+    case SECTION_TYPES.PRODUCT_CAROUSEL:
+    case SECTION_TYPES.PRODUCT_RAIL:
+    case SECTION_TYPES.PRODUCT_TRENDING:
+    case SECTION_TYPES.PRODUCT_TABS:
+    case SECTION_TYPES.FLASH_SALE: {
+      const limit = (section.config.limit as number) || 12;
       const products = await prisma.product.findMany({
         where: { tenantId, isPublished: true },
         take: limit,
@@ -68,11 +67,16 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
           category: { select: { id: true, name: true, slug: true } },
           variants: {
             select: {
-              id: true, sku: true, variantName: true, priceOverride: true, currentStock: true,
+              id: true,
+              sku: true,
+              variantName: true,
+              priceOverride: true,
+              currentStock: true,
             },
           },
         },
       });
+
       const formatted = products.map((p) => ({
         id: p.id,
         title: p.title,
@@ -91,6 +95,7 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
       }));
       return { products: formatted };
     }
+
     default:
       return {};
   }
@@ -110,6 +115,14 @@ function getFontFamily(font?: string): string {
 function getBorderRadius(style?: string): string {
   const map: Record<string, string> = { none: '0', sm: '4px', md: '8px', lg: '12px', xl: '16px' };
   return map[style || 'lg'] || map.lg;
+}
+
+interface SectionRenderContext {
+  section: SectionConfig;
+  slug: string;
+  sectionTheme: { primaryColor?: string; accentColor?: string };
+  data: Record<string, unknown>;
+  storeData: StorefrontRendererProps['storeData'];
 }
 
 export async function StorefrontRenderer({ config, slug, tenantId, storeData, isPreview }: StorefrontRendererProps) {
@@ -141,40 +154,30 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
       data-bharatstore-preview={isPreview ? 'true' : undefined}
     >
       {sections.map((section, index) => {
-        const data = sectionDataResults[index];
+        const data = sectionDataResults[index] as Record<string, unknown>;
         const sectionTheme = {
           primaryColor: theme.primaryColor as string,
           accentColor: theme.accentColor as string,
         };
 
-        switch (section.type) {
-          case 'announcement':
-            return <AnnouncementSection key={section.id} config={section.config as any} slug={slug} />;
-          case 'hero':
-            return <HeroSection key={section.id} config={section.config as any} slug={slug} theme={sectionTheme} />;
-          case 'categories':
-            return <CategoriesSection key={section.id} config={section.config as any} slug={slug} categories={(data as any)?.categories} theme={sectionTheme} />;
-          case 'featured-products':
-            return <FeaturedProductsSection key={section.id} config={section.config as any} slug={slug} products={(data as any)?.products} theme={sectionTheme} />;
-          case 'product-grid':
-            return <ProductGridSection key={section.id} config={section.config as any} slug={slug} products={(data as any)?.products} theme={sectionTheme} />;
-          case 'banner':
-            return <BannerSection key={section.id} config={section.config as any} slug={slug} />;
-          case 'about':
-            return <AboutSection key={section.id} config={section.config as any} theme={sectionTheme} />;
-          case 'trust':
-            return <TrustSection key={section.id} config={section.config as any} theme={sectionTheme} />;
-          case 'testimonials':
-            return <TestimonialsSection key={section.id} config={section.config as any} theme={sectionTheme} />;
-          case 'faq':
-            return <FaqSection key={section.id} config={section.config as any} theme={sectionTheme} />;
-          case 'contact':
-            return <ContactSection key={section.id} config={section.config as any} storeData={storeData} theme={sectionTheme} />;
-          case 'footer':
-            return <FooterSection key={section.id} config={section.config as any} slug={slug} storeData={storeData} theme={sectionTheme} />;
-          default:
-            return null;
-        }
+        const Component = SECTION_COMPONENT_MAP[section.type];
+        if (!Component) return null;
+
+        const extraProps = getSectionExtraProps({
+          type: section.type,
+          data,
+          theme: sectionTheme,
+          storeData,
+        });
+
+        return (
+          <Component
+            key={section.id}
+            config={section.config as never}
+            slug={slug}
+            {...extraProps}
+          />
+        );
       })}
     </div>
   );

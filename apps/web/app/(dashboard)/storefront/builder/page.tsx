@@ -8,7 +8,8 @@ import { BuilderCanvas } from '@/components/builder/builder-canvas';
 import { BuilderSettings } from '@/components/builder/builder-settings';
 import { BuilderWorkspace, type BuilderWorkspaceHandle } from '@/components/builder/builder-workspace';
 import { SectionPickerModal } from '@/components/builder/section-picker-modal';
-import { createDefaultSection, type SectionType } from '@bharatstore/shared/constants';
+import type { SectionAddPayload } from '@/components/builder/component-preview-modal';
+import { createDefaultSection, getTemplateById, type SectionType, type TemplateCategory } from '@bharatstore/shared/constants';
 import { Layers, Sliders, Palette, Eye, X } from 'lucide-react';
 
 interface SectionItem {
@@ -175,13 +176,13 @@ export default function StorefrontBuilderPage() {
     }
   };
 
-  const handleAddSection = (type: SectionType) => {
-    const defaultSec = createDefaultSection(type);
+  const handleAddSection = (payload: SectionAddPayload) => {
+    const defaultSec = createDefaultSection(payload.sectionType as SectionType);
     const maxOrder = builderState.sections.reduce((max, s) => Math.max(max, s.order), 0);
     const newSection: SectionItem = {
-      id: `${type}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      type,
-      config: defaultSec.config,
+      id: `${payload.sectionType}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type: payload.sectionType,
+      config: { ...defaultSec.config, ...payload.config },
       visible: true,
       order: maxOrder + 10,
     };
@@ -413,6 +414,7 @@ export default function StorefrontBuilderPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddSection={handleAddSection}
+        storeCategory={getTemplateById(builderState.templateId ?? '')?.category ?? 'general'}
       />
     </div>
   );

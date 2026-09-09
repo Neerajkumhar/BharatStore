@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import React from 'react';
+import { AccordionPrimitive, AccordionItem } from '../primitives/accordion-primitive';
+import { AnimationWrapper } from '../primitives/animation-wrapper';
 
 interface FaqItem {
   question: string;
@@ -12,42 +13,37 @@ interface FaqSectionProps {
   config: {
     title?: string;
     items?: FaqItem[];
+    animation?: 'none' | 'fade' | 'fade-up' | 'slide-up' | 'scale';
   };
   theme?: { accentColor?: string };
 }
 
-export function FaqSection({ config, theme }: FaqSectionProps) {
-  const accent = theme?.accentColor || '#d97706';
-  const items = config.items || [];
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+export function FaqSection({ config }: FaqSectionProps) {
+  const items = config.items?.length
+    ? config.items
+    : [
+        { question: 'What payment methods do you accept?', answer: 'We accept Cash on Delivery, UPI, Credit/Debit cards, and Khata credit.' },
+        { question: 'How long does delivery take?', answer: 'Orders are dispatched within 24 hours and delivered in 2-4 business days.' },
+        { question: 'Do you provide a tax invoice for GST claiming?', answer: 'Yes, every order includes a valid B2B/B2C GST tax invoice.' },
+      ];
+
+  const accordionItems: AccordionItem[] = items.map((item, idx) => ({
+    id: `faq-${idx}`,
+    title: item.question,
+    content: <p className="text-xs text-slate-600 leading-relaxed font-medium">{item.answer}</p>,
+  }));
 
   return (
-    <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <section className="py-12 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">{config.title || 'Frequently Asked Questions'}</h2>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          {config.title || 'Frequently Asked Questions'}
+        </h2>
       </div>
 
-      <div className="space-y-3">
-        {items.map((item, i) => (
-          <div key={i} className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            <button
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition"
-            >
-              <div className="flex items-center gap-3">
-                <HelpCircle className="h-4 w-4 shrink-0" style={{ color: accent }} />
-                <span className="text-sm font-semibold text-slate-900">{item.question}</span>
-              </div>
-              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${openIndex === i ? 'rotate-180' : ''}`} />
-            </button>
-            {openIndex === i && (
-              <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3 ml-7">
-                {item.answer}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      <AnimationWrapper animation={config.animation || 'fade-up'}>
+        <AccordionPrimitive items={accordionItems} />
+      </AnimationWrapper>
     </section>
   );
 }

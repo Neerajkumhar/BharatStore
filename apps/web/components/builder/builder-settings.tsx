@@ -111,10 +111,12 @@ function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate
           <FieldGroup label="Title"><TextInput value={config.title as string} onChange={(v) => onUpdate({ ...config, title: v })} /></FieldGroup>
           <FieldGroup label="Subtitle"><TextArea value={config.subtitle as string} onChange={(v) => onUpdate({ ...config, subtitle: v })} rows={2} /></FieldGroup>
           <FieldGroup label="Image URL"><TextInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
-          <FieldGroup label="Button Text"><TextInput value={config.ctaText as string} onChange={(v) => onUpdate({ ...config, ctaText: v })} /></FieldGroup>
-          <FieldGroup label="Button Link"><TextInput value={config.ctaLink as string} onChange={(v) => onUpdate({ ...config, ctaLink: v })} placeholder="/products" /></FieldGroup>
+          <FieldGroup label="CTA Text"><TextInput value={config.ctaText as string} onChange={(v) => onUpdate({ ...config, ctaText: v })} /></FieldGroup>
+          <FieldGroup label="CTA Link"><TextInput value={config.ctaLink as string} onChange={(v) => onUpdate({ ...config, ctaLink: v })} placeholder="/products" /></FieldGroup>
           <FieldGroup label="Alignment"><SelectInput value={config.alignment as string} onChange={(v) => onUpdate({ ...config, alignment: v })} options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }, { value: 'right', label: 'Right' }]} /></FieldGroup>
           <FieldGroup label="Height"><SelectInput value={config.height as string} onChange={(v) => onUpdate({ ...config, height: v })} options={[{ value: 'small', label: 'Small' }, { value: 'medium', label: 'Medium' }, { value: 'large', label: 'Large' }]} /></FieldGroup>
+          <FieldGroup label="Background"><ColorInput value={config.backgroundColor as string} onChange={(v) => onUpdate({ ...config, backgroundColor: v })} /></FieldGroup>
+          <FieldGroup label="Overlay Opacity"><SelectInput value={(cfg.overlayOpacity as string) || '40'} onChange={(v) => updateConfig({ ...cfg, overlayOpacity: Number(v) })} options={[{ value: '0', label: '0%' }, { value: '30', label: '30%' }, { value: '50', label: '50%' }, { value: '70', label: '70%' }, { value: '90', label: '90%' }]} /></FieldGroup>
         </div>
       );
     case 'categories':
