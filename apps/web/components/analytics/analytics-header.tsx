@@ -55,25 +55,25 @@ export function AnalyticsHeader() {
   return (
     <div className="space-y-4 mb-6">
       {/* Header Title & Date Range Picker */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-xl shadow-sm border border-slate-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-800">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-amber-500 text-slate-950 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="bg-amber-500 text-slate-950 text-2xs sm:text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               Vedic BI Engine
             </span>
-            <span className="text-slate-400 text-xs font-medium">● Real-time Commerce Telemetry</span>
+            <span className="text-slate-400 text-2xs sm:text-xs font-medium">● Real-time Commerce Telemetry</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Business Analytics & Intelligence</h1>
-          <p className="text-sm text-slate-300 mt-0.5">
+          <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-white">Business Analytics & Intelligence</h1>
+          <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
             Single source of truth calculated directly from transactional ledgers
           </p>
         </div>
 
         {/* Date Controls */}
-        <div className="flex flex-wrap items-center gap-2 bg-slate-800/80 p-1.5 rounded-lg border border-slate-700">
-          <div className="flex items-center gap-1 px-2 text-slate-400 text-xs font-semibold">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 max-w-full overflow-x-auto">
+          <div className="flex items-center gap-1 px-1.5 text-slate-400 text-xs font-semibold shrink-0">
             <Calendar className="h-3.5 w-3.5 text-amber-400" />
-            <span>Period:</span>
+            <span className="hidden sm:inline">Period:</span>
           </div>
           {dateRanges.map((r) => {
             const isSelected = currentRange === r.id;
@@ -82,7 +82,7 @@ export function AnalyticsHeader() {
                 key={r.id}
                 onClick={() => handleRangeChange(r.id)}
                 className={cn(
-                  'px-3 py-1.5 text-xs font-medium rounded-md transition-all',
+                  'px-2.5 sm:px-3 py-1.5 text-2xs sm:text-xs font-medium rounded-md transition-all shrink-0',
                   isSelected
                     ? 'bg-amber-500 text-slate-950 font-semibold shadow-xs'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
@@ -96,7 +96,7 @@ export function AnalyticsHeader() {
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="border-b border-slate-200 bg-white rounded-t-xl px-2 pt-2 flex items-center overflow-x-auto gap-1">
+      <div className="border-b border-slate-200 bg-white rounded-t-xl px-2 pt-2 flex items-center overflow-x-auto gap-1 scrollbar-none max-w-full">
         {analyticsTabs.map((tab) => {
           const isActive =
             tab.href === '/analytics'
@@ -113,13 +113,13 @@ export function AnalyticsHeader() {
               key={tab.id}
               href={`${tab.href}${rangeParam}`}
               className={cn(
-                'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all shrink-0',
+                'flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all shrink-0 whitespace-nowrap',
                 isActive
                   ? 'border-amber-500 text-slate-900 font-semibold bg-amber-50/50 rounded-t-lg'
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
               )}
             >
-              <Icon className={cn('h-4 w-4', isActive ? 'text-amber-600' : 'text-slate-400')} />
+              <Icon className={cn('h-3.5 w-3.5 sm:h-4 sm:w-4', isActive ? 'text-amber-600' : 'text-slate-400')} />
               <span>{tab.label}</span>
             </Link>
           );

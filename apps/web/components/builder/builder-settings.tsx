@@ -91,6 +91,73 @@ function ColorInput({ value, onChange }: { value: string; onChange: (v: string) 
   );
 }
 
+function ImageInput({ value, onChange, placeholder = 'https://...' }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const [showPicker, setShowPicker] = useState(false);
+
+  const sampleImages = [
+    { label: 'Varanasi Silk Saree', url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80' },
+    { label: 'Banarasi Lehengas', url: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80' },
+    { label: 'Traditional Jewellery', url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' },
+    { label: 'Handloom Weaving', url: 'https://images.unsplash.com/photo-1606744888344-49423b812d0d?auto=format&fit=crop&w=800&q=80' },
+    { label: 'Ethnic Kurta Set', url: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80' },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        {value ? (
+          <img src={value} alt="Preview" className="h-9 w-9 rounded-lg object-cover border border-slate-200 shrink-0" />
+        ) : (
+          <div className="h-9 w-9 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-xs shrink-0">
+            🖼️
+          </div>
+        )}
+        <input
+          type="text"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setShowPicker(!showPicker)}
+        className="text-2xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 bg-amber-50 px-2 py-1 rounded hover:bg-amber-100 transition"
+      >
+        <span>📷 {showPicker ? 'Close Sample Gallery' : 'Pick Sample Store Image'}</span>
+      </button>
+
+      {showPicker && (
+        <div className="p-2 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 animate-in fade-in duration-150">
+          <p className="text-3xs font-bold text-slate-400 uppercase tracking-wider">Click any image to select:</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {sampleImages.map((img) => (
+              <button
+                key={img.url}
+                type="button"
+                onClick={() => {
+                  onChange(img.url);
+                  setShowPicker(false);
+                }}
+                className={`group relative rounded-lg overflow-hidden border transition text-left ${
+                  value === img.url ? 'border-amber-500 ring-2 ring-amber-200' : 'border-slate-200 hover:border-slate-400'
+                }`}
+              >
+                <img src={img.url} alt={img.label} className="h-14 w-full object-cover group-hover:scale-105 transition" />
+                <div className="p-1 bg-slate-900/80 backdrop-blur-xs text-white text-3xs font-semibold truncate">
+                  {img.label}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate: (config: Record<string, unknown>) => void }) {
   const { type, config } = section;
 
@@ -110,13 +177,13 @@ function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate
         <div className="space-y-3">
           <FieldGroup label="Title"><TextInput value={config.title as string} onChange={(v) => onUpdate({ ...config, title: v })} /></FieldGroup>
           <FieldGroup label="Subtitle"><TextArea value={config.subtitle as string} onChange={(v) => onUpdate({ ...config, subtitle: v })} rows={2} /></FieldGroup>
-          <FieldGroup label="Image URL"><TextInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
+          <FieldGroup label="Hero Image"><ImageInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
           <FieldGroup label="CTA Text"><TextInput value={config.ctaText as string} onChange={(v) => onUpdate({ ...config, ctaText: v })} /></FieldGroup>
           <FieldGroup label="CTA Link"><TextInput value={config.ctaLink as string} onChange={(v) => onUpdate({ ...config, ctaLink: v })} placeholder="/products" /></FieldGroup>
           <FieldGroup label="Alignment"><SelectInput value={config.alignment as string} onChange={(v) => onUpdate({ ...config, alignment: v })} options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }, { value: 'right', label: 'Right' }]} /></FieldGroup>
           <FieldGroup label="Height"><SelectInput value={config.height as string} onChange={(v) => onUpdate({ ...config, height: v })} options={[{ value: 'small', label: 'Small' }, { value: 'medium', label: 'Medium' }, { value: 'large', label: 'Large' }]} /></FieldGroup>
           <FieldGroup label="Background"><ColorInput value={config.backgroundColor as string} onChange={(v) => onUpdate({ ...config, backgroundColor: v })} /></FieldGroup>
-          <FieldGroup label="Overlay Opacity"><SelectInput value={(cfg.overlayOpacity as string) || '40'} onChange={(v) => updateConfig({ ...cfg, overlayOpacity: Number(v) })} options={[{ value: '0', label: '0%' }, { value: '30', label: '30%' }, { value: '50', label: '50%' }, { value: '70', label: '70%' }, { value: '90', label: '90%' }]} /></FieldGroup>
+          <FieldGroup label="Overlay Opacity"><SelectInput value={(config.overlayOpacity as string) || '40'} onChange={(v) => onUpdate({ ...config, overlayOpacity: Number(v) })} options={[{ value: '0', label: '0%' }, { value: '30', label: '30%' }, { value: '50', label: '50%' }, { value: '70', label: '70%' }, { value: '90', label: '90%' }]} /></FieldGroup>
         </div>
       );
     case 'categories':
@@ -144,7 +211,7 @@ function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate
         <div className="space-y-3">
           <FieldGroup label="Heading"><TextInput value={config.heading as string} onChange={(v) => onUpdate({ ...config, heading: v })} /></FieldGroup>
           <FieldGroup label="Description"><TextArea value={config.description as string} onChange={(v) => onUpdate({ ...config, description: v })} rows={2} /></FieldGroup>
-          <FieldGroup label="Image URL"><TextInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
+          <FieldGroup label="Banner Image"><ImageInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
           <FieldGroup label="Button Text"><TextInput value={config.ctaText as string} onChange={(v) => onUpdate({ ...config, ctaText: v })} /></FieldGroup>
           <FieldGroup label="Button Link"><TextInput value={config.ctaLink as string} onChange={(v) => onUpdate({ ...config, ctaLink: v })} /></FieldGroup>
           <FieldGroup label="Background"><ColorInput value={config.bgColor as string} onChange={(v) => onUpdate({ ...config, bgColor: v })} /></FieldGroup>
@@ -157,7 +224,7 @@ function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate
         <div className="space-y-3">
           <FieldGroup label="Title"><TextInput value={config.title as string} onChange={(v) => onUpdate({ ...config, title: v })} /></FieldGroup>
           <FieldGroup label="Description"><TextArea value={config.description as string} onChange={(v) => onUpdate({ ...config, description: v })} rows={3} /></FieldGroup>
-          <FieldGroup label="Image URL"><TextInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
+          <FieldGroup label="About Image"><ImageInput value={config.imageUrl as string} onChange={(v) => onUpdate({ ...config, imageUrl: v })} placeholder="https://..." /></FieldGroup>
           <FieldGroup label="Layout"><SelectInput value={config.layout as string} onChange={(v) => onUpdate({ ...config, layout: v })} options={[{ value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }, { value: 'center', label: 'Center' }]} /></FieldGroup>
         </div>
       );

@@ -11,7 +11,11 @@ export async function middleware(request: NextRequest) {
 
   let session = null;
   if (sessionToken) {
-    session = await verifyJWT(sessionToken);
+    try {
+      session = await verifyJWT(sessionToken);
+    } catch (e) {
+      session = null;
+    }
   }
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
@@ -49,6 +53,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  runtime: 'nodejs',
   matcher: [
     /*
      * Match all request paths except for the ones starting with:

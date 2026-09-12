@@ -49,32 +49,34 @@ export function BuilderToolbar({
   onToggleFullscreen,
 }: BuilderToolbarProps) {
   return (
-    <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 shadow-2xs z-20">
+    <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-2.5 sm:px-4 shrink-0 shadow-2xs z-20">
       {/* Left Back Navigation & Branding */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {fullscreen ? (
           <button
             onClick={onToggleFullscreen}
-            className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition"
+            className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition shrink-0"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span>Exit Canvas</span>
+            <span className="hidden xs:inline">Exit Canvas</span>
           </button>
         ) : (
           <Link
             href="/storefront"
-            className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition"
+            className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition shrink-0"
           >
             <ChevronLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Storefront</span>
           </Link>
         )}
-        <div className="h-5 w-px bg-slate-200" />
-        <h1 className="text-sm font-black text-slate-900 tracking-tight">Store Builder</h1>
+        <div className="h-5 w-px bg-slate-200 hidden xs:block shrink-0" />
+        <h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight truncate max-w-[100px] xs:max-w-[140px] sm:max-w-none">
+          Store Builder
+        </h1>
 
         {/* Undo / Redo Controls */}
         {!fullscreen && (
-          <div className="hidden md:flex items-center gap-1 ml-2 border-l border-slate-200 pl-3">
+          <div className="hidden md:flex items-center gap-1 ml-1 border-l border-slate-200 pl-2">
             <button
               onClick={onUndo}
               disabled={!canUndo}
@@ -96,9 +98,9 @@ export function BuilderToolbar({
       </div>
 
       {/* Center: Panel toggles + Viewport Selector */}
-      <div className="hidden sm:flex items-center gap-2">
-        {/* Sidebar toggles (tablet + desktop; mobile uses bottom nav below 768px) */}
-        <div className="hidden md:flex items-center gap-2">
+      <div className="hidden lg:flex items-center gap-2">
+        {/* Sidebar toggles */}
+        <div className="flex items-center gap-2">
           <button
             onClick={onToggleLeft}
             title={`${leftOpen ? 'Hide' : 'Show'} Sections panel`}
@@ -134,7 +136,7 @@ export function BuilderToolbar({
             <button
               key={key}
               onClick={() => onViewportChange(key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-2xs font-extrabold transition ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-2xs font-extrabold transition ${
                 viewport === key
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
@@ -149,7 +151,7 @@ export function BuilderToolbar({
       </div>
 
       {/* Right Actions: Fullscreen, Preview, Save, Publish */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <button
           onClick={onToggleFullscreen}
           title={fullscreen ? 'Exit canvas mode' : 'Focus canvas (hide panels)'}
@@ -169,26 +171,26 @@ export function BuilderToolbar({
         <button
           onClick={onSave}
           disabled={saveState === 'saving' || saveState === 'saved'}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-60 bg-white"
+          className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-60 bg-white"
         >
           {saveState === 'saving' ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-500" />
           ) : saveState === 'saved' ? (
-            <span className="text-emerald-600 font-extrabold flex items-center gap-1">
+            <span className="text-emerald-600 font-extrabold flex items-center gap-1 text-2xs sm:text-xs">
               <span>Saved</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             </span>
           ) : (
             <>
               <Save className="h-3.5 w-3.5 text-slate-500" />
-              <span className="text-slate-900">Save Draft</span>
+              <span className="text-slate-900 text-2xs sm:text-xs">Save</span>
             </>
           )}
         </button>
 
         <button
           onClick={onPublish}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-black bg-amber-500 text-slate-950 rounded-xl hover:bg-amber-400 transition shadow-xs hover:shadow-md active:scale-95"
+          className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-black bg-amber-500 text-slate-950 rounded-xl hover:bg-amber-400 transition shadow-xs hover:shadow-md active:scale-95"
         >
           <Send className="h-3.5 w-3.5" />
           <span>Publish</span>
