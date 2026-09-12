@@ -42,6 +42,7 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
   const template = getTemplateById(templateId || '');
   const templateCategory = template?.category || 'general';
   const demoPayload = getPreviewDemoPayload(templateCategory, templateId || 'general');
+  const overrides = section.config.imageOverrides as Record<string, string> | undefined;
 
   switch (section.type) {
     case SECTION_TYPES.CATEGORIES:
@@ -56,14 +57,22 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
       });
 
       if (categories.length > 0) {
-        return { categories };
+        return {
+          categories: categories.map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            image: overrides?.[c.id] ?? null,
+            _count: { products: c._count.products },
+          })),
+        };
       }
 
       const demoCats = demoPayload.categories.slice(0, limit).map((c, idx) => ({
         id: `demo_cat_${idx}`,
         name: c.name,
         slug: c.slug,
-        image: c.image,
+        image: overrides?.[`demo_cat_${idx}`] ?? c.image,
         _count: { products: c.count },
       }));
       return { categories: demoCats };
@@ -102,7 +111,7 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
           slug: p.slug,
           sellingPrice: Number(p.sellingPrice),
           mrp: Number(p.mrp),
-          images: p.images,
+          images: overrides?.[p.id] ? [overrides[p.id]] : p.images,
           categoryName: p.category.name,
           variants: p.variants.map((v) => ({
             id: v.id,
@@ -121,7 +130,7 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
         slug: `demo-prod-${idx}`,
         sellingPrice: p.price,
         mrp: p.mrp,
-        images: [p.image],
+        images: [overrides?.[`demo_prod_${idx}`] ?? p.image],
         categoryName: p.category,
         variants: [],
       }));

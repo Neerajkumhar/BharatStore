@@ -405,6 +405,7 @@ export default function StorefrontBuilderPage() {
             onDuplicateSection={handleDuplicateSection}
             onToggleVisibility={handleToggleVisibility}
             onDeleteSection={handleDeleteSection}
+            onUpdateSection={handleUpdateSection}
           />
         }
         leftLabel="Sections"

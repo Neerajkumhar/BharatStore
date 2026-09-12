@@ -10,6 +10,8 @@ export interface LookbookSectionProps {
     title?: string;
     subtitle?: string;
     columns?: number;
+    looks?: Array<{ title: string; image: string; tag: string }>;
+    items?: Array<{ title: string; image: string; tag: string }>;
     animation?: 'none' | 'fade' | 'fade-up' | 'slide-up' | 'scale';
   };
   slug: string;
@@ -21,6 +23,15 @@ export function LookbookSection({ config, slug }: LookbookSectionProps) {
     { title: 'Look 02 — Midnight Linen Kurta', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80', tag: 'Evening Wear' },
     { title: 'Look 03 — Handloom Silk Stole', image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80', tag: 'Accessories' },
   ];
+
+  const looks = (config.looks && config.looks.length > 0)
+    ? config.looks
+    : (config.items && config.items.length > 0 && typeof config.items[0] === 'object')
+    ? (config.items as Array<{ title: string; image: string; tag: string }>)
+    : defaultLooks;
+
+  const cols = Number(config.columns) || 3;
+  const gridColsClass = cols === 2 ? 'grid-cols-2' : cols === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3';
 
   return (
     <section className="py-12 bg-white border-b border-slate-100">
@@ -36,8 +47,8 @@ export function LookbookSection({ config, slug }: LookbookSectionProps) {
         </div>
 
         <AnimationWrapper animation={config.animation || 'fade-up'}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
-            {defaultLooks.map((look, idx) => (
+          <div className={`grid ${gridColsClass} gap-3 sm:gap-6`}>
+            {looks.map((look, idx) => (
               <div key={idx} className="group relative aspect-3/4 rounded-2xl overflow-hidden bg-slate-100 shadow-md">
                 <img src={look.image} alt={look.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent p-5 flex flex-col justify-end text-white">
@@ -59,3 +70,4 @@ export function LookbookSection({ config, slug }: LookbookSectionProps) {
     </section>
   );
 }
+
