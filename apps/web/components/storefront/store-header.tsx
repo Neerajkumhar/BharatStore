@@ -94,7 +94,7 @@ export function StoreHeader({ slug, tradeName, logoUrl, phone, city }: StoreHead
             <ShoppingBag className="h-4 w-4 text-amber-400" />
             <span className="text-xs font-bold hidden sm:inline">Cart</span>
             {totalItems > 0 && (
-              <span className="px-2 py-0.5 text-2xs font-bold bg-amber-500 text-slate-950 rounded-full">
+              <span className="px-2 py-0.5 text-2xs font-bold bg-amber-500 text-white rounded-full">
                 {totalItems}
               </span>
             )}

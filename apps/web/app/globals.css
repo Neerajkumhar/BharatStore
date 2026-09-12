@@ -2,35 +2,35 @@
 
 :root {
   /* Typography */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: var(--font-jb-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Bharat Brand Tokens: Soft Saffron & Warm Slate */
-  --brand-50:  #fff9eb;
-  --brand-100: #f9e8c7;
-  --brand-200: #f3d9a8;
-  --brand-300: #e8c37c;
-  --brand-400: #dcaa55;
-  --brand-500: #cc9418; /* Saffron Accent (fills + FAB) */
-  --brand-600: #a16207; /* Saffron text on white (AA 4.5:1) */
-  --brand-700: #8a5a0b;
-  --brand-800: #71480a;
+  /* Bharat Brand Tokens: Linear Indigo */
+  --brand-50:  #EEF0FB;
+  --brand-100: #E0E4F8;
+  --brand-200: #C7CCF2;
+  --brand-300: #A4ACEA;
+  --brand-400: #7F89E0;
+  --brand-500: #5E6AD2; /* Linear primary accent (fills + FAB) */
+  --brand-600: #4A55B8; /* Indigo text on white (AA 4.5:1) */
+  --brand-700: #3E4796;
+  --brand-800: #333B78;
 
-  /* Primary Surfaces: Warm near-black (never pure black) */
-  --primary-900: #1a1a1b;
-  --primary-800: #2f2c28;
-  --primary-700: #45413c;
+  /* Primary Surfaces: cool near-black (never pure black) */
+  --primary-900: #18181B;
+  --primary-800: #27272A;
+  --primary-700: #3F3F46;
 
   /* Neutral Backgrounds & Surfaces */
-  --bg-canvas:   #f7f7f5; /* Warm off-white app background */
+  --bg-canvas:   #FAFAFB; /* Linear light app background */
   --bg-surface:  #ffffff;
-  --bg-subtle:   #eeece7;
-  --bg-hover:    #e9e6df;
+  --bg-subtle:   #F4F4F5;
+  --bg-hover:    #ECECEE;
 
   /* Semantic Borders */
-  --border-subtle:  #e6e2da;
-  --border-default: #d4cfc4;
-  --border-focus:   #a16207;
+  --border-subtle:  #E8E8EA;
+  --border-default: #DFE0E3;
+  --border-focus:   #4A55B8;
 
   /* Status Tokens (accessible text-on-tint pairs) */
   --success-bg:   #e8f7ef;
@@ -45,9 +45,9 @@
   --error-border:   #f5c1c1;
   --error-text:   #a01b1b;
 
-  --info-bg:      #edf3fc;
-  --info-border:    #bccfe9;
-  --info-text:    #1d4a8e;
+  --info-bg:      #EEF0FB;
+  --info-border:    #C7CCF2;
+  --info-text:    #3E4796;
 
   /* Typography Scale */
   --text-2xs: 10.5px;
@@ -133,37 +133,33 @@
   --color-info-border: var(--info-border);
   --color-info-text: var(--info-text);
 
-  /* Fonts */
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-
   /* Small label size utility */
   --text-2xs: 10.5px;
 
-  /* Remap the slate ramp to soft warm gray (cool-gray family, softened + warmed) */
-  --color-slate-50:  #f7f7f5;
-  --color-slate-100: #eeece7;
-  --color-slate-200: #e6e2da;
-  --color-slate-300: #d4cfc4;
-  --color-slate-400: #a6a29a;
-  --color-slate-500: #6f6b65;
-  --color-slate-600: #55524c;
-  --color-slate-700: #423f3a;
-  --color-slate-800: #2c2a26;
-  --color-slate-900: #1a1a1b;
-  --color-slate-950: #121212;
+  /* Remap the slate ramp to cool linear neutral grays */
+  --color-slate-50:  #F7F7F8;
+  --color-slate-100: #EFEFF1;
+  --color-slate-200: #E5E5E7;
+  --color-slate-300: #D4D4D7;
+  --color-slate-400: #A8A8AD;
+  --color-slate-500: #71717A;
+  --color-slate-600: #52525B;
+  --color-slate-700: #3F3F46;
+  --color-slate-800: #27272A;
+  --color-slate-900: #18181B;
+  --color-slate-950: #0E0E10;
 
-  /* Remap the amber ramp to soft saffron (amber family, refined + accessible) */
-  --color-amber-50:  #fff9eb;
-  --color-amber-100: #f9e8c7;
-  --color-amber-200: #f3d9a8;
-  --color-amber-300: #e8c37c;
-  --color-amber-400: #dcaa55;
-  --color-amber-500: #cc9418;
-  --color-amber-600: #a16207;
-  --color-amber-700: #8a5a0b;
-  --color-amber-800: #71480a;
-  --color-amber-900: #5b3a08;
+  /* Remap the amber ramp to Linear indigo (accent family, refined + accessible) */
+  --color-amber-50:  #F1F2FD;
+  --color-amber-100: #E4E6FB;
+  --color-amber-200: #CBCFF5;
+  --color-amber-300: #A7AEEF;
+  --color-amber-400: #838DE6;
+  --color-amber-500: #5E6AD2;
+  --color-amber-600: #4A55B8;
+  --color-amber-700: #3E4796;
+  --color-amber-800: #333B78;
+  --color-amber-900: #2A3060;
 }
 
 html {
@@ -287,9 +283,9 @@ section[id],
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #A8A8AD;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #71717A;
 }

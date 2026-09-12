@@ -85,7 +85,7 @@ export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSec
         >
           <ShoppingBag className="h-5 w-5" />
           {totalItems > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-slate-950 font-black text-3xs w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+            <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-white font-black text-3xs w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
               {totalItems}
             </span>
           )}

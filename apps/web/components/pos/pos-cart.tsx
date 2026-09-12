@@ -103,7 +103,7 @@ export function PosCart({
           <ShoppingCart className="h-5 w-5 text-amber-400" />
           <span>Current Counter Order</span>
         </div>
-        <span className="text-2xs bg-amber-500 text-slate-950 font-bold px-2 py-0.5 rounded-full font-mono">
+        <span className="text-2xs bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full font-mono">
           {cartItems.length} SKUs
         </span>
       </div>
@@ -121,6 +121,7 @@ export function PosCart({
           Customer (Optional for Cash / Mandatory for Khata)
         </label>
         <select
+          aria-label="Customer"
           className="w-full h-9 px-2 text-xs border border-slate-300 rounded bg-white text-slate-900 focus:outline-none"
           value={selectedCustomerId}
           onChange={(e) => setSelectedCustomerId(e.target.value)}
@@ -137,10 +138,10 @@ export function PosCart({
       {/* Cart Items List */}
       <div className="flex-1 p-3 overflow-y-auto space-y-2.5">
         {cartItems.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2 p-6 text-center">
+          <div className="h-full flex flex-col items-center justify-center text-slate-500 gap-2 p-6 text-center">
             <ShoppingCart className="h-8 w-8 stroke-1" />
             <p className="text-xs font-medium">Cart is empty</p>
-            <p className="text-2xs text-slate-400">Click any product SKU from the left catalog grid to add</p>
+            <p className="text-2xs text-slate-500">Click any product SKU from the left catalog grid to add</p>
           </div>
         ) : (
           cartItems.map((item) => (
@@ -149,7 +150,7 @@ export function PosCart({
                 <div className="font-bold text-slate-900 truncate">{item.productTitle}</div>
                 <div className="text-2xs text-slate-500 font-mono">{item.variantName} ({item.sku})</div>
                 <div className="font-bold font-tabular text-slate-800 mt-0.5">
-                  ₹{item.price.toLocaleString('en-IN')} <span className="text-2xs text-slate-400">({item.gstRate}% GST)</span>
+                  ₹{item.price.toLocaleString('en-IN')} <span className="text-2xs text-slate-500">({item.gstRate}% GST)</span>
                 </div>
               </div>
 
@@ -214,7 +215,7 @@ export function PosCart({
             onClick={() => setPaymentMethod('KHATA_CREDIT')}
             className={`p-2 rounded-lg border text-xs font-bold transition flex items-center justify-center gap-1 ${
               paymentMethod === 'KHATA_CREDIT'
-                ? 'bg-amber-500 text-slate-950 border-amber-600 font-extrabold'
+                ? 'bg-amber-500 text-white border-amber-600 font-extrabold'
                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
             }`}
           >

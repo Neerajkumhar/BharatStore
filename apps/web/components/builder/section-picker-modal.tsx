@@ -116,7 +116,7 @@ function MiniPreviewCard({
         <button
           type="button"
           onClick={() => onUse(entry)}
-          className="flex-1 py-1.5 text-2xs font-bold bg-slate-900 text-white rounded-lg hover:bg-amber-500 hover:text-slate-950 transition inline-flex items-center justify-center gap-1"
+          className="flex-1 py-1.5 text-2xs font-bold bg-slate-900 text-white rounded-lg hover:bg-amber-500 hover:text-white transition inline-flex items-center justify-center gap-1"
         >
           <Plus className="h-3 w-3" /> Use
         </button>
@@ -206,7 +206,7 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
                 onClick={() => setSelectedCategory(catId(cat.id))}
                 className={`text-2xs font-bold px-3 py-1.5 rounded-full border whitespace-nowrap transition ${
                   selectedCategory === cat.id
-                    ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs'
+                    ? 'bg-amber-500 text-white border-amber-500 shadow-2xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                 }`}
               >
@@ -224,7 +224,7 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
                   onClick={() => setSelectedIndustry(industryId(ind.id))}
                   className={`text-2xs font-bold px-3 py-1.5 rounded-full border whitespace-nowrap transition ${
                     selectedIndustry === ind.id
-                      ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs'
+                      ? 'bg-amber-500 text-white border-amber-500 shadow-2xs'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                   }`}
                 >

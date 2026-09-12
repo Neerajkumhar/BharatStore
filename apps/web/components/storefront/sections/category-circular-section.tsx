@@ -38,7 +38,7 @@ export function CategoryCircularSection({ config, slug, categories = [] }: Categ
     <section className="py-8 bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {config.title && (
-          <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4 text-center">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-4 text-center">
             {config.title}
           </h3>
         )}

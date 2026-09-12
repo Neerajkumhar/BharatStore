@@ -58,7 +58,7 @@ export function AnalyticsHeader() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-xl shadow-sm border border-slate-800">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-amber-500 text-slate-950 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               Vedic BI Engine
             </span>
             <span className="text-slate-400 text-xs font-medium">● Real-time Commerce Telemetry</span>
@@ -84,7 +84,7 @@ export function AnalyticsHeader() {
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium rounded-md transition-all',
                   isSelected
-                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-xs'
+                    ? 'bg-amber-500 text-white font-semibold shadow-xs'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
                 )}
               >

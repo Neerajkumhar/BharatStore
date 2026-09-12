@@ -100,7 +100,7 @@ export function CountdownSaleSection({ config, slug }: CountdownSaleSectionProps
           <div>
             <Link
               href={config.ctaLink || `/store/${slug}/products`}
-              className="inline-flex items-center gap-2 py-3.5 px-7 bg-amber-500 text-slate-950 font-black text-xs rounded-xl hover:bg-amber-400 transition shadow-xl"
+              className="inline-flex items-center gap-2 py-3.5 px-7 bg-amber-500 text-white font-black text-xs rounded-xl hover:bg-amber-600 transition shadow-xl"
             >
               <span>{config.ctaText || 'Grab Deals Now'}</span>
               <ArrowRight className="h-4 w-4" />

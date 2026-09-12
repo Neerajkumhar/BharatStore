@@ -54,7 +54,7 @@ export function CouponStripSection({ config }: CouponStripSectionProps) {
                 </div>
                 <button
                   onClick={() => handleCopy(c.code)}
-                  className="px-3 py-1.5 bg-amber-500 text-slate-950 rounded-xl font-mono text-2xs font-extrabold hover:bg-amber-400 transition shrink-0 flex items-center gap-1"
+                  className="px-3 py-1.5 bg-amber-500 text-white rounded-xl font-mono text-2xs font-extrabold hover:bg-amber-600 transition shrink-0 flex items-center gap-1"
                 >
                   {copiedCode === c.code ? <Check className="h-3 w-3 text-emerald-950" /> : <Copy className="h-3 w-3" />}
                   <span>{copiedCode === c.code ? 'COPIED' : c.code}</span>

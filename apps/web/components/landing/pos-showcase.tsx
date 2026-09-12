@@ -68,7 +68,7 @@ export function PosShowcase() {
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
                   href="/dashboard/pos"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/25 transition hover:shadow-amber-500/35 hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-lg shadow-amber-500/25 transition hover:shadow-amber-500/35 hover:-translate-y-0.5"
                 >
                   <span>Try POS Billing</span>
                   <ArrowRight className="h-4 w-4" />

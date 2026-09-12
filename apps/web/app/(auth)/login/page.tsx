@@ -168,7 +168,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleDemoFill}
-                className="w-full py-1.5 px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg shadow-2xs transition"
+                className="w-full py-1.5 px-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-lg shadow-2xs transition"
               >
                 1-Click Sign In as Sunil Verma (Owner)
               </button>

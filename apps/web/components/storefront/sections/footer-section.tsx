@@ -75,7 +75,7 @@ export function FooterSection({ config, slug, storeData, theme }: FooterSectionP
             <p className="text-xs text-slate-400 leading-relaxed mb-3">
               Official online store for {tradeName}.
             </p>
-            {storeData?.gstin && <p className="text-2xs text-slate-500 font-mono">GSTIN: {storeData.gstin}</p>}
+            {storeData?.gstin && <p className="text-2xs text-slate-400 font-mono">GSTIN: {storeData.gstin}</p>}
           </div>
 
           <div className="space-y-2">
@@ -113,7 +113,7 @@ export function FooterSection({ config, slug, storeData, theme }: FooterSectionP
         </div>
 
         {config.showCopyright && (
-          <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-slate-500">
+          <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-slate-400">
             <p>&copy; {new Date().getFullYear()} {tradeName}. All rights reserved.</p>
             <p className="flex items-center gap-1">
               <span>Powered by</span>

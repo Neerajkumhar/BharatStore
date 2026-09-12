@@ -80,7 +80,7 @@ export function TopNav() {
           role="button"
           tabIndex={0}
           aria-label="Search orders, SKU, phone"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-500 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-600 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
         >
           <Search className="h-3.5 w-3.5" />
           <span>Search orders, SKU, phone...</span>
@@ -92,7 +92,7 @@ export function TopNav() {
         {/* Quick New POS Sale Button */}
         <Link
           href="/orders?action=pos"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-xs transition"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition"
         >
           <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
           <span>Walk-in Sale (POS)</span>

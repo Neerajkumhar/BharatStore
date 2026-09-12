@@ -32,12 +32,12 @@ function MiniStorefront() {
   return (
     <div className="rounded-xl bg-white border border-slate-200 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2 bg-slate-900 text-white">
-        <span className="h-4 w-4 rounded bg-amber-500 flex items-center justify-center text-slate-950 text-[8px] font-black">R</span>
+        <span className="h-4 w-4 rounded bg-amber-500 flex items-center justify-center text-white text-[8px] font-black">R</span>
         <span className="text-2xs font-bold">Ramesh Fashions</span>
         <ShoppingCart className="h-3 w-3 text-slate-400 ml-auto" />
       </div>
       <div className="p-2.5 bg-slate-50">
-        <div className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-center mb-2">
+        <div className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-2 text-center mb-2">
           <p className="text-2xs font-black text-white">Festive Sale · 40% Off</p>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -63,7 +63,7 @@ function MiniPos() {
       <div className="flex items-center gap-2 px-3 py-2 bg-slate-900 text-white">
         <ScanLine className="h-3 w-3 text-amber-400" />
         <span className="text-2xs font-bold">POS Counter</span>
-        <span className="ml-auto text-2xs bg-amber-500 text-slate-950 font-bold px-1.5 py-0.5 rounded-full">Live</span>
+        <span className="ml-auto text-2xs bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded-full">Live</span>
       </div>
       <div className="p-2.5 bg-slate-50 space-y-1.5">
         {rows.map((r, i) => (
@@ -79,7 +79,7 @@ function MiniPos() {
           <span className="text-slate-500">Total (incl. GST)</span>
           <span className="font-black text-slate-900 tabular-nums">₹2,271</span>
         </div>
-        <button className="w-full py-1.5 rounded-lg bg-amber-500 text-slate-950 text-2xs font-black">Charge ₹2,271</button>
+        <button className="w-full py-1.5 rounded-lg bg-amber-500 text-white text-2xs font-black">Charge ₹2,271</button>
       </div>
     </div>
   );

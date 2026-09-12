@@ -107,7 +107,7 @@ export default async function StorefrontHomePage({
           <div className="pt-4 flex items-center justify-center gap-3">
             <Link
               href={`/store/${slug}/products`}
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-amber-500 text-slate-950 rounded-xl font-bold text-sm hover:bg-amber-400 transition shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-amber-500 text-white rounded-xl font-bold text-sm hover:bg-amber-600 transition shadow-lg"
             >
               <span>Explore Products</span>
               <ArrowRight className="h-4 w-4" />
@@ -140,13 +140,13 @@ export default async function StorefrontHomePage({
                 href={`/store/${slug}/products?categoryId=${cat.id}`}
                 className="bg-white border border-slate-200 rounded-xl p-4 text-center hover:border-amber-500 hover:shadow-md transition-all group flex flex-col items-center space-y-2"
               >
-                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:bg-amber-500 group-hover:text-white transition">
                   <Layers className="h-5 w-5" />
                 </div>
                 <h3 className="text-xs font-bold text-slate-900 group-hover:text-amber-600 transition truncate w-full">
                   {cat.name}
                 </h3>
-                <span className="text-2xs text-slate-400 font-medium">
+                <span className="text-2xs text-slate-500 font-medium">
                   {cat._count.products} Products
                 </span>
               </Link>

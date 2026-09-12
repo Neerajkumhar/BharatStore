@@ -32,7 +32,7 @@ export function HeroProductSection({ config, slug }: HeroProductSectionProps) {
             <div className="relative aspect-square max-w-md mx-auto rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 p-6 flex items-center justify-center shadow-2xl">
               <img src={imgUrl} alt={config.title || 'Product'} className="w-full h-full object-contain" />
               {config.badge && (
-                <span className="absolute top-4 left-4 bg-amber-500 text-slate-950 font-black text-3xs uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                <span className="absolute top-4 left-4 bg-amber-500 text-white font-black text-3xs uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
                   {config.badge}
                 </span>
               )}
@@ -75,7 +75,7 @@ export function HeroProductSection({ config, slug }: HeroProductSectionProps) {
               <div className="pt-2">
                 <Link
                   href={config.ctaLink || `/store/${slug}/products`}
-                  className="inline-flex items-center justify-center gap-2 py-4 px-8 bg-amber-500 text-slate-950 font-black text-sm rounded-xl hover:bg-amber-400 transition shadow-xl w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 py-4 px-8 bg-amber-500 text-white font-black text-sm rounded-xl hover:bg-amber-600 transition shadow-xl w-full sm:w-auto"
                 >
                   <ShoppingBag className="h-4 w-4" />
                   <span>{config.ctaText || 'Buy Now'}</span>

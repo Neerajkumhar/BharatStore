@@ -142,7 +142,7 @@ export function DashboardShell({
         </Link>
         <Link
           href="/orders?action=pos"
-          className="flex flex-col items-center justify-center -mt-5 bg-amber-500 text-slate-950 h-12 w-12 rounded-full shadow-md active:scale-95 transition"
+          className="flex flex-col items-center justify-center -mt-5 bg-amber-500 text-white h-12 w-12 rounded-full shadow-md active:scale-95 transition"
         >
           <PlusCircle className="h-6 w-6 stroke-[2.5]" />
         </Link>

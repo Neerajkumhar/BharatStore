@@ -56,7 +56,7 @@ export function CategoriesSection({ config, slug, categories = [], theme }: Cate
       </div>
       <h3 className="text-xs font-bold text-slate-900 truncate w-full">{cat.name}</h3>
       {config.showProductCount && cat._count && (
-        <span className="text-2xs text-slate-400 font-medium">{cat._count.products} Products</span>
+        <span className="text-2xs text-slate-500 font-medium">{cat._count.products} Products</span>
       )}
     </Link>
   );
@@ -99,7 +99,7 @@ export function CategoriesSection({ config, slug, categories = [], theme }: Cate
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-slate-900 truncate">{cat.name}</h3>
                   {config.showProductCount && cat._count && (
-                    <span className="text-2xs text-slate-400 font-medium">{cat._count.products} Products</span>
+                    <span className="text-2xs text-slate-500 font-medium">{cat._count.products} Products</span>
                   )}
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-amber-600 group-hover:translate-x-0.5 transition" />
@@ -123,7 +123,7 @@ export function CategoriesSection({ config, slug, categories = [], theme }: Cate
                 </div>
                 <h3 className="text-base font-extrabold">{hero.name}</h3>
                 {config.showProductCount && hero._count && (
-                  <span className="text-2xs text-slate-400 font-medium mt-1">{hero._count.products} Products</span>
+                  <span className="text-2xs text-slate-500 font-medium mt-1">{hero._count.products} Products</span>
                 )}
                 <span className="inline-flex items-center gap-1 text-3xs font-bold text-amber-400 uppercase tracking-widest mt-3 group-hover:gap-2 transition-all">
                   Explore <ArrowRight className="h-3 w-3" />
@@ -150,7 +150,7 @@ export function CategoriesSection({ config, slug, categories = [], theme }: Cate
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">{config.title || 'Shop by Category'}</h2>
-          {config.subtitle && <p className="text-xs text-slate-500 mt-0.5">{config.subtitle}</p>}
+          {config.subtitle && <p className="text-xs text-slate-600 mt-0.5">{config.subtitle}</p>}
         </div>
         <Link href={`/store/${slug}/products`} className="text-xs font-bold hover:underline flex items-center gap-1" style={{ color: accent }}>
           <span>View All</span>

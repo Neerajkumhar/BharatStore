@@ -59,7 +59,7 @@ export default function AuditLogPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <History className="h-5 w-5 text-amber-400" />
-            <span className="bg-amber-500 text-slate-950 text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
+            <span className="bg-amber-500 text-white text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
               Immutable Audit Trail
             </span>
           </div>
@@ -143,7 +143,7 @@ export default function AuditLogPage() {
             </table>
           </div>
         ) : (
-          <div className="p-8 text-center text-slate-400 text-xs italic">
+          <div className="p-8 text-center text-slate-500 text-xs italic">
             No audit log entries recorded matching criteria.
           </div>
         )}

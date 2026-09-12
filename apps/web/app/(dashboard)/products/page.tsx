@@ -162,7 +162,7 @@ export default function ProductsPage() {
               <button
                 onClick={() => setStockFilter('low')}
                 className={`px-2.5 py-1.5 rounded-sm transition ${
-                  stockFilter === 'low' ? 'bg-amber-500 text-slate-950 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                  stockFilter === 'low' ? 'bg-amber-500 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Low Stock

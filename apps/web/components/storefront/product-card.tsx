@@ -203,7 +203,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
                 ₹{effectivePrice.toLocaleString('en-IN')}
               </span>
               {product.mrp > effectivePrice && (
-                <span className="text-3xs text-slate-400 line-through">
+                <span className="text-3xs text-slate-500 line-through">
                   ₹{product.mrp.toLocaleString('en-IN')}
                 </span>
               )}
@@ -241,13 +241,13 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-black text-amber-600">₹{effectivePrice.toLocaleString('en-IN')}</span>
               {product.mrp > effectivePrice && (
-                <span className="text-xs text-slate-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
+                <span className="text-xs text-slate-500 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
               )}
             </div>
             <button
               onClick={handleQuickAdd}
               disabled={!inStock}
-              className="w-full py-2 bg-amber-500 text-slate-950 font-black text-xs rounded-xl hover:bg-amber-400 transition flex items-center justify-center gap-1.5 shadow-xs"
+              className="w-full py-2 bg-amber-500 text-white font-black text-xs rounded-xl hover:bg-amber-600 transition flex items-center justify-center gap-1.5 shadow-xs"
             >
               <Tag className="h-3.5 w-3.5" />
               <span>Claim Deal</span>
@@ -314,7 +314,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
           </Link>
           <div className="pt-2.5 space-y-1">
             {product.categoryName && (
-              <p className="text-3xs font-semibold uppercase tracking-widest text-slate-400">{product.categoryName}</p>
+              <p className="text-3xs font-semibold uppercase tracking-widest text-slate-500">{product.categoryName}</p>
             )}
             <Link href={`/store/${slug}/products/${product.id}`}>
               <h4 className="text-xs font-semibold text-slate-900 leading-snug group-hover:text-slate-600 transition line-clamp-2">
@@ -324,7 +324,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
             <p className="text-sm font-extrabold text-slate-900">
               ₹{effectivePrice.toLocaleString('en-IN')}
               {product.mrp > effectivePrice && (
-                <span className="ml-1.5 text-2xs font-medium text-slate-400 line-through">
+                <span className="ml-1.5 text-2xs font-medium text-slate-500 line-through">
                   ₹{product.mrp.toLocaleString('en-IN')}
                 </span>
               )}
@@ -359,13 +359,13 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
             <h4 className="text-lg font-black leading-snug line-clamp-2">{product.title}</h4>
             <div className="flex items-center gap-2 mt-2">
               {discountPct > 0 && (
-                <span className="text-3xs font-black uppercase bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full">
+                <span className="text-3xs font-black uppercase bg-amber-500 text-white px-2 py-0.5 rounded-full">
                   {discountPct}% OFF
                 </span>
               )}
               <span className="text-xl font-black">₹{effectivePrice.toLocaleString('en-IN')}</span>
               {product.mrp > effectivePrice && (
-                <span className="text-xs text-slate-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
+                <span className="text-xs text-slate-500 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
               )}
             </div>
             <div className="flex items-center gap-4 mt-4">
@@ -409,7 +409,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
               )}
               <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
                 {discountPct > 0 && (
-                  <span className="bg-amber-500 text-slate-950 text-2xs font-extrabold px-2 py-0.5 rounded-md shadow-xs">
+                  <span className="bg-amber-500 text-white text-2xs font-extrabold px-2 py-0.5 rounded-md shadow-xs">
                     {discountPct}% OFF
                   </span>
                 )}
@@ -428,7 +428,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
             </Link>
             <div className="p-4 space-y-2">
               {product.categoryName && (
-                <span className="text-2xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
                   {product.categoryName}
                 </span>
               )}
@@ -442,7 +442,7 @@ export function ProductCard({ slug, variant = 'classic', product, onQuickView }:
                   ₹{effectivePrice.toLocaleString('en-IN')}
                 </span>
                 {product.mrp > effectivePrice && (
-                  <span className="text-xs text-slate-400 line-through">
+                  <span className="text-xs text-slate-500 line-through">
                     ₹{product.mrp.toLocaleString('en-IN')}
                   </span>
                 )}

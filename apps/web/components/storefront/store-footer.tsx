@@ -61,7 +61,7 @@ export function StoreFooter({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="h-7 w-7 bg-amber-500 text-slate-950 font-extrabold flex items-center justify-center rounded-lg text-sm">
+              <div className="h-7 w-7 bg-amber-500 text-white font-extrabold flex items-center justify-center rounded-lg text-sm">
                 {tradeName.slice(0, 1).toUpperCase()}
               </div>
               <span className="text-base font-bold text-white">{tradeName}</span>
@@ -69,7 +69,7 @@ export function StoreFooter({
             <p className="text-xs text-slate-400 leading-relaxed mb-3">
               Official online catalog and direct ordering system for {tradeName}.
             </p>
-            {gstin && <p className="text-2xs text-slate-500 font-mono">GSTIN: {gstin}</p>}
+            {gstin && <p className="text-2xs text-slate-400 font-mono">GSTIN: {gstin}</p>}
           </div>
 
           <div className="space-y-2">
@@ -98,7 +98,7 @@ export function StoreFooter({
         </div>
 
         {/* Bottom Copyright */}
-        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-slate-500">
+        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-slate-400">
           <p>&copy; {new Date().getFullYear()} {tradeName}. All rights reserved.</p>
           <p className="flex items-center gap-1">
             <span>Powered by</span>

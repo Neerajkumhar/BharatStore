@@ -59,7 +59,7 @@ export function ComponentPreviewModal({ entryId, onClose, onAddSection }: Compon
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2 bg-amber-500 text-slate-950 rounded-lg shrink-0">
+            <div className="p-2 bg-amber-500 text-white rounded-lg shrink-0">
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -122,7 +122,7 @@ export function ComponentPreviewModal({ entryId, onClose, onAddSection }: Compon
                     onClick={() => setSelectedId(v.id)}
                     className={`text-2xs font-bold px-3 py-1.5 rounded-full border transition ${
                       v.id === active.id
-                        ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs'
+                        ? 'bg-amber-500 text-white border-amber-500 shadow-2xs'
                         : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:bg-amber-50'
                     }`}
                   >
@@ -170,7 +170,7 @@ export function ComponentPreviewModal({ entryId, onClose, onAddSection }: Compon
               });
               onClose();
             }}
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 text-2xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-xl transition shadow-2xs"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 text-2xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl transition shadow-2xs"
           >
             <Plus className="h-4 w-4" />
             Add {active.name}

@@ -46,12 +46,12 @@ export function Footer() {
           {/* Brand */}
           <div id="resources" className="col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-9 w-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-md shadow-amber-500/30">
+              <div className="h-9 w-9 rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-amber-500/30">
                 भा
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-extrabold tracking-tight text-white">
-                  Bharat<span className="text-amber-500">Store</span>
+                  Bharat<span className="text-amber-400">Store</span>
                 </span>
               </div>
             </div>

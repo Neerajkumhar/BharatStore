@@ -38,7 +38,7 @@ export function MegaMenuSection({ config, slug }: MegaMenuSectionProps) {
       </div>
       <Link
         href={`/store/${slug}/products`}
-        className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-amber-500 text-slate-950 font-extrabold text-xs rounded-xl hover:bg-amber-400 transition shadow-xs"
+        className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-amber-500 text-white font-extrabold text-xs rounded-xl hover:bg-amber-600 transition shadow-xs"
       >
         <span>Shop Deal</span>
         <ArrowRight className="h-3.5 w-3.5" />
@@ -107,7 +107,7 @@ export function MegaMenuSection({ config, slug }: MegaMenuSectionProps) {
                   onClick={() => setActiveTab(idx)}
                   className={`px-4 py-2 rounded-full text-xs font-bold transition ${
                     activeTab === idx
-                      ? 'bg-amber-500 text-slate-950 shadow-xs'
+                      ? 'bg-amber-500 text-white shadow-xs'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >

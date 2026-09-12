@@ -50,7 +50,7 @@ export function HeroSplitSection({ config, slug }: HeroSplitSectionProps) {
               <div>
                 <Link
                   href={config.ctaLink || `/store/${slug}/products`}
-                  className="inline-flex items-center gap-2 py-3.5 px-7 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-amber-500 hover:text-slate-950 transition shadow-md"
+                  className="inline-flex items-center gap-2 py-3.5 px-7 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-amber-500 hover:text-white transition shadow-md"
                 >
                   <span>{config.ctaText || 'Explore Now'}</span>
                   <ArrowRight className="h-4 w-4" />

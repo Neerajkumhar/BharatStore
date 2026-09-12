@@ -84,7 +84,7 @@ export default function SecurityCenterPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <ShieldCheck className="h-5 w-5 text-amber-400" />
-            <span className="bg-amber-500 text-slate-950 text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
+            <span className="bg-amber-500 text-white text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
               Security Telemetry & Health
             </span>
           </div>

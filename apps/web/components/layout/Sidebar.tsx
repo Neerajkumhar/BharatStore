@@ -114,7 +114,7 @@ export function Sidebar() {
                         className={cn(
                           'text-xs px-2 py-0.5 rounded-full font-medium',
                           isActive
-                            ? 'bg-amber-500 text-slate-950 font-semibold'
+                            ? 'bg-amber-500 text-white font-semibold'
                             : 'bg-amber-100 text-amber-800'
                         )}
                       >

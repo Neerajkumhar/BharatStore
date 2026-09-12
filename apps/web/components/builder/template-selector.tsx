@@ -54,7 +54,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect, currentTemplateId 
                     </div>
                   </div>
                   {currentTemplateId === template.id && (
-                    <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 rounded-full p-1">
+                    <div className="absolute top-2 right-2 bg-amber-500 text-white rounded-full p-1">
                       <Check className="h-3 w-3" />
                     </div>
                   )}

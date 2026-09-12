@@ -94,7 +94,7 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-xl font-black text-slate-900">₹{effectivePrice.toLocaleString('en-IN')}</span>
               {product.mrp > effectivePrice && (
-                <span className="text-sm text-slate-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
+                <span className="text-sm text-slate-500 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
               )}
             </div>
 

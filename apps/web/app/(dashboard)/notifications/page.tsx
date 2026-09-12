@@ -810,7 +810,7 @@ export default function NotificationsDashboardPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-amber-600 text-slate-950 font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
                 >
                   {actionLoading ? 'Dispatching...' : 'Dispatch Now'}
                 </button>
@@ -919,7 +919,7 @@ export default function NotificationsDashboardPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-amber-600 text-slate-950 font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
                 >
                   {actionLoading ? 'Saving...' : editingTemplate ? 'Update' : 'Create'}
                 </button>

@@ -19,7 +19,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     'bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 active:bg-slate-100 shadow-xs',
   accent:
-    'bg-amber-500 text-slate-950 hover:bg-amber-400 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 active:bg-amber-300 shadow-xs border border-transparent',
+    'bg-amber-500 text-white hover:bg-amber-600 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 active:bg-amber-700 shadow-xs border border-transparent',
   outline:
     'bg-transparent text-slate-700 border border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 active:bg-slate-200',
   ghost:

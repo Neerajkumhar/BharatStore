@@ -183,7 +183,7 @@ export default function StaffManagementPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Shield className="h-5 w-5 text-amber-400" />
-            <span className="bg-amber-500 text-slate-950 text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
+            <span className="bg-amber-500 text-white text-2xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
               Tenant RBAC Engine
             </span>
           </div>
@@ -200,7 +200,7 @@ export default function StaffManagementPage() {
               setGeneratedInviteUrl('');
               setErrorMsg('');
             }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-slate-950 rounded-lg text-sm font-bold hover:bg-amber-400 transition shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-bold hover:bg-amber-600 transition shadow-xs"
           >
             <UserPlus className="h-4 w-4" />
             <span>Invite New Staff</span>

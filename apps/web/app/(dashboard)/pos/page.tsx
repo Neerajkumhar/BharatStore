@@ -104,7 +104,7 @@ export default function PosPage() {
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-4 rounded-xl shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg shadow-xs">
+          <div className="h-9 w-9 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-lg shadow-xs">
             POS
           </div>
           <div>
@@ -160,12 +160,12 @@ export default function PosPage() {
 
           {/* Product Items Grid */}
           {isLoading ? (
-            <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-2 bg-white rounded-xl border border-slate-200">
+            <div className="p-12 flex flex-col items-center justify-center text-slate-500 gap-2 bg-white rounded-xl border border-slate-200">
               <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
               <span className="text-sm font-medium">Loading catalog SKUs...</span>
             </div>
           ) : products.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-sm bg-white rounded-xl border border-slate-200 space-y-2">
+            <div className="p-12 text-center text-slate-500 text-sm bg-white rounded-xl border border-slate-200 space-y-2">
               <Boxes className="h-8 w-8 mx-auto text-slate-300" />
               <p>No product SKUs available in catalog.</p>
             </div>
@@ -217,7 +217,7 @@ export default function PosPage() {
                         ) : (
                           <button
                             type="button"
-                            className="h-8 w-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold hover:bg-amber-600 transition shadow-xs"
+                            className="h-8 w-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold hover:bg-amber-600 transition shadow-xs"
                           >
                             <Plus className="h-4 w-4 stroke-[2.5]" />
                           </button>

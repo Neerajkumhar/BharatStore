@@ -34,7 +34,7 @@ export function PromoSplitSection({ config, slug }: PromoSplitSectionProps) {
               <div>
                 <Link
                   href={`/store/${slug}/products`}
-                  className="inline-flex items-center gap-2 py-2.5 px-5 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-amber-600 hover:text-slate-950 transition"
+                  className="inline-flex items-center gap-2 py-2.5 px-5 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-amber-600 hover:text-white transition"
                 >
                   <span>{config.leftCta || 'Shop Women'}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -52,7 +52,7 @@ export function PromoSplitSection({ config, slug }: PromoSplitSectionProps) {
               <div>
                 <Link
                   href={`/store/${slug}/products`}
-                  className="inline-flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl hover:bg-amber-400 transition"
+                  className="inline-flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-white font-bold text-xs rounded-xl hover:bg-amber-600 transition"
                 >
                   <span>{config.rightCta || 'Shop Men'}</span>
                   <ArrowRight className="h-3.5 w-3.5" />

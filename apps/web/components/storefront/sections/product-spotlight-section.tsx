@@ -49,7 +49,7 @@ export function ProductSpotlightSection({ config, slug }: ProductSpotlightSectio
                   ₹{Number(config.price || 349).toLocaleString('en-IN')}
                 </span>
                 {config.mrp && (
-                  <span className="text-base text-slate-400 line-through">
+                  <span className="text-base text-slate-500 line-through">
                     ₹{Number(config.mrp).toLocaleString('en-IN')}
                   </span>
                 )}

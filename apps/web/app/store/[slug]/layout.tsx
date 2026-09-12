@@ -38,7 +38,7 @@ export default async function PublicStoreLayout({
 
   return (
     <CartProvider slug={slug}>
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 font-sans">
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-amber-500 selection:text-white font-sans">
         <div>
           <StoreHeader
             slug={slug}

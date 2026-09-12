@@ -85,7 +85,7 @@ function ReportsContent() {
         <div className="flex items-start justify-between border-b border-slate-200 pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-amber-500 text-slate-950 text-2xs font-extrabold px-2 py-0.5 rounded uppercase">
+              <span className="bg-amber-500 text-white text-2xs font-extrabold px-2 py-0.5 rounded uppercase">
                 BharatStore Enterprise
               </span>
               <span className="text-xs text-slate-500 font-medium">Audit-Grade Financial Telemetry</span>

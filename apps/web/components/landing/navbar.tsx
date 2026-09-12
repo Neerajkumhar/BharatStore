@@ -132,12 +132,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 shrink-0" onClick={closeAll}>
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-md shadow-amber-500/20">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-amber-500/20">
             भा
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-extrabold tracking-tight text-white leading-none">
-              Bharat<span className="text-amber-500">Store</span>
+              Bharat<span className="text-amber-400">Store</span>
             </span>
             <span className="text-2xs text-slate-400 font-medium tracking-wide hidden sm:block">
               Unified Commerce Engine
@@ -176,7 +176,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/onboarding"
-            className="text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg shadow-sm shadow-amber-500/20 transition flex items-center gap-1.5 hover:shadow-amber-500/30"
+            className="text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg shadow-sm shadow-amber-500/20 transition flex items-center gap-1.5 hover:shadow-amber-500/30"
           >
             <span>Get Started</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -222,7 +222,7 @@ export function Navbar() {
           <div className="pt-3 border-t border-slate-800 space-y-2">
             <Link
               href="/dashboard"
-              className="flex items-center justify-center gap-2 w-full text-center px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-sm font-bold"
+              className="flex items-center justify-center gap-2 w-full text-center px-4 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold"
               onClick={closeAll}
             >
               Explore Live Dashboard

@@ -51,7 +51,7 @@ export function NewsletterSection({ config }: NewsletterSectionProps) {
               />
               <button
                 type="submit"
-                className="py-3 px-6 bg-amber-500 text-slate-950 font-extrabold text-xs rounded-xl hover:bg-amber-400 transition shadow-md shrink-0"
+                className="py-3 px-6 bg-amber-500 text-white font-extrabold text-xs rounded-xl hover:bg-amber-600 transition shadow-md shrink-0"
               >
                 {config.buttonText || 'Subscribe'}
               </button>

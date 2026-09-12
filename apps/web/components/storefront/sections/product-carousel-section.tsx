@@ -46,7 +46,7 @@ export function ProductCarouselSection({ config, slug, products = [] }: ProductC
   const renderBody = () => {
     if (displayProducts.length === 0) {
       return (
-        <div className="p-8 text-center bg-slate-50 rounded-2xl text-xs text-slate-400 font-medium">
+        <div className="p-8 text-center bg-slate-50 rounded-2xl text-xs text-slate-500 font-medium">
           No products found for this section. Add products to catalog.
         </div>
       );

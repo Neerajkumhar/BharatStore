@@ -35,7 +35,7 @@ export function CtaSection() {
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/onboarding"
-                  className="px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-base shadow-lg shadow-amber-500/25 transition flex items-center gap-2 hover:shadow-amber-500/40 hover:-translate-y-0.5"
+                  className="px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-base shadow-lg shadow-amber-500/25 transition flex items-center gap-2 hover:shadow-amber-500/40 hover:-translate-y-0.5"
                 >
                   <span>Get Started Free</span>
                   <ArrowRight className="h-4 w-4" />

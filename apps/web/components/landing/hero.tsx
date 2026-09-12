@@ -40,7 +40,7 @@ function HeroFloatCard({
         <div>
           <p className="text-2xs text-slate-400 font-medium uppercase tracking-wider">{label}</p>
           <p className="text-lg font-black text-white tabular-nums leading-tight">{value > 99999 ? '₹84,520' : value}</p>
-          <p className={cn('text-2xs font-bold', change.startsWith('+') ? 'text-emerald-400' : 'text-amber-400')}>
+          <p className={cn('text-2xs font-bold', change.startsWith('+') ? 'text-emerald-400' : 'text-amber-300')}>
             {change}
           </p>
         </div>
@@ -71,7 +71,7 @@ export function HeroSection() {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-black tracking-tight text-white leading-[1.05]">
                 Your Complete Business.{' '}
-                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 bg-clip-text text-transparent">
                   Storefront, POS & GST Billing.
                 </span>
               </h1>
@@ -83,7 +83,7 @@ export function HeroSection() {
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
                 <Link
                   href="/dashboard"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/25 transition-all hover:shadow-amber-500/35 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-lg shadow-amber-500/25 transition-all hover:shadow-amber-500/35 hover:-translate-y-0.5 flex items-center justify-center gap-2"
                 >
                   <span>Explore Live Dashboard</span>
                   <ArrowRight className="h-4 w-4" />
@@ -153,7 +153,7 @@ export function HeroSection() {
               </div>
 
               {/* Demo tag */}
-              <div className="absolute bottom-3 right-3 z-20 hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-slate-950/70 backdrop-blur border border-white/10 text-2xs text-slate-400">
+              <div className="absolute bottom-3 right-3 z-20 hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-slate-950/70 backdrop-blur border border-white/10 text-2xs text-slate-300">
                 Demo preview · sample data
               </div>
             </div>

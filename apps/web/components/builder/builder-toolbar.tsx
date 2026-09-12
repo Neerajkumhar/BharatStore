@@ -188,7 +188,7 @@ export function BuilderToolbar({
 
         <button
           onClick={onPublish}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-black bg-amber-500 text-slate-950 rounded-xl hover:bg-amber-400 transition shadow-xs hover:shadow-md active:scale-95"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-black bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition shadow-xs hover:shadow-md active:scale-95"
         >
           <Send className="h-3.5 w-3.5" />
           <span>Publish</span>

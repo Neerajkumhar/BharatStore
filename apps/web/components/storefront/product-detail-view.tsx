@@ -108,7 +108,7 @@ export function ProductDetailView({ slug, product }: ProductDetailViewProps) {
             )}
 
             {discountPct > 0 && (
-              <span className="absolute top-4 left-4 bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-1 rounded-lg shadow-md">
+              <span className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-extrabold px-3 py-1 rounded-lg shadow-md">
                 {discountPct}% OFF
               </span>
             )}
@@ -144,7 +144,7 @@ export function ProductDetailView({ slug, product }: ProductDetailViewProps) {
             </h1>
 
             {selectedVariant && (
-              <p className="text-2xs text-slate-500 font-mono">
+              <p className="text-2xs text-slate-600 font-mono">
                 SKU: {selectedVariant.sku} {product.hsnCode && `• HSN: ${product.hsnCode}`}
               </p>
             )}
@@ -155,7 +155,7 @@ export function ProductDetailView({ slug, product }: ProductDetailViewProps) {
                 ₹{currentPrice.toLocaleString('en-IN')}
               </span>
               {product.mrp > currentPrice && (
-                <span className="text-base text-slate-400 line-through">
+                <span className="text-base text-slate-500 line-through">
                   ₹{product.mrp.toLocaleString('en-IN')}
                 </span>
               )}
@@ -262,7 +262,7 @@ export function ProductDetailView({ slug, product }: ProductDetailViewProps) {
               <button
                 onClick={handleBuyNow}
                 disabled={!inStock}
-                className="flex-1 py-3.5 px-6 bg-amber-500 text-slate-950 rounded-xl font-bold text-sm hover:bg-amber-400 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition text-center shadow-md"
+                className="flex-1 py-3.5 px-6 bg-amber-500 text-white rounded-xl font-bold text-sm hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition text-center shadow-md"
               >
                 Buy Now
               </button>

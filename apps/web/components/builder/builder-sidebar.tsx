@@ -103,7 +103,7 @@ export function BuilderSidebar({
 
         <button
           onClick={onOpenAddModal}
-          className="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
         >
           <Plus className="h-4 w-4" />
           <span>Add Section</span>

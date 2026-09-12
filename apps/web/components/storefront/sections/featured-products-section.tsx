@@ -51,7 +51,7 @@ export function FeaturedProductsSection({ config, slug, products = [], theme }: 
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">{config.title || 'Featured Products'}</h2>
-          {config.subtitle && <p className="text-xs text-slate-500 mt-0.5">{config.subtitle}</p>}
+          {config.subtitle && <p className="text-xs text-slate-600 mt-0.5">{config.subtitle}</p>}
         </div>
         <Link href={`/store/${slug}/products`} className="text-xs font-bold hover:underline flex items-center gap-1" style={{ color: accent }}>
           <span>View Full Catalog</span>

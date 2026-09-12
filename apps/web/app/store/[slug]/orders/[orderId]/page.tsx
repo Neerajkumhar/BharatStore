@@ -98,7 +98,7 @@ export default async function OrderTrackingPage({
                 className={`p-4 border rounded-2xl flex flex-col items-center text-center space-y-2 transition ${isCurrent ? 'bg-amber-50 border-amber-400 text-amber-950 shadow-xs' : isDone ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950' : 'bg-slate-50 border-slate-200 text-slate-400'}`}
               >
                 <div
-                  className={`p-2.5 rounded-xl ${isCurrent ? 'bg-amber-500 text-slate-950' : isDone ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-400'}`}
+                  className={`p-2.5 rounded-xl ${isCurrent ? 'bg-amber-500 text-white' : isDone ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-400'}`}
                 >
                   <Icon className="h-5 w-5" />
                 </div>
