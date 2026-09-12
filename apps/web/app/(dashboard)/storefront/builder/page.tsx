@@ -102,12 +102,18 @@ export default function StorefrontBuilderPage() {
               };
               setBuilderState(newConfig);
 
-              // Persist applied URL theme to DB draft immediately so Live Preview matches
+              // Persist applied URL theme to DB draft & publish immediately so Live Preview & Live Store match 100%
               fetch('/api/admin/storefront/builder', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ config: newConfig }),
-              }).catch(() => {});
+              })
+                .then(() => {
+                  if (isApplied) {
+                    fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
+                  }
+                })
+                .catch(() => {});
             } catch (e) {
               console.error('Failed to build template from URL param:', e);
             }
@@ -135,7 +141,13 @@ export default function StorefrontBuilderPage() {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ config: newConfig }),
-            }).catch(() => {});
+            })
+              .then(() => {
+                if (isApplied) {
+                  fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
+                }
+              })
+              .catch(() => {});
           } catch (e) {
             console.error('Failed to build template from URL param:', e);
           }
@@ -215,7 +227,17 @@ export default function StorefrontBuilderPage() {
 
   const handlePublish = async () => {
     if (!confirm('Publish draft to live store? This will make your storefront live.')) return;
+    setSaveState('saving');
     try {
+      // 1. Ensure latest builderState is saved to draft
+      await fetch('/api/admin/storefront/builder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: builderState }),
+      });
+      setSaveState('saved');
+
+      // 2. Publish draft to live store
       const res = await fetch('/api/admin/storefront/builder/publish', { method: 'POST' });
       const json = await res.json();
       if (json.success) {
