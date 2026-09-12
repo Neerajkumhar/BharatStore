@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Store,
@@ -18,9 +18,38 @@ export function TopNav() {
   const [businessMenuOpen, setBusinessMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  function closeAllMenus() {
+    setBusinessMenuOpen(false);
+    setProfileMenuOpen(false);
+    setNotificationsOpen(false);
+  }
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        closeAllMenus();
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') closeAllMenus();
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6">
+    <header
+      ref={headerRef}
+      className="h-16 border-b border-slate-200 bg-white sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6"
+    >
       {/* Brand & Business Switcher */}
       <div className="flex items-center gap-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-bold text-slate-900 tracking-tight">
@@ -37,7 +66,11 @@ export function TopNav() {
         {/* Business Selector */}
         <div className="relative">
           <button
-            onClick={() => setBusinessMenuOpen(!businessMenuOpen)}
+            onClick={() => {
+              setNotificationsOpen(false);
+              setProfileMenuOpen(false);
+              setBusinessMenuOpen((open) => !open);
+            }}
             aria-label="Switch business: Rajesh Saree Emporium"
             className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition text-left text-xs sm:text-sm font-medium text-slate-800"
           >
@@ -101,7 +134,11 @@ export function TopNav() {
         {/* Notifications Bell */}
         <div className="relative">
           <button
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            onClick={() => {
+              setProfileMenuOpen(false);
+              setBusinessMenuOpen(false);
+              setNotificationsOpen((open) => !open);
+            }}
             className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition relative"
             title="Notifications"
             aria-label="Notifications"
@@ -149,7 +186,11 @@ export function TopNav() {
         {/* User Profile */}
         <div className="relative">
           <button
-            onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+            onClick={() => {
+              setBusinessMenuOpen(false);
+              setNotificationsOpen(false);
+              setProfileMenuOpen((open) => !open);
+            }}
             aria-label="Account menu"
             className="flex items-center gap-2 p-1 pl-2 rounded-lg hover:bg-slate-100 transition"
           >

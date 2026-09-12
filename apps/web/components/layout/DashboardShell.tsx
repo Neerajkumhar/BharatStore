@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { TopNav } from './TopNav';
-import { Sidebar } from './Sidebar';
+import { NavBar, VerticalNav } from './NavBar';
 import {
   LayoutDashboard,
   Package,
@@ -42,15 +42,11 @@ export function DashboardShell({
       {/* Top Navigation */}
       {!isBuilderRoute && <TopNav />}
 
+      {/* Secondary Navigation Row (dashboard sections) */}
+      {!isBuilderRoute && <NavBar />}
+
       {/* Body container */}
       <div className="flex-1 flex">
-        {/* Desktop Sidebar */}
-        {!isBuilderRoute && (
-          <div className="hidden md:block">
-            <Sidebar />
-          </div>
-        )}
-
         {/* Mobile Sidebar Overlay */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex md:hidden">
@@ -65,7 +61,7 @@ export function DashboardShell({
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <Sidebar />
+                <VerticalNav />
               </div>
             </div>
             <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
@@ -120,16 +116,13 @@ export function DashboardShell({
       {/* Mobile Bottom Navigation Bar (High Frequency Actions) */}
       {!isBuilderRoute && (
         <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex sm:hidden items-center justify-around h-16 px-2 shadow-lg">
-        <Link
-          href="/dashboard"
-          className={cn(
-            'flex flex-col items-center gap-1 text-2xs font-medium py-1 px-2 rounded',
-            pathname === '/dashboard' ? 'text-amber-600 font-bold' : 'text-slate-500'
-          )}
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="flex flex-col items-center gap-1 text-2xs font-medium text-slate-500 py-1 px-2 rounded"
         >
-          <LayoutDashboard className="h-5 w-5" />
-          <span>Home</span>
-        </Link>
+          <Menu className="h-5 w-5" />
+          <span>Menu</span>
+        </button>
         <Link
           href="/products"
           className={cn(
@@ -141,10 +134,14 @@ export function DashboardShell({
           <span>Products</span>
         </Link>
         <Link
-          href="/orders?action=pos"
-          className="flex flex-col items-center justify-center -mt-5 bg-amber-500 text-white h-12 w-12 rounded-full shadow-md active:scale-95 transition"
+          href="/dashboard"
+          className={cn(
+            'flex flex-col items-center gap-1 text-2xs font-medium py-1 px-2 rounded',
+            pathname === '/dashboard' ? 'text-amber-600 font-bold' : 'text-slate-500'
+          )}
         >
-          <PlusCircle className="h-6 w-6 stroke-[2.5]" />
+          <LayoutDashboard className="h-5 w-5" />
+          <span>Home</span>
         </Link>
         <Link
           href="/orders"
@@ -156,13 +153,12 @@ export function DashboardShell({
           <ShoppingCart className="h-5 w-5" />
           <span>Orders</span>
         </Link>
-        <button
-          onClick={() => setMobileMenuOpen(true)}
-          className="flex flex-col items-center gap-1 text-2xs font-medium text-slate-500 py-1 px-2 rounded"
+        <Link
+          href="/orders?action=pos"
+          className="flex flex-col items-center justify-center -mt-5 bg-amber-500 text-white h-12 w-12 rounded-full shadow-md active:scale-95 transition"
         >
-          <Menu className="h-5 w-5" />
-          <span>Menu</span>
-        </button>
+          <PlusCircle className="h-6 w-6 stroke-[2.5]" />
+        </Link>
       </nav>
       )}
     </div>
