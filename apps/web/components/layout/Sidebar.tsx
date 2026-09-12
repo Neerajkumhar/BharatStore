@@ -86,10 +86,10 @@ export function Sidebar() {
       <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
         {navigationGroups.map((group) => (
           <div key={group.group}>
-            <div className="px-3 text-2xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            <div className="px-3 text-2xs font-bold uppercase tracking-wider text-slate-500 mb-2">
               {group.group}
             </div>
-            <nav className="space-y-1">
+            <nav aria-label={group.group} className="space-y-1">
               {group.items.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 const Icon = item.icon;
@@ -134,7 +134,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 text-xs">
           <div className="flex flex-col">
             <span className="font-semibold text-slate-800 truncate">rajesh-sarees.in</span>
-            <span className="text-emerald-600 text-2xs font-medium">● Live & Online</span>
+            <span className="text-emerald-700 text-2xs font-medium">● Live & Online</span>
           </div>
           <a
             href="https://rajesh-sarees.bharatstore.in"

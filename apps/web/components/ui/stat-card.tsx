@@ -51,14 +51,14 @@ export function StatCard({
       </div>
       <div className="mt-3 flex items-baseline gap-1.5">
         <span className="text-2xl font-bold text-slate-900 tracking-tight tabular-nums">{value}</span>
-        {unit && <span className="text-xs font-medium text-slate-400">{unit}</span>}
+        {unit && <span className="text-xs font-medium text-slate-500">{unit}</span>}
       </div>
       <div className="mt-2 min-h-[1.25rem]">
         {trend ? (
           <div className="flex items-center gap-1.5 text-xs font-medium">
             <TrendGlyph direction={trend.direction} positive={trend.positive} />
             <span
-              className={cn(trend.positive === false ? 'text-rose-600' : 'text-emerald-600')}
+              className={cn(trend.positive === false ? 'text-rose-700' : 'text-emerald-700')}
             >
               {trend.label}
             </span>
@@ -81,7 +81,7 @@ export function StatCard({
           content
         )}
         {demo && (
-          <div className="mt-3 flex items-center gap-1 text-2xs font-medium text-slate-400">
+          <div className="mt-3 flex items-center gap-1 text-2xs font-medium text-slate-500">
             <FlaskConical className="h-3 w-3" aria-hidden="true" />
             Demo data
           </div>
@@ -101,7 +101,7 @@ function TrendGlyph({
   const Icon = direction === 'up' ? ArrowUpRight : ArrowDownRight;
   return (
     <Icon
-      className={cn('h-3.5 w-3.5', positive === false ? 'text-rose-600' : 'text-emerald-600')}
+      className={cn('h-3.5 w-3.5', positive === false ? 'text-rose-700' : 'text-emerald-700')}
       aria-hidden="true"
     />
   );

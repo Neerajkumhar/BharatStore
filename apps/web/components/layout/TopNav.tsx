@@ -38,14 +38,15 @@ export function TopNav() {
         <div className="relative">
           <button
             onClick={() => setBusinessMenuOpen(!businessMenuOpen)}
+            aria-label="Switch business: Rajesh Saree Emporium"
             className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition text-left text-xs sm:text-sm font-medium text-slate-800"
           >
             <Building2 className="h-4 w-4 text-amber-600" />
-            <div className="flex flex-col leading-tight">
+<div className="flex flex-col leading-tight hidden sm:flex">
               <span className="font-semibold text-slate-900 truncate max-w-[140px] sm:max-w-[180px]">
                 Rajesh Saree Emporium
               </span>
-              <span className="text-2xs text-slate-400 font-normal">GSTIN: 09AAECR1234F1Z5</span>
+              <span className="text-2xs text-slate-500 font-normal">GSTIN: 09AAECR1234F1Z5</span>
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1" />
           </button>
@@ -53,9 +54,9 @@ export function TopNav() {
           {businessMenuOpen && (
             <div className="absolute left-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="px-3 py-2 border-b border-slate-100">
-                <p className="text-2xs uppercase tracking-wider text-slate-400 font-bold">Active Organization</p>
+                <p className="text-2xs uppercase tracking-wider text-slate-500 font-bold">Active Organization</p>
                 <p className="text-sm font-semibold text-slate-900 mt-0.5">Rajesh Saree Emporium</p>
-                <p className="text-xs text-emerald-600 font-medium">● Varanasi, UP (09)</p>
+                <p className="text-xs text-emerald-700 font-medium">● Varanasi, UP (09)</p>
               </div>
               <div className="p-1">
                 <Link
@@ -79,7 +80,7 @@ export function TopNav() {
           role="button"
           tabIndex={0}
           aria-label="Search orders, SKU, phone"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-400 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-500 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
         >
           <Search className="h-3.5 w-3.5" />
           <span>Search orders, SKU, phone...</span>
@@ -91,7 +92,7 @@ export function TopNav() {
         {/* Quick New POS Sale Button */}
         <Link
           href="/orders?action=pos"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-xs transition"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-xs transition"
         >
           <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
           <span>Walk-in Sale (POS)</span>
@@ -166,7 +167,7 @@ export function TopNav() {
             <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 text-xs">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="font-bold text-slate-900">Sunil Kumar Verma</p>
-                <p className="text-slate-400 text-2xs truncate">sunil@bharatstore.in</p>
+                <p className="text-slate-500 text-2xs truncate">sunil@bharatstore.in</p>
               </div>
               <Link
                 href="/security"

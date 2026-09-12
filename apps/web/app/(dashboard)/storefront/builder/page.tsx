@@ -335,28 +335,28 @@ export default function StorefrontBuilderPage() {
       <div className="md:hidden bg-slate-900 text-white border-t border-slate-800 px-4 py-2 flex items-center justify-around z-30 shadow-lg">
         <button
           onClick={() => setMobileActiveSheet('sections')}
-          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-600"
         >
           <Layers className="h-4 w-4" />
           <span>Outline</span>
         </button>
         <button
           onClick={() => setMobileActiveSheet('edit')}
-          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-600"
         >
           <Sliders className="h-4 w-4" />
           <span>Edit Section</span>
         </button>
         <button
           onClick={() => setMobileActiveSheet('theme')}
-          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-600"
         >
           <Palette className="h-4 w-4" />
           <span>Theme</span>
         </button>
         <button
           onClick={handlePreview}
-          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-400"
+          className="flex flex-col items-center gap-1 text-2xs font-bold text-slate-300 hover:text-amber-600"
         >
           <Eye className="h-4 w-4" />
           <span>Live Store</span>

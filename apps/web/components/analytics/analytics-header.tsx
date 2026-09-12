@@ -96,7 +96,7 @@ export function AnalyticsHeader() {
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="border-b border-slate-200 bg-white rounded-t-xl px-2 pt-2 flex items-center overflow-x-auto gap-1">
+      <div className="border-b border-slate-200 bg-white rounded-t-xl px-2 pt-2 flex items-center overflow-x-auto gap-1" tabIndex={0} aria-label="Analytics sections (scrollable horizontally)">
         {analyticsTabs.map((tab) => {
           const isActive =
             tab.href === '/analytics'

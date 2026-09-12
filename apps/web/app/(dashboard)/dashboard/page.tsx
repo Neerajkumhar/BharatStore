@@ -133,7 +133,7 @@ export default function DashboardPage() {
               <CardTitle>Recent Orders &amp; Invoices</CardTitle>
               <CardDescription>
                 Omnichannel sales from POS and online store{' '}
-                <span className="inline-flex items-center gap-1 font-mono text-2xs text-slate-400">
+                <span className="inline-flex items-center gap-1 font-mono text-2xs text-slate-500">
                   · demo data
                 </span>
               </CardDescription>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" tabIndex={0} aria-label="Recent orders table (scrollable horizontally)">
               <table className="w-full text-left text-xs sm:text-sm">
                 <caption className="sr-only">
                   Recent orders with customer, items, total, status and payment method
@@ -180,11 +180,11 @@ export default function DashboardPage() {
                       <tr key={order.id} className="hover:bg-slate-50/80 transition">
                         <td className="px-6 py-4 font-mono font-semibold text-slate-900">
                           {order.id}
-                          <div className="text-2xs text-slate-400 font-sans font-normal">{order.time}</div>
+                          <div className="text-2xs text-slate-500 font-sans font-normal">{order.time}</div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-slate-900">{order.customer}</div>
-                          <div className="text-2xs text-slate-400">{order.phone}</div>
+                          <div className="text-2xs text-slate-500">{order.phone}</div>
                         </td>
                         <td className="max-w-[200px] truncate px-6 py-4 text-slate-600">{order.items}</td>
                         <td className="px-6 py-4 font-bold text-slate-900 tabular-nums">{order.total}</td>

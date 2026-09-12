@@ -879,7 +879,7 @@ export default function MarketingPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 text-slate-950 font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
                 >
                   {actionLoading ? 'Saving...' : editingCoupon ? 'Update Coupon' : 'Create Coupon'}
                 </button>
@@ -996,7 +996,7 @@ export default function MarketingPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 text-slate-950 font-medium rounded-md hover:bg-amber-700 transition disabled:opacity-50"
                 >
                   {actionLoading ? 'Saving...' : editingCampaign ? 'Update Campaign' : 'Create Campaign'}
                 </button>
