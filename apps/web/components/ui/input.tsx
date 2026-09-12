@@ -50,7 +50,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <div
           className={cn(
             'group flex items-center w-full h-10 bg-white border rounded-md shadow-xs transition-colors overflow-hidden',
-            'focus-within:ring-2 focus-within:ring-slate-900 focus-within:border-slate-900',
+            'focus-within:ring-2 focus-within:ring-amber-600/30 focus-within:border-amber-600',
             disabled && 'bg-slate-50 opacity-60 cursor-not-allowed',
             isError
               ? 'border-red-500 focus-within:ring-red-500 focus-within:border-red-500'

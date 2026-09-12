@@ -11,11 +11,11 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const variantStyles: Record<BadgeVariant, string> = {
   default: 'bg-slate-900 text-white border-transparent',
-  success: 'bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]',
-  warning: 'bg-[#fffbeb] text-[#92400e] border-[#fde68a]',
-  error: 'bg-[#fef2f2] text-[#991b1b] border-[#fecaca]',
-  destructive: 'bg-[#fef2f2] text-[#991b1b] border-[#fecaca]',
-  info: 'bg-[#eff6ff] text-[#1e40af] border-[#bfdbfe]',
+  success: 'bg-success-bg text-success-text border-success-border',
+  warning: 'bg-warning-bg text-warning-text border-warning-border',
+  error: 'bg-error-bg text-error-text border-error-border',
+  destructive: 'bg-error-bg text-error-text border-error-border',
+  info: 'bg-info-bg text-info-text border-info-border',
   outline: 'bg-transparent text-slate-700 border-slate-300',
 };
 
