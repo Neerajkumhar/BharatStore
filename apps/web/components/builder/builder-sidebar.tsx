@@ -126,7 +126,7 @@ export function BuilderSidebar({
       </div>
 
       {/* Sections Outline List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-none">
         {filteredSections.map((section, displayIdx) => {
           const actualIndex = sorted.findIndex((s) => s.id === section.id);
           const def = COMPONENT_REGISTRY[section.type as SectionType];

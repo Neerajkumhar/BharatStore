@@ -341,7 +341,7 @@ export function BuilderSettings({ section, theme, onUpdateSection, onUpdateTheme
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-3 scrollbar-none">
         {showTheme ? (
           <ThemeSettings theme={theme} onUpdate={onUpdateTheme} />
         ) : section ? (

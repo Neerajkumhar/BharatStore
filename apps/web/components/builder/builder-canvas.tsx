@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { getTemplateById } from '@bharatstore/shared/constants';
 import { generateStorefrontPreviewHTML } from '../storefront/preview-html';
 import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
 
@@ -51,8 +52,10 @@ export function BuilderCanvas({
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
   const visibleSections = sortedSections.filter((s) => s.visible);
 
+  const template = getTemplateById(templateId || '');
+  const categoryToUse = template?.category || storeData?.category || 'general';
   const demoPayload = getPreviewDemoPayload(
-    storeData?.category || 'general',
+    categoryToUse,
     templateId || 'general'
   );
 
