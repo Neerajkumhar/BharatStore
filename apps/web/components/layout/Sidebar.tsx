@@ -99,14 +99,14 @@ export function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                      'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors border-l-2',
                       isActive
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        ? 'border-amber-500 bg-amber-50 text-slate-900 shadow-xs'
+                        : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon className={cn('h-4 w-4', isActive ? 'text-amber-400' : 'text-slate-400')} />
+                      <Icon className={cn('h-4 w-4', isActive ? 'text-amber-600' : 'text-slate-400')} />
                       <span>{item.label}</span>
                     </div>
                     {item.badge && (

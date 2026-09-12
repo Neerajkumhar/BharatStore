@@ -75,7 +75,12 @@ export function TopNav() {
       {/* Global Search & Action Area */}
       <div className="flex items-center gap-3">
         {/* Search Trigger */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-xs w-64 hover:border-slate-300 transition cursor-pointer">
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="Search orders, SKU, phone"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-400 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
+        >
           <Search className="h-3.5 w-3.5" />
           <span>Search orders, SKU, phone...</span>
           <kbd className="ml-auto font-mono text-2xs bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-500">
@@ -98,6 +103,7 @@ export function TopNav() {
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition relative"
             title="Notifications"
+            aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
@@ -143,6 +149,7 @@ export function TopNav() {
         <div className="relative">
           <button
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+            aria-label="Account menu"
             className="flex items-center gap-2 p-1 pl-2 rounded-lg hover:bg-slate-100 transition"
           >
             <div className="h-7 w-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
