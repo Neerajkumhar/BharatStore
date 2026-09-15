@@ -40,7 +40,7 @@ export function DashboardShell({
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col pb-16 sm:pb-0">
       {/* Top Navigation */}
-      {!isBuilderRoute && <TopNav />}
+      {!isBuilderRoute && <TopNav onToggleMobileMenu={() => setMobileMenuOpen(true)} />}
 
       {/* Secondary Navigation Row (dashboard sections) */}
       {!isBuilderRoute && <NavBar />}

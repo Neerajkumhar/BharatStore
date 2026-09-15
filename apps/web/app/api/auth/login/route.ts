@@ -5,8 +5,12 @@ import { signJWT, SESSION_COOKIE_NAME } from '@/lib/auth';
 import { verifyPassword } from '@/lib/password';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().optional(),
+  identifier: z.string().optional(),
   password: z.string().min(1, 'Password is required'),
+}).refine((data) => Boolean(data.email || data.identifier), {
+  message: 'Email or Mobile number is required',
+  path: ['email'],
 });
 
 export async function POST(request: Request) {
@@ -16,24 +20,77 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Validation failed', details: parsed.error.format() },
+        { error: 'Validation failed: please enter a valid email or 10-digit mobile number', details: parsed.error.format() },
         { status: 400 }
       );
     }
 
-    const { email, password } = parsed.data;
+    const inputId = (body.email || body.identifier || '').trim();
+    const cleanPhone = inputId.replace(/\D/g, '').slice(-10);
+    const password = parsed.data.password;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        memberships: {
-          include: {
-            tenant: true,
-            role: true,
+    let user = null;
+
+    if (inputId.toLowerCase() === 'owner' || inputId.toLowerCase() === 'owner id') {
+      user = await prisma.user.findFirst({
+        where: { email: 'owner@rajeshfabrics.com' },
+        include: {
+          memberships: {
+            include: {
+              tenant: true,
+              role: true,
+            },
           },
         },
-      },
-    });
+      });
+    } else if (inputId.toLowerCase() === 'admin') {
+      user = await prisma.user.findFirst({
+        where: { email: 'admin@rajeshfabrics.com' },
+        include: {
+          memberships: {
+            include: {
+              tenant: true,
+              role: true,
+            },
+          },
+        },
+      });
+    } else if (cleanPhone.length === 10 && !inputId.includes('@')) {
+      user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { phone: cleanPhone },
+            { phone: `+91${cleanPhone}` },
+            { phone: inputId },
+          ],
+        },
+        include: {
+          memberships: {
+            include: {
+              tenant: true,
+              role: true,
+            },
+          },
+        },
+      });
+    } else {
+      user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: inputId, mode: 'insensitive' } },
+            { phone: inputId },
+          ],
+        },
+        include: {
+          memberships: {
+            include: {
+              tenant: true,
+              role: true,
+            },
+          },
+        },
+      });
+    }
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });

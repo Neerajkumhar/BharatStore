@@ -2,8 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
-import { generateStorefrontPreviewHTML } from '../storefront/preview-html';
-import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
+import { EditableSectionList } from './editable-section-list';
 
 interface SectionItem {
   id: string;
@@ -28,6 +27,7 @@ interface BuilderCanvasProps {
   onDuplicateSection?: (id: string) => void;
   onToggleVisibility?: (id: string) => void;
   onDeleteSection?: (id: string) => void;
+  onUpdateSection?: (id: string, config: Record<string, unknown>) => void;
 }
 
 export function BuilderCanvas({
@@ -37,61 +37,18 @@ export function BuilderCanvas({
   viewport,
   selectedSectionId,
   onSelectSection,
+  onReorder,
+  onDuplicateSection,
+  onToggleVisibility,
+  onDeleteSection,
+  onUpdateSection,
 }: BuilderCanvasProps) {
-  const [loading, setLoading] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const [iframeHeight, setIframeHeight] = useState('1400px');
   const [zoom, setZoom] = useState(1);
 
   const sections = draftConfig?.sections || [];
   const theme = draftConfig?.theme || {};
-  const templateId = draftConfig?.templateId || 'general';
-
-  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
-  const visibleSections = sortedSections.filter((s) => s.visible);
-
-  const demoPayload = getPreviewDemoPayload(
-    storeData?.category || 'general',
-    templateId || 'general'
-  );
-
-  const html = generateStorefrontPreviewHTML(
-    visibleSections,
-    theme,
-    storeData || { tradeName: 'BharatStore' },
-    slug || 'demo-store',
-    {
-      store: demoPayload.store,
-      categories: demoPayload.categories,
-      products: demoPayload.products,
-      heroImage: demoPayload.heroImage,
-      bannerImages: demoPayload.bannerImages,
-      aboutImage: demoPayload.aboutImage,
-      testimonials: demoPayload.testimonials,
-    }
-  );
-
-  // Measure and adjust iframe height dynamically so the storefront renders seamlessly without a nested inner scrollbar box
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const handleLoad = () => {
-      setLoading(false);
-      try {
-        if (iframe.contentWindow?.document?.body) {
-          const scrollH = iframe.contentWindow.document.body.scrollHeight;
-          if (scrollH > 200) setIframeHeight(`${scrollH + 20}px`);
-        }
-      } catch (e) {
-        setIframeHeight('2600px');
-      }
-    };
-
-    iframe.addEventListener('load', handleLoad);
-    return () => iframe.removeEventListener('load', handleLoad);
-  }, [html, viewport]);
+  const templateId = draftConfig?.templateId || null;
 
   // Reset zoom when device changes
   useEffect(() => {
@@ -118,6 +75,12 @@ export function BuilderCanvas({
     tablet: 'rounded-2xl border border-slate-200/80 bg-white shadow-xl',
     mobile: 'rounded-[36px] border-[10px] border-slate-900 bg-white shadow-xl ring-1 ring-slate-900/10',
   }[viewport];
+
+  const handleReorder = onReorder || (() => {});
+  const handleDuplicate = onDuplicateSection || (() => {});
+  const handleToggle = onToggleVisibility || (() => {});
+  const handleDelete = onDeleteSection || (() => {});
+  const handleUpdate = onUpdateSection || (() => {});
 
   return (
     <div className="relative flex h-full flex-col bg-slate-200/50">
@@ -158,22 +121,28 @@ export function BuilderCanvas({
         >
           <div
             ref={frameRef}
-            className={`relative transition-all duration-300 ${frameClasses}`}
+            className={`relative transition-all duration-300 ${frameClasses} overflow-hidden`}
             style={{
               width: deviceWidth,
               maxWidth: viewport === 'mobile' ? 'calc(100% - 32px)' : '100%',
               minHeight: '900px',
             }}
           >
-            {/* Real Storefront HTML Preview Iframe */}
-            <div className="w-full relative" style={{ height: iframeHeight }}>
-              <iframe
-                ref={iframeRef}
-                srcDoc={html}
-                className="w-full h-full border-0 pointer-events-auto"
-                title="Actual Storefront Website Canvas"
-              />
-            </div>
+            {/* Real editable section components, just like the live store */}
+            <EditableSectionList
+              slug={slug}
+              sections={sections}
+              theme={theme}
+              storeData={storeData || {}}
+              templateId={templateId}
+              selectedSectionId={selectedSectionId}
+              onSelectSection={onSelectSection}
+              onReorder={handleReorder}
+              onDuplicateSection={handleDuplicate}
+              onToggleVisibility={handleToggle}
+              onDeleteSection={handleDelete}
+              onUpdateSection={handleUpdate}
+            />
           </div>
         </div>
       </div>

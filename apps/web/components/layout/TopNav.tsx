@@ -12,9 +12,14 @@ import {
   Building2,
   LogOut,
   Sparkles,
+  Menu,
 } from 'lucide-react';
 
-export function TopNav() {
+interface TopNavProps {
+  onToggleMobileMenu?: () => void;
+}
+
+export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
   const [businessMenuOpen, setBusinessMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -46,25 +51,36 @@ export function TopNav() {
   }, []);
 
   return (
-    <header
+<header
       ref={headerRef}
-      className="h-16 border-b border-slate-200 bg-white sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6"
+      className="h-16 border-b border-slate-200 bg-white sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6"
     >
       {/* Brand & Business Switcher */}
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-slate-900 tracking-tight">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        {/* Mobile Hamburger Menu Toggle */}
+        {onToggleMobileMenu && (
+          <button
+            onClick={onToggleMobileMenu}
+            className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 md:hidden transition shrink-0"
+            title="Toggle navigation"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+
+        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-slate-900 tracking-tight shrink-0">
           <div className="h-8 w-8 rounded-lg bg-slate-900 flex items-center justify-center text-amber-400 font-black text-base shadow-xs">
             भा
           </div>
-          <span className="text-base font-extrabold tracking-tight">
+          <span className="text-base font-extrabold tracking-tight hidden min-[400px]:inline">
             Bharat<span className="text-amber-600">Store</span>
           </span>
         </Link>
 
-        <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+        <div className="h-5 w-px bg-slate-200 hidden sm:block shrink-0" />
 
         {/* Business Selector */}
-        <div className="relative">
+        <div className="relative min-w-0">
           <button
             onClick={() => {
               setNotificationsOpen(false);
@@ -72,24 +88,24 @@ export function TopNav() {
               setBusinessMenuOpen((open) => !open);
             }}
             aria-label="Switch business: Rajesh Saree Emporium"
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition text-left text-xs sm:text-sm font-medium text-slate-800"
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition text-left text-xs sm:text-sm font-medium text-slate-800"
           >
-            <Building2 className="h-4 w-4 text-amber-600" />
-<div className="flex flex-col leading-tight hidden sm:flex">
-              <span className="font-semibold text-slate-900 truncate max-w-[140px] sm:max-w-[180px]">
+            <Building2 className="h-4 w-4 text-amber-600 shrink-0" />
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="font-semibold text-slate-900 truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[180px]">
                 Rajesh Saree Emporium
               </span>
-              <span className="text-2xs text-slate-500 font-normal">GSTIN: 09AAECR1234F1Z5</span>
+              <span className="text-2xs text-slate-500 font-normal hidden sm:block">GSTIN: 09AAECR1234F1Z5</span>
             </div>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1" />
+            <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           </button>
 
           {businessMenuOpen && (
-            <div className="absolute left-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute left-0 mt-2 w-64 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="text-2xs uppercase tracking-wider text-slate-500 font-bold">Active Organization</p>
-                <p className="text-sm font-semibold text-slate-900 mt-0.5">Rajesh Saree Emporium</p>
-                <p className="text-xs text-emerald-700 font-medium">● Varanasi, UP (09)</p>
+                <p className="text-sm font-semibold text-slate-900 mt-0.5 truncate">Rajesh Saree Emporium</p>
+                <p className="text-xs text-emerald-600 font-medium">● Varanasi, UP (09)</p>
               </div>
               <div className="p-1">
                 <Link
@@ -107,13 +123,13 @@ export function TopNav() {
       </div>
 
       {/* Global Search & Action Area */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Search Trigger */}
         <div
           role="button"
           tabIndex={0}
           aria-label="Search orders, SKU, phone"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100/60 text-slate-600 text-xs w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-xs w-52 lg:w-64 hover:border-slate-300 transition cursor-pointer focus-visible:outline-none"
         >
           <Search className="h-3.5 w-3.5" />
           <span>Search orders, SKU, phone...</span>
@@ -148,7 +164,7 @@ export function TopNav() {
           </button>
 
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg p-3 z-50 text-xs">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-lg p-3 z-50 text-xs">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="font-bold text-slate-900">Notifications</span>
                 <Link
@@ -192,20 +208,20 @@ export function TopNav() {
               setProfileMenuOpen((open) => !open);
             }}
             aria-label="Account menu"
-            className="flex items-center gap-2 p-1 pl-2 rounded-lg hover:bg-slate-100 transition"
+            className="flex items-center gap-2 p-1 sm:pl-2 rounded-lg hover:bg-slate-100 transition"
           >
-            <div className="h-7 w-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
+            <div className="h-7 w-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
               SK
             </div>
             <div className="hidden lg:flex flex-col text-left leading-tight">
               <span className="text-xs font-semibold text-slate-900">Sunil Verma</span>
               <span className="text-2xs text-amber-600 font-bold uppercase">Owner</span>
             </div>
-            <ChevronDown className="h-3 w-3 text-slate-400 hidden lg:block" />
+            <ChevronDown className="h-3 w-3 text-slate-400 hidden lg:block shrink-0" />
           </button>
 
           {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 text-xs">
+            <div className="absolute right-0 mt-2 w-52 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 text-xs">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="font-bold text-slate-900">Sunil Kumar Verma</p>
                 <p className="text-slate-500 text-2xs truncate">sunil@bharatstore.in</p>

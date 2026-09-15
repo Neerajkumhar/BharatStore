@@ -1,6 +1,7 @@
 import React from 'react';
 import { prisma } from '@bharatstore/database';
-import { isValidSectionType, SECTION_TYPES } from '@bharatstore/shared/constants';
+import { isValidSectionType, SECTION_TYPES, getTemplateById } from '@bharatstore/shared/constants';
+import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
 
 import { SECTION_COMPONENT_MAP, getSectionExtraProps } from './section-component-map';
 
@@ -16,6 +17,7 @@ interface PageConfig {
   sections: SectionConfig[];
   theme?: Record<string, unknown>;
   seo?: Record<string, unknown>;
+  templateId?: string;
 }
 
 interface StorefrontRendererProps {
@@ -36,7 +38,12 @@ interface StorefrontRendererProps {
   isPreview?: boolean;
 }
 
-async function resolveSectionData(section: SectionConfig, tenantId: string, slug: string) {
+async function resolveSectionData(section: SectionConfig, tenantId: string, slug: string, templateId?: string) {
+  const template = getTemplateById(templateId || '');
+  const templateCategory = template?.category || 'general';
+  const demoPayload = getPreviewDemoPayload(templateCategory, templateId || 'general');
+  const overrides = section.config.imageOverrides as Record<string, string> | undefined;
+
   switch (section.type) {
     case SECTION_TYPES.CATEGORIES:
     case SECTION_TYPES.CATEGORY_CIRCULAR:
@@ -48,7 +55,27 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
         take: limit,
         include: { _count: { select: { products: { where: { isPublished: true } } } } },
       });
-      return { categories };
+
+      if (categories.length > 0) {
+        return {
+          categories: categories.map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            image: overrides?.[c.id] ?? null,
+            _count: { products: c._count.products },
+          })),
+        };
+      }
+
+      const demoCats = demoPayload.categories.slice(0, limit).map((c, idx) => ({
+        id: `demo_cat_${idx}`,
+        name: c.name,
+        slug: c.slug,
+        image: overrides?.[`demo_cat_${idx}`] ?? c.image,
+        _count: { products: c.count },
+      }));
+      return { categories: demoCats };
     }
 
     case SECTION_TYPES.FEATURED_PRODUCTS:
@@ -77,23 +104,37 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
         },
       });
 
-      const formatted = products.map((p) => ({
-        id: p.id,
+      if (products.length > 0) {
+        const formatted = products.map((p) => ({
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          sellingPrice: Number(p.sellingPrice),
+          mrp: Number(p.mrp),
+          images: overrides?.[p.id] ? [overrides[p.id]] : p.images,
+          categoryName: p.category.name,
+          variants: p.variants.map((v) => ({
+            id: v.id,
+            sku: v.sku,
+            variantName: v.variantName,
+            priceOverride: v.priceOverride ? Number(v.priceOverride) : null,
+            currentStock: v.currentStock,
+          })),
+        }));
+        return { products: formatted };
+      }
+
+      const demoProds = demoPayload.products.slice(0, limit).map((p, idx) => ({
+        id: `demo_prod_${idx}`,
         title: p.title,
-        slug: p.slug,
-        sellingPrice: Number(p.sellingPrice),
-        mrp: Number(p.mrp),
-        images: p.images,
-        categoryName: p.category.name,
-        variants: p.variants.map((v) => ({
-          id: v.id,
-          sku: v.sku,
-          variantName: v.variantName,
-          priceOverride: v.priceOverride ? Number(v.priceOverride) : null,
-          currentStock: v.currentStock,
-        })),
+        slug: `demo-prod-${idx}`,
+        sellingPrice: p.price,
+        mrp: p.mrp,
+        images: [overrides?.[`demo_prod_${idx}`] ?? p.image],
+        categoryName: p.category,
+        variants: [],
       }));
-      return { products: formatted };
+      return { products: demoProds };
     }
 
     default:
@@ -131,6 +172,7 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
   }
 
   const theme = (config.theme || {}) as Record<string, unknown>;
+  const templateId = (config.templateId as string) || (theme.templateId as string);
   const sections = config.sections
     .filter((s) => s.visible && isValidSectionType(s.type))
     .sort((a, b) => a.order - b.order);
@@ -138,7 +180,7 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
   const font = getFontFamily(theme.fontFamily as string);
   const borderRadius = getBorderRadius(theme.borderRadius as string);
 
-  const sectionDataPromises = sections.map((s) => resolveSectionData(s, tenantId, slug));
+  const sectionDataPromises = sections.map((s) => resolveSectionData(s, tenantId, slug, templateId));
   const sectionDataResults = await Promise.all(sectionDataPromises);
 
   return (

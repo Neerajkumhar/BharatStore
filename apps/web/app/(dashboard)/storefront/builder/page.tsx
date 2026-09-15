@@ -9,7 +9,7 @@ import { BuilderSettings } from '@/components/builder/builder-settings';
 import { BuilderWorkspace, type BuilderWorkspaceHandle } from '@/components/builder/builder-workspace';
 import { SectionPickerModal } from '@/components/builder/section-picker-modal';
 import type { SectionAddPayload } from '@/components/builder/component-preview-modal';
-import { createDefaultSection, getTemplateById, type SectionType, type TemplateCategory } from '@bharatstore/shared/constants';
+import { createDefaultSection, getTemplateById, buildTemplatePageConfig, type SectionType, type TemplateCategory } from '@bharatstore/shared/constants';
 import { Layers, Sliders, Palette, Eye, X } from 'lucide-react';
 
 interface SectionItem {
@@ -75,36 +75,107 @@ export default function StorefrontBuilderPage() {
   const [rightOpen, setRightOpen] = useState(true);
   const workspaceRef = useRef<BuilderWorkspaceHandle>(null);
   const [storeData, setStoreData] = useState<any>(null);
-  const [slug, setSlug] = useState('');
+  const [slug, setSlug] = useState('rajesh-fabrics');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load builder state
   useEffect(() => {
     async function load() {
+      const searchParams = new URLSearchParams(window.location.search);
+      const themeParam = searchParams.get('theme');
+      const isApplied = searchParams.get('applied') === '1';
+
       try {
         const res = await fetch('/api/admin/storefront/builder');
         const json = await res.json();
         if (json.success) {
           const { draftConfig, publishedConfig } = json.data;
-          if (draftConfig) {
+
+          if (themeParam && (isApplied || !draftConfig || !draftConfig.sections?.length || draftConfig.templateId !== themeParam)) {
+            try {
+              const built = buildTemplatePageConfig(themeParam);
+              const newConfig = {
+                sections: (built.sections as any) || [],
+                theme: built.theme || {},
+                seo: {},
+                templateId: themeParam,
+              };
+              setBuilderState(newConfig);
+
+              // Persist applied URL theme to DB draft & publish immediately so Live Preview & Live Store match 100%
+              fetch('/api/admin/storefront/builder', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ config: newConfig }),
+              })
+                .then(() => {
+                  if (isApplied) {
+                    fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
+                  }
+                })
+                .catch(() => {});
+            } catch (e) {
+              console.error('Failed to build template from URL param:', e);
+            }
+          } else if (draftConfig && draftConfig.sections && draftConfig.sections.length > 0) {
             setBuilderState({
               sections: draftConfig.sections || [],
               theme: draftConfig.theme || {},
               seo: draftConfig.seo || {},
-              templateId: draftConfig.templateId || null,
+              templateId: draftConfig.templateId || themeParam || null,
             });
           }
           setHasPublished(!!publishedConfig);
+        } else if (themeParam) {
+          try {
+            const built = buildTemplatePageConfig(themeParam);
+            const newConfig = {
+              sections: (built.sections as any) || [],
+              theme: built.theme || {},
+              seo: {},
+              templateId: themeParam,
+            };
+            setBuilderState(newConfig);
+
+            fetch('/api/admin/storefront/builder', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ config: newConfig }),
+            })
+              .then(() => {
+                if (isApplied) {
+                  fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
+                }
+              })
+              .catch(() => {});
+          } catch (e) {
+            console.error('Failed to build template from URL param:', e);
+          }
         }
 
         const storeRes = await fetch('/api/admin/storefront');
         const storeJson = await storeRes.json();
-        if (storeJson.success) {
+        if (storeJson.success && storeJson.data?.tenant) {
           setStoreData(storeJson.data.tenant);
-          setSlug(storeJson.data.tenant.slug);
+          if (storeJson.data.tenant.slug) {
+            setSlug(storeJson.data.tenant.slug);
+          }
         }
       } catch (err) {
         console.error('Failed to load builder:', err);
+        if (themeParam) {
+          try {
+            const built = buildTemplatePageConfig(themeParam);
+            setBuilderState({
+              sections: (built.sections as any) || [],
+              theme: built.theme || {},
+              seo: {},
+              templateId: themeParam,
+            });
+          } catch (e) {
+            // ignore
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -156,7 +227,17 @@ export default function StorefrontBuilderPage() {
 
   const handlePublish = async () => {
     if (!confirm('Publish draft to live store? This will make your storefront live.')) return;
+    setSaveState('saving');
     try {
+      // 1. Ensure latest builderState is saved to draft
+      await fetch('/api/admin/storefront/builder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: builderState }),
+      });
+      setSaveState('saved');
+
+      // 2. Publish draft to live store
       const res = await fetch('/api/admin/storefront/builder/publish', { method: 'POST' });
       const json = await res.json();
       if (json.success) {
@@ -172,7 +253,7 @@ export default function StorefrontBuilderPage() {
 
   const handlePreview = () => {
     if (slug) {
-      window.open(`/store/${slug}`, '_blank');
+      window.open(`/store/${slug}?preview=true`, '_blank');
     }
   };
 
@@ -259,7 +340,7 @@ export default function StorefrontBuilderPage() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-slate-100">
+    <div className="flex flex-col h-screen max-h-screen w-full bg-slate-100 overflow-hidden">
       {/* Top Toolbar */}
       <BuilderToolbar
         slug={slug}
@@ -324,6 +405,7 @@ export default function StorefrontBuilderPage() {
             onDuplicateSection={handleDuplicateSection}
             onToggleVisibility={handleToggleVisibility}
             onDeleteSection={handleDeleteSection}
+            onUpdateSection={handleUpdateSection}
           />
         }
         leftLabel="Sections"

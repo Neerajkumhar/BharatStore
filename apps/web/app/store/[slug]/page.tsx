@@ -8,10 +8,14 @@ import { StorefrontRenderer } from '@/components/storefront/storefront-renderer'
 
 export default async function StorefrontHomePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ preview?: string; draft?: string }>;
 }) {
   const { slug } = await params;
+  const sParams = (await searchParams) || {};
+  const isPreviewMode = sParams.preview === 'true' || sParams.draft === 'true';
 
   const tenant = await prisma.tenant.findUnique({
     where: { slug },
@@ -26,14 +30,18 @@ export default async function StorefrontHomePage({
 
   const theme = tenant.storefrontTheme;
 
-  // Check if published config exists - use config-driven renderer
-  const publishedConfig = theme?.publishedConfig as any;
-  if (publishedConfig && publishedConfig.sections && publishedConfig.sections.length > 0) {
+  // Use draftConfig if previewing or if publishedConfig is not yet set
+  const activeConfig = (isPreviewMode
+    ? theme?.draftConfig || theme?.publishedConfig
+    : theme?.publishedConfig || theme?.draftConfig) as any;
+
+  if (activeConfig && activeConfig.sections && activeConfig.sections.length > 0) {
     return (
       <StorefrontRenderer
-        config={publishedConfig}
+        config={activeConfig}
         slug={slug}
         tenantId={tenant.id}
+        isPreview={isPreviewMode}
         storeData={{
           tradeName: tenant.tradeName,
           phone: theme?.contactPhone || tenant.phone,

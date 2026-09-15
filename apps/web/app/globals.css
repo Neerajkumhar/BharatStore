@@ -289,3 +289,12 @@ section[id],
 ::-webkit-scrollbar-thumb:hover {
   background: #71717A;
 }
+
+/* Invisible scrollbar utility for sleek section scrolling */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+}

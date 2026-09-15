@@ -109,7 +109,7 @@ export default function OnboardingPage() {
                   {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
                 <span
-                  className={`text-2xs font-semibold mt-1.5 ${
+                  className={`text-3xs sm:text-2xs font-semibold mt-1.5 truncate max-w-[60px] xs:max-w-[75px] sm:max-w-none text-center ${
                     isCurrent ? 'text-slate-900 font-bold' : 'text-slate-400'
                   }`}
                 >
