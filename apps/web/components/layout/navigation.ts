@@ -26,12 +26,16 @@ export interface NavItem {
 
 export interface NavGroup {
   group: string;
+  railLabel?: string;
+  railIcon?: LucideIcon;
   items: NavItem[];
 }
 
 export const navigationGroups: NavGroup[] = [
   {
     group: 'Overview',
+    railLabel: 'Overview',
+    railIcon: LayoutDashboard,
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { label: 'Analytics BI', href: '/analytics', icon: BarChart3, badge: 'Live' },
@@ -39,6 +43,8 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     group: 'Commerce',
+    railLabel: 'Commerce',
+    railIcon: Package,
     items: [
       { label: 'Products', href: '/products', icon: Package },
       { label: 'Categories', href: '/categories', icon: Tags },
@@ -50,6 +56,8 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     group: 'Finance & Compliance',
+    railLabel: 'Finance',
+    railIcon: FileText,
     items: [
       { label: 'Invoices (GST)', href: '/invoices', icon: FileText },
       { label: 'Payments', href: '/payments', icon: CreditCard },
@@ -57,6 +65,8 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     group: 'Storefront',
+    railLabel: 'Storefront',
+    railIcon: Store,
     items: [
       { label: 'Online Store', href: '/storefront', icon: Store },
       { label: 'Store Builder', href: '/storefront/builder', icon: LayoutDashboard },
@@ -64,6 +74,8 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     group: 'Administration',
+    railLabel: 'Admin',
+    railIcon: Settings,
     items: [
       { label: 'Notifications', href: '/notifications', icon: Bell },
       { label: 'Staff & Team RBAC', href: '/staff', icon: Users },
@@ -73,6 +85,10 @@ export const navigationGroups: NavGroup[] = [
     ],
   },
 ];
+
+export function getRailGroups() {
+  return navigationGroups;
+}
 
 export function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/');

@@ -5,13 +5,14 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 
-export type StatIconTone = 'amber' | 'blue' | 'purple' | 'rose';
+export type StatIconTone = 'amber' | 'blue' | 'purple' | 'rose' | 'emerald';
 
 const iconToneStyles: Record<StatIconTone, string> = {
   amber: 'bg-amber-50 text-amber-600',
   blue: 'bg-blue-50 text-blue-600',
   purple: 'bg-purple-50 text-purple-600',
   rose: 'bg-rose-50 text-rose-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
 };
 
 export interface StatCardProps {
