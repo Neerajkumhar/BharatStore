@@ -142,7 +142,7 @@ export default function StorefrontSettingsPage() {
   const storefrontUrl = `/store/${formData.slug}`;
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 w-full">
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-xl shadow-sm border border-slate-800">
         <div>
@@ -158,7 +158,7 @@ export default function StorefrontSettingsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/storefront/themes"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-900 rounded-lg text-sm font-bold hover:bg-slate-100 transition shadow-xs border border-slate-200"

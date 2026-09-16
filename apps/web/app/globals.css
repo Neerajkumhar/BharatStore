@@ -298,3 +298,48 @@ section[id],
 .scrollbar-none::-webkit-scrollbar {
   display: none !important;
 }
+
+/* ─── Print: official GST invoice documents ───────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Hide all dashboard chrome, reveal only the invoice document */
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-print-area,
+  #invoice-print-area * {
+    visibility: visible;
+  }
+
+  #invoice-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* No-print elements: removed from layout so they cannot leave blank pages */
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  /* Prevent a table row or totals block from splitting across pages */
+  #invoice-print-area tr,
+  #invoice-print-area .sm\:col-span-3,
+  #invoice-print-area .sm\:col-span-2 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

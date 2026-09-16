@@ -13,6 +13,28 @@ export interface AuthorizationResult {
   response?: NextResponse;
 }
 
+async function logSecurityEvent(data: {
+  tenantId: string | null;
+  eventType: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  ipAddress: string | null;
+  details: Record<string, unknown>;
+}) {
+  try {
+    await prisma.securityEvent.create({
+      data: {
+        tenantId: data.tenantId,
+        eventType: data.eventType,
+        severity: data.severity,
+        ipAddress: data.ipAddress,
+        details: data.details as any,
+      },
+    });
+  } catch (error) {
+    console.warn('Failed to persist security event, continuing authorization:', error);
+  }
+}
+
 export async function authorizeRequest(
   request: Request,
   requiredPermission?: PermissionCode
@@ -95,19 +117,19 @@ export async function authorizeRequest(
     });
 
     if (!membership) {
-      // Log security event for cross-tenant or unauthorized attempt
-      await prisma.securityEvent.create({
-        data: {
-          tenantId: targetTenantId,
-          eventType: 'UNAUTHORIZED_CROSS_TENANT_ATTEMPT',
-          severity: 'HIGH',
-          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
-          details: {
-            userId: session.userId,
-            userEmail: session.email,
-            attemptedTenantId: targetTenantId,
-            path: new URL(request.url).pathname,
-          },
+      // Log security event for cross-tenant or unauthorized attempt. The
+      // target tenant may be stale/unknown (e.g. after a DB reset), so the
+      // log must never turn this authorization decision into a 500.
+      await logSecurityEvent({
+        tenantId: targetTenantId,
+        eventType: 'UNAUTHORIZED_CROSS_TENANT_ATTEMPT',
+        severity: 'HIGH',
+        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        details: {
+          userId: session.userId,
+          userEmail: session.email,
+          attemptedTenantId: targetTenantId,
+          path: new URL(request.url).pathname,
         },
       });
 
@@ -125,19 +147,17 @@ export async function authorizeRequest(
 
     // 4. Validate permission requirement
     if (requiredPermission && roleName !== SYSTEM_ROLES.OWNER && !permissions.includes(requiredPermission)) {
-      await prisma.securityEvent.create({
-        data: {
-          tenantId: targetTenantId,
-          eventType: 'PERMISSION_DENIED',
-          severity: 'MEDIUM',
-          ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
-          details: {
-            userId: session.userId,
-            userEmail: session.email,
-            roleName,
-            requiredPermission,
-            path: new URL(request.url).pathname,
-          },
+      await logSecurityEvent({
+        tenantId: targetTenantId,
+        eventType: 'PERMISSION_DENIED',
+        severity: 'MEDIUM',
+        ipAddress: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        details: {
+          userId: session.userId,
+          userEmail: session.email,
+          roleName,
+          requiredPermission,
+          path: new URL(request.url).pathname,
         },
       });
 
