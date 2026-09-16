@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
 import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
 import { validateCouponForCart } from '@/lib/marketing-engine';
+import { enforcePlanLimit, recordUsage } from '@/lib/plan-enforcement';
 
 export async function POST(
   request: Request,
@@ -25,6 +26,10 @@ export async function POST(
     }
 
     const tenantId = tenant.id;
+
+    const limitViolation = await enforcePlanLimit(tenantId, 'orders');
+    if (limitViolation) return limitViolation;
+
     const body = await request.json();
 
     const {
@@ -360,6 +365,8 @@ export async function POST(
 
       return { order, invoice, payment, customer, taxCalc };
     });
+
+    await recordUsage(tenantId, { ordersCount: 1 });
 
     return NextResponse.json({
       success: true,

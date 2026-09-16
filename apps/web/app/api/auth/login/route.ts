@@ -111,6 +111,7 @@ export async function POST(request: Request) {
       tenantId: activeTenant?.id,
       tenantSlug: activeTenant?.slug,
       role: activeMembership?.role?.name,
+      isSuperAdmin: user.isSuperAdmin || false,
     });
 
     const response = NextResponse.json({
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        isSuperAdmin: user.isSuperAdmin,
       },
       tenant: activeTenant
         ? {

@@ -9,6 +9,9 @@ export interface UserSessionPayload {
   tenantId?: string;
   tenantSlug?: string;
   role?: string;
+  isSuperAdmin?: boolean;
+  isImpersonation?: boolean;
+  impersonatedBy?: string;
 }
 
 const DEV_ONLY_JWT_SECRET = 'bharatstore-dev-only-fallback-secret-never-use-in-production';

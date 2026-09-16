@@ -1,0 +1,222 @@
+BharatStore Implementation Plan (M11+)
+
+Current Status:
+- Milestones 1-10 complete (core platform, storefront builder, dashboard redesign)
+- 7/18 modules fully implemented, 11/18 partially implemented
+- Architecture: Next.js App Router with Route Handlers (no separate Fastify backend)
+
+==========================================================================
+Phase 1 - Auth Completion & Hardening (Priority: HIGH)
+==========================================================================
+
+Task: Registration UI page
+Files: (auth)/register/page.tsx
+
+Task: Forgot/Reset password flows
+Files: (auth)/forgot-password/page.tsx, (auth)/reset-password/page.tsx
+
+Task: Email verification
+Files: (auth)/verify-email/page.tsx, api/auth/verify-email/route.ts
+
+Task: Brute-force lockout
+Files: lib/auth.ts, api/auth/login/route.ts
+
+Task: MFA/TOTP setup + challenge
+Files: (auth)/mfa/page.tsx, api/auth/mfa/*, User model
+
+Task: Session revocation UI
+Files: security/page.tsx, api/admin/security/sessions/*
+
+==========================================================================
+Phase 2 - Payment Gateway Integration (Priority: HIGH)
+==========================================================================
+
+Task: Razorpay SDK integration
+Files: api/payments/route.ts, lib/payment-gateway.ts
+
+Task: Dynamic UPI QR generation
+Files: lib/upi-qr.ts, api/payments/qr/route.ts
+
+Task: Webhook signature verification
+Files: api/payments/webhook/route.ts
+
+Task: Refund API
+Files: api/payments/refund/route.ts
+
+Task: Gateway config UI
+Files: settings/page.tsx (new tab)
+
+==========================================================================
+Phase 3 - GST Invoicing & Compliance (Priority: HIGH)
+==========================================================================
+
+Task: A4 PDF invoice generation
+Files: lib/invoice-pdf.ts, api/invoices/[id]/pdf/route.ts
+
+Task: 80mm thermal receipt
+Files: lib/thermal-receipt.ts
+
+Task: GSTR-1 CSV export
+Files: api/invoices/gstr1/route.ts, analytics/reports/page.tsx
+
+Task: Credit notes
+Files: api/invoices/credit-note/route.ts
+
+Task: Reverse charge handling
+Files: lib/invoice.ts, Invoice model
+
+==========================================================================
+Phase 4 - Dashboard Live Data (Priority: MEDIUM)
+==========================================================================
+
+Task: Wire dashboard to live API
+Files: (dashboard)/dashboard/page.tsx, api/analytics/overview
+
+Task: Real-time date range filtering
+Files: components/analytics/analytics-header.tsx
+
+Task: Live payment settlements
+Files: api/analytics/payments
+
+Task: GMV/sales computation
+Files: lib/analytics-engine.ts
+
+==========================================================================
+Phase 5 - Storefront Polish & Commerce (Priority: MEDIUM)
+==========================================================================
+
+Task: Category tree drag-and-drop
+Files: categories/page.tsx, components/categories/category-tree.tsx
+
+Task: Bulk CSV product import/export
+Files: products/page.tsx, api/products/bulk/route.ts
+
+Task: B2B tier pricing
+Files: Product model, products/page.tsx
+
+Task: Customer segmentation tags
+Files: Customer model, customers/page.tsx
+
+==========================================================================
+Phase 6 - Inventory Advanced (Priority: MEDIUM)
+==========================================================================
+
+Task: Purchase orders / stock inward
+Files: inventory/page.tsx, api/inventory/purchase-orders/route.ts
+
+Task: Batch & expiry tracking
+Files: ProductVariant model, inventory/page.tsx
+
+Task: Supplier management
+Files: inventory/suppliers/page.tsx
+
+Task: Low-stock alert config
+Files: settings/page.tsx
+
+==========================================================================
+Phase 7 - WhatsApp & Marketing (Priority: LOW)
+==========================================================================
+
+Task: WhatsApp broadcast campaigns
+Files: marketing/page.tsx, lib/whatsapp-engine.ts
+
+Task: Abandoned cart recovery
+Files: api/marketing/abandoned-carts/route.ts
+
+Task: Campaign scheduling
+Files: lib/campaign-scheduler.ts
+
+==========================================================================
+Phase 8 - Security & Infrastructure (Priority: LOW)
+==========================================================================
+
+Task: Active session list
+Files: security/page.tsx, api/admin/security/sessions/route.ts
+
+Task: API key management
+Files: security/page.tsx, api/admin/api-keys/route.ts
+
+Task: PostgreSQL RLS policies
+Files: packages/database/prisma/migrations/
+
+Task: Redis caching layer
+Files: lib/cache.ts, middleware.ts
+
+Task: S3 image upload pipeline
+Files: api/upload/route.ts, lib/storage.ts
+
+Task: Custom domain DNS setup
+Files: settings/page.tsx, api/admin/domains/route.ts
+
+==========================================================================
+Phase 9 - Shipping & Receipts (Priority: LOW)
+==========================================================================
+
+Task: Shipping zones & PIN-code rules
+Files: settings/page.tsx, api/admin/shipping/route.ts
+
+Task: Receipt customizer
+Files: settings/page.tsx
+
+Task: Delivery challan generation
+Files: lib/delivery-challan.ts
+
+==========================================================================
+Estimated remaining work: ~60% of blueprint features.
+The platform is functional for demo/POC but needs payment integration,
+PDF generation, and auth hardening before production use.
+==========================================================================
+
+Git History Reference (Last 10 Commits):
+---------------------------------------------------------------------------
+e20b355 merge(builder): merge Khushi branch changes into Neeraj
+51229cf feat(invoices): official GST invoice template with logo, print isolation fixes
+3afd9cd feat(commerce): add invoices, payments, and categories management pages
+4d38090 feat(builder): improve mobile preview styling and expand section product data mapping
+6a6508b fix(auth): reuse system OWNER role so self-registered owners get full permissions
+4abeee7 Merge remote-tracking branch 'origin/Khushi' into Neeraj
+12aae31 feat(builder): add editable section controls, image picker modal, and enhanced section settings
+04f4e6c feat(storefront): ensure latest draft is saved before publishing and auto-publish applied theme
+0923bf8 feat(storefront): support live template draft preview and fallback demo data in renderer
+4ad92a7 feat: enhance mobile responsiveness, multi-identifier login, and builder settings
+---------------------------------------------------------------------------
+
+Module Status Summary:
+---------------------------------------------------------------------------
+Module 1:  Public Website & Portal         - FULLY IMPLEMENTED
+Module 2:  Authentication & Identity       - PARTIALLY IMPLEMENTED
+Module 3:  Business Onboarding             - PARTIALLY IMPLEMENTED
+Module 4:  Dashboard (Mission Control)     - PARTIALLY IMPLEMENTED
+Module 5:  Products & Variants             - FULLY IMPLEMENTED
+Module 6:  Categories & Collections        - PARTIALLY IMPLEMENTED
+Module 7:  Inventory & Stock Management    - PARTIALLY IMPLEMENTED
+Module 8:  Omnichannel Orders              - FULLY IMPLEMENTED
+Module 9:  Customers & Khata Ledger        - FULLY IMPLEMENTED
+Module 10: Payments & UPI Engine           - PARTIALLY IMPLEMENTED
+Module 11: Invoices & GST Compliance       - PARTIALLY IMPLEMENTED
+Module 12: Storefront Engine & Theme Builder - FULLY IMPLEMENTED
+Module 13: Marketing & Customer Engagement - FULLY IMPLEMENTED
+Module 14: Business Analytics & Intelligence - FULLY IMPLEMENTED
+Module 15: Staff Management & Granular Access - FULLY IMPLEMENTED
+Module 16: Business Settings               - PARTIALLY IMPLEMENTED
+Module 17: Security Center                 - PARTIALLY IMPLEMENTED
+Module 18: Audit Logs                      - FULLY IMPLEMENTED
+---------------------------------------------------------------------------
+
+Codebase Stats:
+---------------------------------------------------------------------------
+Page routes (dashboard):     25 pages
+Page routes (auth):          2 pages
+Page routes (storefront):    7 pages
+API route handlers:          58 routes
+Prisma models:               26 models
+Component files:             ~100+ files
+Lib utility files:           13 files
+Shared schemas:              8 schema files
+Shared constants:            6 constant files
+DB migrations:               1 (init)
+Storefront section components: 49 sections
+Blueprint modules assessed:  18
+Fully implemented:           7 of 18
+Partially implemented:       11 of 18
+---------------------------------------------------------------------------

@@ -1,0 +1,711 @@
+==============================================================================
+BHARATSTORE - SUPER ADMIN PANEL IMPLEMENTATION PLAN
+==============================================================================
+Purpose: Platform-level admin to manage ALL business owners, tenants,
+         features, subscriptions, and platform health.
+==============================================================================
+
+
+==============================================================================
+PHASE 1 - DATABASE SCHEMA (New Models)
+==============================================================================
+
+File: packages/database/prisma/schema.prisma
+
+--- Model 1: SubscriptionPlan ---
+  Defines the pricing tiers available for businesses.
+
+  model SubscriptionPlan {
+    id              String   @id @default(uuid()) @db.Uuid
+    name            String   @db.VarChar(50)       // "Free", "Starter", "Pro", "Enterprise"
+    slug            String   @unique @db.VarChar(50)
+    description     String?
+    monthlyPrice    Decimal  @db.Decimal(10, 2)    // INR per month
+    annualPrice     Decimal  @db.Decimal(10, 2)    // INR per year
+    currency        String   @default("INR") @db.VarChar(3)
+    maxProducts     Int      @default(50)
+    maxOrders       Int      @default(500)
+    maxStaff        Int      @default(3)
+    maxStorageMb    Int      @default(500)          // MB
+    features        String[] @default([])           // feature flag slugs enabled
+    isActive        Boolean  @default(true)
+    displayOrder    Int      @default(0)
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    subscriptions   TenantSubscription[]
+  }
+
+--- Model 2: TenantSubscription ---
+  Links a tenant to their active plan.
+
+  model TenantSubscription {
+    id              String   @id @default(uuid()) @db.Uuid
+    tenantId        String   @unique @db.Uuid
+    planId          String   @map("plan_id") @db.Uuid
+    status          SubscriptionStatus @default(TRIAL)
+    trialEndsAt     DateTime? @map("trial_ends_at")
+    currentPeriodStart DateTime? @map("current_period_start")
+    currentPeriodEnd   DateTime? @map("current_period_end")
+    cancelAt        DateTime? @map("cancel_at")
+    cancelledAt     DateTime? @map("cancelled_at")
+    paymentMethod   String?  @map("payment_method") @db.VarChar(50)
+    razorpaySubId   String?  @map("razorpay_sub_id") @db.VarChar(100)
+    notes           String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+    plan            SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Restrict)
+  }
+
+  enum SubscriptionStatus {
+    TRIAL
+    ACTIVE
+    PAST_DUE
+    CANCELLED
+    SUSPENDED
+    EXPIRED
+  }
+
+--- Model 3: FeatureFlag ---
+  Platform-wide feature toggles that can be enabled per plan or per tenant.
+
+  model FeatureFlag {
+    id              String   @id @default(uuid()) @db.Uuid
+    slug            String   @unique @db.VarChar(100) // "pos_counter", "gst_invoicing", "whatsapp_broadcast"
+    name            String   @db.VarChar(100)
+    description     String?
+    category        String   @db.VarChar(50)          // "commerce", "finance", "marketing", "analytics"
+    isPlatformWide  Boolean  @default(false)          // true = enabled for ALL tenants
+    createdAt       DateTime @default(now())
+
+    planFeatures    PlanFeature[]
+    tenantOverrides TenantFeatureOverride[]
+  }
+
+--- Model 4: PlanFeature (junction) ---
+  Which features each plan unlocks.
+
+  model PlanFeature {
+    planId          String @map("plan_id") @db.Uuid
+    featureId       String @map("feature_id") @db.Uuid
+
+    plan            SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+    feature         FeatureFlag      @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+    @@id([planId, featureId])
+  }
+
+--- Model 5: TenantFeatureOverride ---
+  Per-tenant feature overrides (grant/revoke specific features).
+
+  model TenantFeatureOverride {
+    id              String   @id @default(uuid()) @db.Uuid
+    tenantId        String   @map("tenant_id") @db.Uuid
+    featureId       String   @map("feature_id") @db.Uuid
+    enabled         Boolean  @default(true)
+    grantedById     String?  @map("granted_by_id") @db.Uuid
+    reason          String?
+    expiresAt       DateTime?
+    createdAt       DateTime @default(now())
+
+    tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+    feature         FeatureFlag @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+    @@unique([tenantId, featureId])
+  }
+
+--- Model 6: PlatformAuditLog ---
+  Super admin actions logged separately from tenant audit logs.
+
+  model PlatformAuditLog {
+    id              String   @id @default(uuid()) @db.Uuid
+    actorId         String   @map("actor_id") @db.Uuid
+    actorEmail      String   @map("actor_email")
+    action          String   @db.VarChar(100)     // "tenant.suspend", "plan.change", "feature.grant"
+    targetType      String   @map("target_type") @db.VarChar(50) // "tenant", "user", "plan", "feature"
+    targetId        String?  @map("target_id") @db.Uuid
+    targetName      String?  @map("target_name")
+    beforeState     Json?    @map("before_state")
+    afterState      Json?    @map("after_state")
+    ipAddress       String?  @map("ip_address")
+    createdAt       DateTime @default(now())
+
+    @@index([actorId])
+    @@index([targetType, targetId])
+    @@index([createdAt])
+    @@map("platform_audit_logs")
+  }
+
+--- Model 7: TenantUsage ---
+  Track monthly usage per tenant for limits enforcement.
+
+  model TenantUsage {
+    id              String   @id @default(uuid()) @db.Uuid
+    tenantId        String   @map("tenant_id") @db.Uuid
+    period          String   @db.VarChar(7)       // "2026-09"
+    productsCount   Int      @default(0) @map("products_count")
+    ordersCount     Int      @default(0) @map("orders_count")
+    staffCount      Int      @default(0) @map("staff_count")
+    storageUsedMb   Decimal  @default(0) @map("storage_used_mb") @db.Decimal(10, 2)
+    apiCalls        Int      @default(0) @map("api_calls")
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    @@unique([tenantId, period])
+    @@map("tenant_usage")
+  }
+
+--- Tenant model additions (add these fields):
+  - subscription     TenantSubscription?
+  - featureOverrides TenantFeatureOverride[]
+  - usage            TenantUsage[]
+
+
+==============================================================================
+PHASE 2 - AUTH & MIDDLEWARE CHANGES
+==============================================================================
+
+--- 2a. Update JWT payload (lib/auth.ts)
+  Add isSuperAdmin to the JWT session payload:
+
+  interface UserSessionPayload {
+    userId: string;
+    email: string;
+    name?: string;
+    tenantId?: string;
+    tenantSlug?: string;
+    role?: string;
+    isSuperAdmin?: boolean;    // NEW
+  }
+
+--- 2b. Update login route (api/auth/login/route.ts)
+  After verifying password, check isSuperAdmin:
+
+  if (user.isSuperAdmin) {
+    // Sign JWT with isSuperAdmin: true, NO tenantId required
+    // Redirect to /superadmin
+  } else {
+    // Existing flow: sign JWT with tenantId
+    // Redirect to /dashboard
+  }
+
+--- 2c. New authorization helper (lib/superadmin-auth.ts)
+
+  export async function authorizeSuperAdmin(request: Request):
+    1. Extract session token from cookie/header
+    2. Verify JWT
+    3. Check session.isSuperAdmin === true
+    4. Query user.isSuperAdmin from DB (belt-and-suspenders)
+    5. If not super admin → 403 Forbidden
+    6. Return { authorized, userId, email }
+
+--- 2d. Update middleware.ts
+  Add super admin route protection:
+
+  superAdminRoutes = ['/superadmin']
+  superAdminApiRoutes = ['/api/superadmin']
+
+  // If accessing /superadmin/* without session → /superadmin/login
+  // If accessing /superadmin/* with session but NOT superAdmin → /login
+  // Inject x-is-superadmin: true header for super admin sessions
+
+--- 2e. Super admin login page (app/(auth)/login/page.tsx update)
+  After login, detect isSuperAdmin in response:
+
+  if (response.user.isSuperAdmin) {
+    redirect('/superadmin')
+  } else {
+    redirect('/dashboard')
+  }
+
+
+==============================================================================
+PHASE 3 - SUPER ADMIN UI PAGES
+==============================================================================
+
+File structure:
+  apps/web/app/(superadmin)/
+    layout.tsx                          # Super admin shell (dark sidebar, no tenant context)
+    superadmin/
+      page.tsx                          # Platform overview dashboard
+      login/page.tsx                    # Super admin login (reuse auth login with redirect)
+      tenants/
+        page.tsx                        # All tenants list with search/filter
+        [tenantId]/
+          page.tsx                      # Tenant detail & management
+          edit/page.tsx                 # Edit tenant profile
+      owners/
+        page.tsx                        # All business owners list
+        [userId]/
+          page.tsx                      # Owner detail, their tenants, activity
+      plans/
+        page.tsx                        # Subscription plans management
+        [planId]/
+          page.tsx                      # Plan detail, features, pricing
+      subscriptions/
+        page.tsx                        # All active subscriptions
+      features/
+        page.tsx                        # Feature flags management
+      platform/
+        audit/page.tsx                  # Platform-wide audit logs
+        health/page.tsx                 # Platform health metrics
+      settings/
+        page.tsx                        # Platform settings (branding, emails, etc.)
+
+
+--- 3a. Super Admin Layout ((superadmin)/layout.tsx)
+
+  - Dark sidebar with platform-level navigation
+  - No tenant switcher (super admin operates across all tenants)
+  - User avatar with "Super Admin" badge
+  - Navigation items:
+    * Platform Overview
+    * Business Owners
+    * All Tenants
+    * Subscription Plans
+    * Active Subscriptions
+    * Feature Flags
+    * Platform Audit Logs
+    * Platform Health
+    * Settings
+
+--- 3b. Platform Overview Dashboard (superadmin/page.tsx)
+
+  Stats cards:
+    - Total Tenants (active / suspended / total)
+    - Total Business Owners
+    - Active Subscriptions
+    - Monthly Revenue (sum of all subscriptions)
+    - New Tenants (this month)
+    - Platform Health Score
+
+  Charts:
+    - Tenant growth over time (line chart)
+    - Revenue by plan (bar chart)
+    - Top tenants by order volume
+
+  Tables:
+    - Recent signups (last 10 tenants)
+    - Recent subscription changes
+    - Platform alerts (high usage tenants, expiring trials)
+
+--- 3c. Tenants List (superadmin/tenants/page.tsx)
+
+  Data table columns:
+    - Business Name (tradeName)
+    - Owner (full name + email)
+    - Plan (subscription plan name)
+    - Status (Active/Suspended/Cancelled)
+    - Total Orders (count)
+    - Total Revenue (sum of order grandTotal)
+    - Created Date
+    - Actions: View, Suspend, Change Plan
+
+  Filters:
+    - Search by business name / GSTIN / slug
+    - Filter by subscription status
+    - Filter by plan
+    - Sort by any column
+
+  Bulk actions:
+    - Bulk suspend
+    - Bulk export CSV
+
+--- 3d. Tenant Detail (superadmin/tenants/[tenantId]/page.tsx)
+
+  Sections:
+    1. Business Info Card:
+       - Legal name, trade name, slug, GSTIN, PAN
+       - Address, phone, email
+       - Created date, status
+       - Actions: Edit, Suspend/Reactivate, Delete
+
+    2. Owner Info Card:
+       - Owner name, email, phone
+       - Actions: View Profile, Impersonate (login as this user)
+
+    3. Subscription Card:
+       - Current plan, status, period dates
+       - Usage vs limits (products, orders, staff, storage)
+       - Actions: Change Plan, Extend Trial, Cancel
+
+    4. Feature Access Card:
+       - List of enabled features (from plan + overrides)
+       - Actions: Grant/Revoke individual features
+
+    5. Business Stats:
+       - Total products, orders, customers, revenue
+       - Growth charts
+
+    6. Recent Activity:
+       - Last 20 actions by this tenant's users
+
+--- 3e. Owners List (superadmin/owners/page.tsx)
+
+  Data table columns:
+    - Full Name
+    - Email
+    - Phone
+    - Businesses Owned (count + names)
+    - Total Revenue Across Businesses
+    - Registered Date
+    - Status
+    - Actions: View, Suspend All
+
+--- 3f. Plans Management (superadmin/plans/page.tsx)
+
+  Cards for each plan:
+    - Plan name, slug
+    - Monthly / Annual pricing
+    - Limits (products, orders, staff, storage)
+    - Enabled features count
+    - Active subscriptions count
+
+  Actions:
+    - Create new plan
+    - Edit plan (pricing, limits, features)
+    - Archive plan (soft delete)
+    - Reorder display
+
+--- 3g. Feature Flags (superadmin/features/page.tsx)
+
+  Table:
+    - Feature slug, name, category
+    - Platform-wide toggle
+    - Plans that include it
+    - Tenants with overrides
+    - Actions: Edit, Toggle
+
+  Create/Edit modal:
+    - Slug, name, description, category
+    - Platform-wide toggle
+    - Assign to plans
+
+
+==============================================================================
+PHASE 4 - SUPER ADMIN API ROUTES
+==============================================================================
+
+All under apps/web/app/api/superadmin/
+
+--- 4a. Auth & Session ---
+  POST   /api/superadmin/login          # Super admin login (separate from tenant login)
+  POST   /api/superadmin/logout         # Clear session
+  GET    /api/superadmin/me             # Current super admin profile
+
+--- 4b. Platform Overview ---
+  GET    /api/superadmin/overview       # Dashboard stats (counts, revenue, growth)
+  GET    /api/superadmin/analytics      # Charts data (tenant growth, revenue trends)
+
+--- 4c. Tenants Management ---
+  GET    /api/superadmin/tenants        # List all tenants (paginated, filterable)
+  GET    /api/superadmin/tenants/[id]   # Tenant detail (owner, subscription, usage, stats)
+  PUT    /api/superadmin/tenants/[id]   # Update tenant (legal name, status, etc.)
+  DELETE /api/superadmin/tenants/[id]   # Soft delete (deactivate tenant)
+  POST   /api/superadmin/tenants/[id]/suspend   # Suspend tenant
+  POST   /api/superadmin/tenants/[id]/reactivate # Reactivate tenant
+  POST   /api/superadmin/tenants/[id]/impersonate # Generate impersonation session
+
+--- 4d. Owners Management ---
+  GET    /api/superadmin/owners         # List all owners
+  GET    /api/superadmin/owners/[id]    # Owner detail (all tenants, activity)
+  PUT    /api/superadmin/owners/[id]    # Update owner (name, email, status)
+  POST   /api/superadmin/owners/[id]/suspend  # Suspend owner (all tenants)
+  POST   /api/superadmin/owners/[id]/reactivate
+
+--- 4e. Subscription Plans ---
+  GET    /api/superadmin/plans          # List all plans
+  POST   /api/superadmin/plans          # Create plan
+  GET    /api/superadmin/plans/[id]     # Plan detail with features
+  PUT    /api/superadmin/plans/[id]     # Update plan
+  DELETE /api/superadmin/plans/[id]     # Archive plan
+
+--- 4f. Tenant Subscriptions ---
+  GET    /api/superadmin/subscriptions               # List all subscriptions
+  PUT    /api/superadmin/subscriptions/[tenantId]    # Change tenant's plan
+  POST   /api/superadmin/subscriptions/[tenantId]/trial/extend  # Extend trial
+  POST   /api/superadmin/subscriptions/[tenantId]/cancel        # Cancel subscription
+
+--- 4g. Feature Flags ---
+  GET    /api/superadmin/features       # List all feature flags
+  POST   /api/superadmin/features       # Create feature flag
+  PUT    /api/superadmin/features/[id]  # Update feature flag
+  DELETE /api/superadmin/features/[id]  # Delete feature flag
+  POST   /api/superadmin/features/[id]/toggle  # Toggle platform-wide
+
+--- 4h. Tenant Feature Overrides ---
+  GET    /api/superadmin/tenants/[id]/features   # List tenant's features
+  POST   /api/superadmin/tenants/[id]/features   # Grant feature to tenant
+  DELETE /api/superadmin/tenants/[id]/features/[featureId]  # Revoke feature
+
+--- 4i. Platform Audit ---
+  GET    /api/superadmin/audit          # Platform audit logs (paginated)
+
+--- 4j. Platform Health ---
+  GET    /api/superadmin/health         # Platform health metrics
+  GET    /api/superadmin/usage          # All tenant usage data
+
+
+==============================================================================
+PHASE 5 - SHARED CONSTANTS & UTILITIES
+==============================================================================
+
+--- 5a. packages/shared/src/constants/plans.ts
+
+  export const PLAN_SLUGS = {
+    FREE: 'free',
+    STARTER: 'starter',
+    PRO: 'pro',
+    ENTERPRISE: 'enterprise',
+  } as const;
+
+  export const PLAN_LIMITS = {
+    free:     { maxProducts: 50,  maxOrders: 500,   maxStaff: 3,  maxStorageMb: 500 },
+    starter:  { maxProducts: 500, maxOrders: 5000,  maxStaff: 10, maxStorageMb: 5000 },
+    pro:      { maxProducts: 5000,maxOrders: 50000, maxStaff: 50, maxStorageMb: 50000 },
+    enterprise: { maxProducts: -1, maxOrders: -1,   maxStaff: -1, maxStorageMb: -1 },  // unlimited
+  };
+
+--- 5b. packages/shared/src/constants/features.ts
+
+  export const FEATURE_FLAGS = {
+    POS_COUNTER:            'pos_counter',
+    GST_INVOICING:          'gst_invoicing',
+    THERMAL_RECEIPT:        'thermal_receipt',
+    STOREFRONT_BUILDER:     'storefront_builder',
+    CUSTOM_DOMAIN:          'custom_domain',
+    WHATSAPP_BROADCAST:     'whatsapp_broadcast',
+    ABANDONED_CART:         'abandoned_cart',
+    ADVANCED_ANALYTICS:     'advanced_analytics',
+    GSTR1_EXPORT:           'gstr1_export',
+    BULK_IMPORT_EXPORT:     'bulk_import_export',
+    API_ACCESS:             'api_access',
+    WHITE_LABEL:            'white_label',
+    PRIORITY_SUPPORT:       'priority_support',
+    CUSTOM_ROLES:           'custom_roles',
+  } as const;
+
+--- 5c. apps/web/lib/superadmin-auth.ts
+
+  export function authorizeSuperAdmin(request): Promise<SuperAdminResult>
+  export function isSuperAdminSession(session): boolean
+  export function requireSuperAdmin(handler): wrapped handler
+
+--- 5d. apps/web/lib/feature-check.ts
+
+  export async function hasFeatureAccess(tenantId, featureSlug): Promise<boolean>
+  export async function getTenantFeatures(tenantId): Promise<string[]>
+  export async function checkTenantLimits(tenantId, resource): Promise<{ allowed: boolean; current: number; limit: number }>
+
+
+==============================================================================
+PHASE 6 - TENANT LIMITS ENFORCEMENT
+==============================================================================
+
+--- 6a. Middleware check (middleware.ts or new lib/limits.ts)
+
+  Before tenant API operations, check:
+    1. Is tenant subscription ACTIVE? (not suspended/cancelled)
+    2. Does tenant have feature enabled?
+    3. Is tenant within usage limits?
+
+  Enforcement points:
+    - POST /api/products → check productsCount < plan.maxProducts
+    - POST /api/orders → check ordersCount < plan.maxOrders
+    - POST /api/admin/staff → check staffCount < plan.maxStaff
+    - POST /api/upload → check storageUsedMb < plan.maxStorageMb
+
+--- 6b. Usage tracking (api/usage/route.ts)
+
+  On each relevant API call, increment usage counters:
+    - Product create/delete → update productsCount
+    - Order create → update ordersCount
+    - Staff invite/accept → update staffCount
+
+  Use upsert with atomic increments for the current month period.
+
+--- 6c. Upgrade prompts
+
+  When limit reached:
+    - Return 403 with specific error:
+      { error: "Plan limit reached", code: "PLAN_LIMIT_EXCEEDED",
+        resource: "products", current: 50, limit: 50, plan: "free",
+        upgradeUrl: "/superadmin/tenants/[id]?tab=subscription" }
+    - Frontend shows upgrade prompt modal
+
+
+==============================================================================
+PHASE 7 - IMPERSONATION (Super Admin Login-as-Owner)
+==============================================================================
+
+--- 7a. Impersonation API (api/superadmin/tenants/[id]/impersonate)
+
+  POST /api/superadmin/tenants/[id]/impersonate
+
+  Flow:
+    1. Super admin clicks "Impersonate" on tenant detail page
+    2. API generates a short-lived JWT (15 min) with:
+       - userId: target tenant's owner userId
+       - tenantId: target tenant id
+       - impersonatedBy: super admin userId
+       - isImpersonation: true
+    3. Returns impersonation token
+    4. Frontend sets cookie and redirects to /dashboard
+    5. Dashboard shows "Impersonating [Business Name]" banner with "Exit" button
+    6. Audit log entry created
+
+--- 7b. Impersonation detection (lib/auth.ts)
+
+  In JWT payload:
+    isImpersonation?: boolean
+    impersonatedBy?: string
+
+  If isImpersonation is true:
+    - Show impersonation banner in dashboard layout
+    - Log all actions with impersonator context
+    - Session expires in 15 minutes
+    - Exit impersonation clears cookie and redirects to /superadmin
+
+
+==============================================================================
+PHASE 8 - SEED DATA
+==============================================================================
+
+Update: packages/database/seed/seed.ts
+
+--- Plans:
+  - Free:        ₹0/mo,    50 products, 500 orders, 3 staff
+  - Starter:     ₹499/mo,  500 products, 5000 orders, 10 staff
+  - Pro:         ₹1499/mo, 5000 products, 50000 orders, 50 staff
+  - Enterprise:  ₹4999/mo, unlimited everything
+
+--- Feature Flags (all 14 from features.ts):
+  - Platform-wide: pos_counter, gst_invoicing, storefront_builder
+  - Plan-gated: thermal_receipt, custom_domain, whatsapp_broadcast,
+                abandoned_cart, advanced_analytics, gstr1_export,
+                bulk_import_export, api_access, white_label,
+                priority_support, custom_roles
+
+--- Default subscriptions:
+  - rajesh-fabrics → Pro plan, ACTIVE
+  - Other seeded tenants → Starter plan, ACTIVE
+
+--- Super admin user:
+  - superadmin@bharatstore.in → isSuperAdmin: true (already exists)
+
+
+==============================================================================
+PHASE 9 - NAVIGATION UPDATE
+==============================================================================
+
+File: apps/web/components/layout/navigation.ts
+
+Add super admin navigation (shown only when isSuperAdmin is true):
+
+  {
+    label: 'Platform',
+    items: [
+      { label: 'Overview',       href: '/superadmin',            icon: LayoutDashboard },
+      { label: 'Business Owners',href: '/superadmin/owners',     icon: Users },
+      { label: 'All Tenants',    href: '/superadmin/tenants',    icon: Building2 },
+      { label: 'Plans',          href: '/superadmin/plans',      icon: CreditCard },
+      { label: 'Subscriptions',  href: '/superadmin/subscriptions', icon: BadgeCheck },
+      { label: 'Feature Flags',  href: '/superadmin/features',   icon: ToggleLeft },
+      { label: 'Platform Audit', href: '/superadmin/platform/audit', icon: Shield },
+      { label: 'Platform Health',href: '/superadmin/platform/health', icon: Activity },
+      { label: 'Settings',       href: '/superadmin/settings',   icon: Settings },
+    ]
+  }
+
+
+==============================================================================
+PHASE 10 - FILE CREATION SUMMARY
+==============================================================================
+
+New files to create:
+  1.  apps/web/app/(superadmin)/layout.tsx
+  2.  apps/web/app/(superadmin)/superadmin/page.tsx
+  3.  apps/web/app/(superadmin)/superadmin/login/page.tsx
+  4.  apps/web/app/(superadmin)/superadmin/tenants/page.tsx
+  5.  apps/web/app/(superadmin)/superadmin/tenants/[tenantId]/page.tsx
+  6.  apps/web/app/(superadmin)/superadmin/tenants/[tenantId]/edit/page.tsx
+  7.  apps/web/app/(superadmin)/superadmin/owners/page.tsx
+  8.  apps/web/app/(superadmin)/superadmin/owners/[userId]/page.tsx
+  9.  apps/web/app/(superadmin)/superadmin/plans/page.tsx
+  10. apps/web/app/(superadmin)/superadmin/plans/[planId]/page.tsx
+  11. apps/web/app/(superadmin)/superadmin/subscriptions/page.tsx
+  12. apps/web/app/(superadmin)/superadmin/features/page.tsx
+  13. apps/web/app/(superadmin)/superadmin/platform/audit/page.tsx
+  14. apps/web/app/(superadmin)/superadmin/platform/health/page.tsx
+  15. apps/web/app/(superadmin)/superadmin/settings/page.tsx
+
+  16. apps/web/app/api/superadmin/login/route.ts
+  17. apps/web/app/api/superadmin/me/route.ts
+  18. apps/web/app/api/superadmin/overview/route.ts
+  19. apps/web/app/api/superadmin/analytics/route.ts
+  20. apps/web/app/api/superadmin/tenants/route.ts
+  21. apps/web/app/api/superadmin/tenants/[id]/route.ts
+  22. apps/web/app/api/superadmin/tenants/[id]/suspend/route.ts
+  23. apps/web/app/api/superadmin/tenants/[id]/reactivate/route.ts
+  24. apps/web/app/api/superadmin/tenants/[id]/impersonate/route.ts
+  25. apps/web/app/api/superadmin/tenants/[id]/features/route.ts
+  26. apps/web/app/api/superadmin/tenants/[id]/features/[featureId]/route.ts
+  27. apps/web/app/api/superadmin/owners/route.ts
+  28. apps/web/app/api/superadmin/owners/[id]/route.ts
+  29. apps/web/app/api/superadmin/owners/[id]/suspend/route.ts
+  30. apps/web/app/api/superadmin/owners/[id]/reactivate/route.ts
+  31. apps/web/app/api/superadmin/plans/route.ts
+  32. apps/web/app/api/superadmin/plans/[id]/route.ts
+  33. apps/web/app/api/superadmin/subscriptions/route.ts
+  34. apps/web/app/api/superadmin/subscriptions/[tenantId]/route.ts
+  35. apps/web/app/api/superadmin/subscriptions/[tenantId]/trial/extend/route.ts
+  36. apps/web/app/api/superadmin/subscriptions/[tenantId]/cancel/route.ts
+  37. apps/web/app/api/superadmin/features/route.ts
+  38. apps/web/app/api/superadmin/features/[id]/route.ts
+  39. apps/web/app/api/superadmin/features/[id]/toggle/route.ts
+  40. apps/web/app/api/superadmin/audit/route.ts
+  41. apps/web/app/api/superadmin/health/route.ts
+
+  42. apps/web/lib/superadmin-auth.ts
+  43. apps/web/lib/feature-check.ts
+  44. apps/web/lib/limits.ts
+
+  45. packages/shared/src/constants/plans.ts
+  46. packages/shared/src/constants/features.ts
+
+  47. packages/database/prisma/migrations/XXXX_add_super_admin_system/migration.sql
+
+Modified files:
+  1.  packages/database/prisma/schema.prisma          (add 7 new models)
+  2.  apps/web/lib/auth.ts                             (add isSuperAdmin to JWT)
+  3.  apps/web/lib/authorization.ts                    (super admin bypass)
+  4.  apps/web/middleware.ts                           (super admin route protection)
+  5.  apps/web/app/api/auth/login/route.ts             (super admin redirect)
+  6.  apps/web/components/layout/navigation.ts         (super admin nav)
+  7.  apps/web/components/layout/DashboardShell.tsx    (impersonation banner)
+  8.  packages/database/seed/seed.ts                   (plans, features, subscriptions)
+
+
+==============================================================================
+PHASE 11 - IMPLEMENTATION ORDER
+==============================================================================
+
+Step 1:  Schema + Migration (Phase 1)
+Step 2:  Auth changes (Phase 2) - login, JWT, middleware
+Step 3:  Super admin lib files (Phase 5c, 5d)
+Step 4:  Super admin layout + login page (Phase 3a, 3b)
+Step 5:  Platform overview dashboard (Phase 3b)
+Step 6:  Tenants list + detail pages (Phase 3c, 3d)
+Step 7:  Owners list + detail pages (Phase 3e)
+Step 8:  Plans management (Phase 3f)
+Step 9:  Feature flags management (Phase 3g)
+Step 10: Subscriptions management (Phase 3h)
+Step 11: Impersonation (Phase 7)
+Step 12: Platform audit + health pages (Phase 3i)
+Step 13: Limits enforcement (Phase 6)
+Step 14: Seed data (Phase 8)
+Step 15: Navigation update (Phase 9)
+
+==============================================================================

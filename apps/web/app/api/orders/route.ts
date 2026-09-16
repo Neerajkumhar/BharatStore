@@ -5,6 +5,7 @@ import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
 import { validateCouponForCart } from '@/lib/marketing-engine';
+import { enforcePlanLimit, recordUsage } from '@/lib/plan-enforcement';
 
 export async function GET(request: Request) {
   try {
@@ -66,6 +67,10 @@ export async function POST(request: Request) {
 
     const tenantId = auth.tenantId;
     const userId = auth.userId || null;
+
+    const limitViolation = await enforcePlanLimit(tenantId, 'orders');
+    if (limitViolation) return limitViolation;
+
     const tenant = await prisma.tenant.findUniqueOrThrow({ where: { id: tenantId } });
 
     const body = await request.json();
@@ -354,6 +359,8 @@ export async function POST(request: Request) {
 
       return { order, invoice, payment, taxCalc };
     });
+
+    await recordUsage(tenantId, { ordersCount: 1 });
 
     return NextResponse.json({ success: true, data: result });
   } catch (error: any) {

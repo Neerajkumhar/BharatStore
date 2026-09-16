@@ -3,6 +3,7 @@ import { getTenantDb, prisma } from '@bharatstore/database';
 import { createProductSchema } from '@bharatstore/shared/schemas';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
+import { enforcePlanLimit, recordUsage } from '@/lib/plan-enforcement';
 
 export async function GET(request: Request) {
   try {
@@ -87,6 +88,9 @@ export async function POST(request: Request) {
 
     const tenantId = auth.tenantId;
     const userId = auth.userId || null;
+
+    const limitViolation = await enforcePlanLimit(tenantId, 'products');
+    if (limitViolation) return limitViolation;
 
     const body = await request.json();
     const parsed = createProductSchema.safeParse(body);
@@ -180,6 +184,8 @@ export async function POST(request: Request) {
 
       return { product, variants: createdVariants };
     });
+
+    await recordUsage(tenantId, { productsCount: 1 });
 
     return NextResponse.json({ success: true, data: result });
   } catch (error: any) {
