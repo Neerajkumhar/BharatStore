@@ -82,9 +82,14 @@ async function resolveSectionData(section: SectionConfig, tenantId: string, slug
     case SECTION_TYPES.PRODUCT_GRID:
     case SECTION_TYPES.PRODUCT_CAROUSEL:
     case SECTION_TYPES.PRODUCT_RAIL:
+    case SECTION_TYPES.PRODUCT_SPOTLIGHT:
     case SECTION_TYPES.PRODUCT_TRENDING:
     case SECTION_TYPES.PRODUCT_TABS:
-    case SECTION_TYPES.FLASH_SALE: {
+    case SECTION_TYPES.PRODUCT_COMPARISON:
+    case SECTION_TYPES.HERO_PRODUCT:
+    case SECTION_TYPES.FLASH_SALE:
+    case SECTION_TYPES.ROUTINE_BUILDER:
+    case SECTION_TYPES.LOOKBOOK: {
       const limit = (section.config.limit as number) || 12;
       const products = await prisma.product.findMany({
         where: { tenantId, isPublished: true },

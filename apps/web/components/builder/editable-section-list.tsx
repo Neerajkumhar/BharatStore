@@ -35,6 +35,7 @@ interface EditableSectionListProps {
   theme: Record<string, unknown>;
   storeData: any;
   templateId?: string | null;
+  viewport?: 'desktop' | 'tablet' | 'mobile';
   selectedSectionId: string | null;
   onSelectSection: (id: string) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
@@ -73,6 +74,7 @@ const CATEGORY_SECTION_TYPES = new Set<string>([
   SECTION_TYPES.CATEGORIES,
   SECTION_TYPES.CATEGORY_CIRCULAR,
   SECTION_TYPES.CATEGORY_MEGA,
+  SECTION_TYPES.MEGA_MENU,
 ]);
 
 const PRODUCT_SECTION_TYPES = new Set<string>([
@@ -80,9 +82,14 @@ const PRODUCT_SECTION_TYPES = new Set<string>([
   SECTION_TYPES.PRODUCT_GRID,
   SECTION_TYPES.PRODUCT_CAROUSEL,
   SECTION_TYPES.PRODUCT_RAIL,
+  SECTION_TYPES.PRODUCT_SPOTLIGHT,
   SECTION_TYPES.PRODUCT_TRENDING,
   SECTION_TYPES.PRODUCT_TABS,
+  SECTION_TYPES.PRODUCT_COMPARISON,
+  SECTION_TYPES.HERO_PRODUCT,
   SECTION_TYPES.FLASH_SALE,
+  SECTION_TYPES.ROUTINE_BUILDER,
+  SECTION_TYPES.LOOKBOOK,
 ]);
 
 function normalizeProduct(p: any): ResolvedProduct {
@@ -214,6 +221,7 @@ export function EditableSectionList({
   theme,
   storeData,
   templateId,
+  viewport,
   selectedSectionId,
   onSelectSection,
   onReorder,
@@ -407,12 +415,15 @@ export function EditableSectionList({
               const Component = getPreviewLoader(section.type);
               if (!Component) return null;
               const resolved = resolvedMap[section.id];
-              const extraProps = getSectionExtraProps({
-                type: section.type,
-                data: resolved.data,
-                theme: sectionTheme,
-                storeData,
-              });
+              const extraProps = {
+                ...getSectionExtraProps({
+                  type: section.type,
+                  data: resolved.data,
+                  theme: sectionTheme,
+                  storeData,
+                }),
+                isMobilePreview: viewport === 'mobile',
+              };
               const idx = sorted.findIndex((s) => s.id === section.id);
 
               return (

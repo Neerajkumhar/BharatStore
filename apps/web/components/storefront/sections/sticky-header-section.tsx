@@ -16,9 +16,10 @@ export interface StickyHeaderSectionProps {
   };
   slug: string;
   storeData?: any;
+  isMobilePreview?: boolean;
 }
 
-export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSectionProps) {
+export function StickyHeaderSection({ config, slug, storeData, isMobilePreview }: StickyHeaderSectionProps) {
   const { totalItems, setIsOpen } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -71,7 +72,7 @@ export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSec
         <Link
           href={`/store/${slug}/account`}
           aria-label="Account"
-          className="hidden sm:inline-flex p-2 text-slate-700 hover:text-amber-600 rounded-full hover:bg-slate-100/80 transition"
+          className={`${isMobilePreview ? 'hidden' : 'hidden sm:inline-flex'} p-2 text-slate-700 hover:text-amber-600 rounded-full hover:bg-slate-100/80 transition`}
         >
           <User className="h-5 w-5" />
         </Link>
@@ -97,13 +98,13 @@ export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSec
   const renderLogo = () => (
     <Link href={`/store/${slug}`} className="flex items-center gap-2">
       <span
-        className={`font-black text-lg tracking-tight text-slate-900 truncate max-w-[180px] sm:max-w-none ${
-          headerStyle === 'split' ? 'text-xl' : ''
-        }`}
+        className={`font-black text-base sm:text-lg tracking-tight text-slate-900 truncate ${
+          isMobilePreview ? 'max-w-[120px]' : 'max-w-[180px] sm:max-w-none'
+        } ${headerStyle === 'split' ? 'text-lg sm:text-xl' : ''}`}
       >
         {brand}
       </span>
-      {headerStyle === 'split' && (
+      {headerStyle === 'split' && !isMobilePreview && (
         <span className="hidden sm:block text-3xs font-bold uppercase tracking-widest text-amber-600 border-l border-slate-200 pl-2">
           {storeData?.city || 'Delhi'} • {storeData?.pincode || '110001'}
         </span>
@@ -113,7 +114,7 @@ export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSec
 
   const renderNav = () => (
     <nav
-      className={`hidden md:flex items-center gap-8 ${
+      className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} items-center gap-8 ${
         headerStyle === 'bordered' ? 'gap-6' : ''
       }`}
     >
@@ -135,7 +136,7 @@ export function StickyHeaderSection({ config, slug, storeData }: StickyHeaderSec
     <button
       onClick={() => setMobileMenuOpen(true)}
       aria-label="Open Navigation Drawer"
-      className="md:hidden p-2 text-slate-800 hover:text-amber-600 rounded-lg hover:bg-slate-100/80 transition"
+      className={`${isMobilePreview ? 'block' : 'md:hidden'} p-2 text-slate-800 hover:text-amber-600 rounded-lg hover:bg-slate-100/80 transition`}
     >
       <Menu className="h-5 w-5" />
     </button>
