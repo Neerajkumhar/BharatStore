@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     const [variants, ledgerLogs] = await Promise.all([
       tenantDb.productVariant.findMany({
@@ -55,29 +55,29 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: {
-        summary: {
-          totalUnits,
-          totalValuationCost: Number(totalValuationCost.toFixed(2)),
-          totalValuationMrp: Number(totalValuationMrp.toFixed(2)),
-          lowStockCount: lowStockVariants.length,
-          outOfStockCount: outOfStockVariants.length,
-        },
+        totalUnits,
+        totalValuationCost: Number(totalValuationCost.toFixed(2)),
+        totalValuationMrp: Number(totalValuationMrp.toFixed(2)),
+        lowStockCount: lowStockVariants.length,
+        outOfStockCount: outOfStockVariants.length,
         movementByEvent,
-        lowStockList: lowStockVariants.map((v) => ({
-          id: v.id,
+        lowStockItems: lowStockVariants.map((v) => ({
+          variantId: v.id,
           sku: v.sku,
-          productTitle: v.product.title,
+          productName: v.product.title,
           variantName: v.variantName,
           currentStock: v.currentStock,
           lowStockAlert: v.lowStockAlert,
         })),
-        outOfStockList: outOfStockVariants.map((v) => ({
-          id: v.id,
+        outOfStockItems: outOfStockVariants.map((v) => ({
+          variantId: v.id,
           sku: v.sku,
-          productTitle: v.product.title,
+          productName: v.product.title,
           variantName: v.variantName,
           currentStock: 0,
+          costPrice: Number(v.product.baseCost),
         })),
+        periodLabel,
       },
     });
   } catch (error: any) {

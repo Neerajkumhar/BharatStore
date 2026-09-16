@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     const [customers, khataEntries] = await Promise.all([
       tenantDb.customer.findMany(),
@@ -26,41 +26,66 @@ export async function GET(request: Request) {
         where: {
           createdAt: { gte: currentStart, lte: currentEnd },
         },
+        include: { customer: true },
+        orderBy: { createdAt: 'desc' },
       }),
     ]);
 
-    const totalOutstandingCredit = customers.reduce((acc, c) => acc + Math.max(0, Number(c.currentBalance)), 0);
-    const customersWithOutstanding = customers.filter((c) => Number(c.currentBalance) > 0);
+    const totalOutstanding = customers.reduce((acc, c) => acc + Math.max(0, Number(c.currentBalance)), 0);
+    const debtorCount = customers.filter((c) => Number(c.currentBalance) > 0).length;
+    const totalCreditLimit = customers.reduce((acc, c) => acc + Math.max(0, Number(c.creditLimit)), 0);
+    const creditUtilizationPct = totalCreditLimit > 0
+      ? Number(((totalOutstanding / totalCreditLimit) * 100).toFixed(1))
+      : 0;
 
-    const periodCreditGiven = khataEntries
+    const totalCreditSalesPeriod = khataEntries
       .filter((e) => e.type === 'DEBIT_CREDIT_GIVEN')
       .reduce((acc, e) => acc + Number(e.amount), 0);
 
-    const periodPaymentsCollected = khataEntries
+    const totalCollectionsPeriod = khataEntries
       .filter((e) => e.type === 'CREDIT_PAYMENT_RECEIVED')
       .reduce((acc, e) => acc + Number(e.amount), 0);
 
-    const topDebtors = customersWithOutstanding
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        phone: c.phone,
-        currentBalance: Number(c.currentBalance),
-        creditLimit: Number(c.creditLimit),
-      }))
-      .sort((a, b) => b.currentBalance - a.currentBalance)
+    const topDebtors = customers
+      .filter((c) => Number(c.currentBalance) > 0)
+      .map((c) => {
+        const balance = Number(c.currentBalance);
+        const creditLimit = Number(c.creditLimit);
+        return {
+          id: c.id,
+          name: c.name,
+          phone: c.phone,
+          creditLimit,
+          balance,
+          utilPct: creditLimit > 0 ? Math.round((balance / creditLimit) * 100) : 0,
+        };
+      })
+      .sort((a, b) => b.balance - a.balance)
       .slice(0, 10);
+
+    const recentLedgerEntries = khataEntries.slice(0, 15).map((e) => ({
+      id: e.id,
+      customerId: e.customerId,
+      customerName: e.customer?.name || 'Unknown',
+      type: e.type,
+      paymentMode: e.paymentMode,
+      amount: Number(e.amount),
+      balanceAfter: Number(e.balanceAfter),
+      createdAt: e.createdAt,
+    }));
 
     return NextResponse.json({
       success: true,
       data: {
-        summary: {
-          totalOutstandingCredit: Number(totalOutstandingCredit.toFixed(2)),
-          customersWithOutstandingCount: customersWithOutstanding.length,
-          periodCreditGiven: Number(periodCreditGiven.toFixed(2)),
-          periodPaymentsCollected: Number(periodPaymentsCollected.toFixed(2)),
-        },
+        totalOutstanding: Number(totalOutstanding.toFixed(2)),
+        debtorCount,
+        totalCreditLimit: Number(totalCreditLimit.toFixed(2)),
+        creditUtilizationPct,
+        totalCreditSalesPeriod: Number(totalCreditSalesPeriod.toFixed(2)),
+        totalCollectionsPeriod: Number(totalCollectionsPeriod.toFixed(2)),
         topDebtors,
+        recentLedgerEntries,
+        periodLabel,
       },
     });
   } catch (error: any) {

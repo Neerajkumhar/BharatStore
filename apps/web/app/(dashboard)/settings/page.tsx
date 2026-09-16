@@ -78,7 +78,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-4xl">
+      <div className="space-y-6 w-full">
         <div className="h-32 bg-slate-100 rounded-xl animate-pulse" />
         <div className="h-64 bg-slate-100 rounded-xl animate-pulse" />
       </div>
@@ -86,7 +86,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       {/* Header Banner */}
       <div className="flex items-center justify-between bg-slate-900 text-white p-6 rounded-xl shadow-sm border border-slate-800">
         <div>

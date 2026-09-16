@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     // Fetch order items in date range
     const orderItems = await tenantDb.orderItem.findMany({
@@ -38,13 +38,14 @@ export async function GET(request: Request) {
     // Product Performance Aggregation Map
     const productMap = new Map<string, { id: string; title: string; sku: string; categoryName: string; unitsSold: number; revenue: number; ordersCount: number }>();
     // Category Performance Aggregation Map
-    const categoryMap = new Map<string, { name: string; unitsSold: number; revenue: number; ordersCount: number }>();
+    const categoryMap = new Map<string, { categoryId: string; name: string; unitsSold: number; revenue: number; ordersCount: number }>();
 
     orderItems.forEach((item) => {
       const productId = item.variant?.productId || item.productTitle;
       const title = item.productTitle;
       const sku = item.sku;
       const categoryName = item.variant?.product?.category?.name || 'Uncategorized';
+      const categoryId = item.variant?.product?.categoryId || 'uncategorized';
       const revenue = Number(item.lineTotal);
 
       // Product grouping
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
       });
 
       // Category grouping
-      const existingCat = categoryMap.get(categoryName) || { name: categoryName, unitsSold: 0, revenue: 0, ordersCount: 0 };
+      const existingCat = categoryMap.get(categoryName) || { categoryId, name: categoryName, unitsSold: 0, revenue: 0, ordersCount: 0 };
       categoryMap.set(categoryName, {
         ...existingCat,
         unitsSold: existingCat.unitsSold + item.quantity,
@@ -74,10 +75,11 @@ export async function GET(request: Request) {
 
     const topByRevenue = [...products].sort((a, b) => b.revenue - a.revenue).slice(0, 10);
     const topByUnits = [...products].sort((a, b) => b.unitsSold - a.unitsSold).slice(0, 10);
-    const lowPerforming = [...products].sort((a, b) => a.unitsSold - b.unitsSold).slice(0, 5);
+    const lowPerformers = [...products].sort((a, b) => a.unitsSold - b.unitsSold).slice(0, 5);
 
-    const categories = Array.from(categoryMap.values()).map((c) => ({
+    const categoryBreakdown = Array.from(categoryMap.values()).map((c) => ({
       ...c,
+      categoryId: c.categoryId || c.name,
       revenue: Number(c.revenue.toFixed(2)),
     })).sort((a, b) => b.revenue - a.revenue);
 
@@ -86,8 +88,9 @@ export async function GET(request: Request) {
       data: {
         topByRevenue,
         topByUnits,
-        lowPerforming,
-        categories,
+        lowPerformers,
+        categoryBreakdown,
+        periodLabel,
       },
     });
   } catch (error: any) {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { prisma } from '@bharatstore/database';
 import { verifyJWT, SESSION_COOKIE_NAME } from '@/lib/auth';
 
 const protectedRoutes = ['/dashboard', '/products', '/orders', '/customers', '/inventory', '/settings'];
@@ -21,15 +22,36 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
+  // A signed JWT is only meaningful if the user still has an active tenant
+  // membership. After a DB reset or a departed staff member, a previously
+  // issued token becomes orphaned: treating it as "authenticated" would
+  // lock the user out of /login and make every admin API return 403.
+  let hasActiveMembership = true;
+  if (session?.tenantId && session.userId) {
+    try {
+      const membership = await prisma.userTenant.findFirst({
+        where: {
+          userId: session.userId,
+          tenantId: session.tenantId,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      });
+      hasActiveMembership = Boolean(membership);
+    } catch (e) {
+      console.error('Middleware membership check failed, falling back to token-only:', e);
+    }
+  }
+
   // Redirect unauthenticated user trying to access protected routes
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !(session && hasActiveMembership)) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated user away from login page to dashboard
-  if (isAuthRoute && session) {
+  if (isAuthRoute && session && hasActiveMembership) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

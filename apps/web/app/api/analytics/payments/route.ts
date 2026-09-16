@@ -18,52 +18,72 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     const payments = await tenantDb.payment.findMany({
       where: {
         createdAt: { gte: currentStart, lte: currentEnd },
       },
+      include: {
+        order: { include: { customer: true } },
+      },
+      orderBy: { createdAt: 'desc' },
     });
 
-    const statusMap = new Map<string, { count: number; totalAmount: number }>();
-    const gatewayMap = new Map<string, { count: number; totalAmount: number }>();
+    const statusMap = new Map<string, { count: number; revenue: number }>();
+    const methodMap = new Map<string, { count: number; revenue: number }>();
 
     payments.forEach((p) => {
       const amt = Number(p.amount);
 
-      const existingStatus = statusMap.get(p.status) || { count: 0, totalAmount: 0 };
+      const existingStatus = statusMap.get(p.status) || { count: 0, revenue: 0 };
       statusMap.set(p.status, {
         count: existingStatus.count + 1,
-        totalAmount: existingStatus.totalAmount + amt,
+        revenue: existingStatus.revenue + amt,
       });
 
-      const existingGateway = gatewayMap.get(p.gateway) || { count: 0, totalAmount: 0 };
-      gatewayMap.set(p.gateway, {
-        count: existingGateway.count + 1,
-        totalAmount: existingGateway.totalAmount + amt,
+      const existingMethod = methodMap.get(p.gateway) || { count: 0, revenue: 0 };
+      methodMap.set(p.gateway, {
+        count: existingMethod.count + 1,
+        revenue: existingMethod.revenue + amt,
       });
     });
 
-    const totalCollected = payments
-      .filter((p) => p.status === 'SUCCESS')
-      .reduce((acc, p) => acc + Number(p.amount), 0);
+    const successful = payments.filter((p) => p.status === 'SUCCESS');
+    const totalCollectedRevenue = successful.reduce((acc, p) => acc + Number(p.amount), 0);
+
+    const statusBreakdown: Record<string, { count: number; revenue: number }> = {};
+    statusMap.forEach((val, status) => {
+      statusBreakdown[status] = { count: val.count, revenue: Number(val.revenue.toFixed(2)) };
+    });
+
+    const methodBreakdown: Record<string, { count: number; revenue: number }> = {};
+    methodMap.forEach((val, gateway) => {
+      methodBreakdown[gateway] = { count: val.count, revenue: Number(val.revenue.toFixed(2)) };
+    });
+
+    const recentPayments = payments.slice(0, 15).map((p) => ({
+      id: p.id,
+      paymentNumber: `${p.id.slice(0, 8)}…${p.id.slice(-4)}`,
+      orderNumber: p.order?.orderNumber || '—',
+      customerName: p.order?.customer?.name || 'Walk-in',
+      method: p.gateway,
+      amount: Number(p.amount),
+      status: p.status,
+      createdAt: p.createdAt,
+    }));
 
     return NextResponse.json({
       success: true,
       data: {
-        totalCollected: Number(totalCollected.toFixed(2)),
-        totalPaymentRecords: payments.length,
-        statusBreakdown: Array.from(statusMap.entries()).map(([status, val]) => ({
-          status,
-          count: val.count,
-          amount: Number(val.totalAmount.toFixed(2)),
-        })),
-        gatewayBreakdown: Array.from(gatewayMap.entries()).map(([gateway, val]) => ({
-          gateway,
-          count: val.count,
-          amount: Number(val.totalAmount.toFixed(2)),
-        })),
+        totalCollectedRevenue: Number(totalCollectedRevenue.toFixed(2)),
+        completedCount: successful.length,
+        failedCount: payments.filter((p) => p.status === 'FAILED').length,
+        refundedCount: payments.filter((p) => p.status === 'REFUNDED').length,
+        methodBreakdown,
+        statusBreakdown,
+        recentPayments,
+        periodLabel,
       },
     });
   } catch (error: any) {

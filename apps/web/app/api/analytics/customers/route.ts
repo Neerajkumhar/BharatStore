@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const { currentStart, currentEnd } = getAnalyticsDateRange(range, startDate, endDate);
+    const { currentStart, currentEnd, periodLabel } = getAnalyticsDateRange(range, startDate, endDate);
 
     const [allCustomers, periodOrders] = await Promise.all([
       tenantDb.customer.findMany({
@@ -36,27 +36,22 @@ export async function GET(request: Request) {
       }),
     ]);
 
-    let newCustomersCount = 0;
-    let returningCustomersCount = 0;
-    let highValueCount = 0;
-    let inactiveCount = 0;
+    let newCustomers = 0;
+    let returningCustomers = 0;
 
     const customerPerformance = allCustomers.map((c) => {
       const isNew = new Date(c.createdAt) >= currentStart && new Date(c.createdAt) <= currentEnd;
-      if (isNew) newCustomersCount++;
+      if (isNew) newCustomers++;
 
-      const ltv = c.orders.reduce((acc, o) => acc + Number(o.grandTotal), 0);
-      const ordersCount = c.orders.length;
+      const totalSpend = c.orders.reduce((acc, o) => acc + Number(o.grandTotal), 0);
+      const orderCount = c.orders.length;
 
-      if (ordersCount > 1) returningCustomersCount++;
-      if (ltv >= 20000) highValueCount++;
+      if (orderCount > 1) returningCustomers++;
 
       const lastOrder = c.orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
       const daysSinceLastOrder = lastOrder
         ? (Date.now() - new Date(lastOrder.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        : 999;
-
-      if (daysSinceLastOrder > 90) inactiveCount++;
+        : Infinity;
 
       return {
         id: c.id,
@@ -64,30 +59,60 @@ export async function GET(request: Request) {
         phone: c.phone,
         email: c.email,
         gstin: c.gstin,
-        ltv: Number(ltv.toFixed(2)),
-        ordersCount,
+        totalSpend: Number(totalSpend.toFixed(2)),
+        orderCount,
         currentBalance: Number(c.currentBalance),
-        segment: ltv >= 20000 ? 'High Value' : isNew ? 'New' : ordersCount > 1 ? 'Returning' : 'Standard',
+        isNew,
+        daysSinceLastOrder,
       };
     });
 
-    const topCustomers = [...customerPerformance].sort((a, b) => b.ltv - a.ltv).slice(0, 10);
-    const avgLtv = allCustomers.length > 0
-      ? customerPerformance.reduce((acc, c) => acc + c.ltv, 0) / allCustomers.length
+    const totalCustomers = customerPerformance.length;
+    const avgLtv = totalCustomers > 0
+      ? Number((customerPerformance.reduce((acc, c) => acc + c.totalSpend, 0) / totalCustomers).toFixed(2))
       : 0;
+    const repeatPurchaseRate = totalCustomers > 0
+      ? Number(((returningCustomers / totalCustomers) * 100).toFixed(1))
+      : 0;
+
+    const topSpenders = [...customerPerformance]
+      .sort((a, b) => b.totalSpend - a.totalSpend)
+      .slice(0, 10)
+      .map(({ isNew: _isNew, daysSinceLastOrder: _days, ...spender }) => spender);
+
+    // RFM-inspired segments: champions, loyal, new buyers, at risk
+    const segments = {
+      champions: customerPerformance.filter((c) => c.orderCount >= 4 && c.totalSpend >= 20000),
+      loyal: customerPerformance.filter((c) => c.orderCount >= 2 && c.orderCount < 4 && c.totalSpend >= 5000),
+      newBuyers: customerPerformance.filter((c) => c.isNew),
+      atRisk: customerPerformance.filter((c) => c.daysSinceLastOrder > 90),
+    };
+
+    // LTV tiers
+    const tiers: { min: number; max: number; range: string }[] = [
+      { min: 0, max: 5000, range: '₹0 – ₹5K' },
+      { min: 5000, max: 20000, range: '₹5K – ₹20K' },
+      { min: 20000, max: 50000, range: '₹20K – ₹50K' },
+      { min: 50000, max: 100000, range: '₹50K – ₹1L' },
+      { min: 100000, max: Infinity, range: '₹1L+' },
+    ];
+    const ltvDistribution = tiers.map((t) => ({
+      range: t.range,
+      count: customerPerformance.filter((c) => c.totalSpend >= t.min && c.totalSpend < t.max).length,
+    }));
 
     return NextResponse.json({
       success: true,
       data: {
-        summary: {
-          totalCustomers: allCustomers.length,
-          newCustomers: newCustomersCount,
-          returningCustomers: returningCustomersCount,
-          highValueCustomers: highValueCount,
-          inactiveCustomers: inactiveCount,
-          averageLtv: Number(avgLtv.toFixed(2)),
-        },
-        topCustomers,
+        totalCustomers,
+        newCustomers,
+        returningCustomers,
+        repeatPurchaseRate,
+        avgLtv,
+        ltvDistribution,
+        topSpenders,
+        segments,
+        periodLabel,
       },
     });
   } catch (error: any) {

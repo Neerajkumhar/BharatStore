@@ -96,7 +96,7 @@ function AreaChart({
     h - pad - (v / max) * (h - pad * 2),
   ]);
   const line = pts.map((p) => p.join(',')).join(' ');
-  const area = `M ${pts[0][0]} ${h} L ${line.replace(/,/g, ' ')} L ${pts[pts.length - 1][0]} ${h} Z`;
+  const area = `${pts[0][0]},${h} ${line} ${pts[pts.length - 1][0]},${h}`;
 
   return (
     <svg
