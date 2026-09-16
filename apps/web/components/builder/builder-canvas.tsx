@@ -121,7 +121,9 @@ export function BuilderCanvas({
         >
           <div
             ref={frameRef}
-            className={`relative transition-all duration-300 ${frameClasses} overflow-hidden`}
+            className={`relative transition-all duration-300 ${frameClasses} overflow-hidden ${
+              viewport === 'mobile' ? 'is-mobile-preview' : ''
+            }`}
             style={{
               width: deviceWidth,
               maxWidth: viewport === 'mobile' ? 'calc(100% - 32px)' : '100%',
@@ -135,6 +137,7 @@ export function BuilderCanvas({
               theme={theme}
               storeData={storeData || {}}
               templateId={templateId}
+              viewport={viewport}
               selectedSectionId={selectedSectionId}
               onSelectSection={onSelectSection}
               onReorder={handleReorder}

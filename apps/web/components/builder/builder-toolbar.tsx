@@ -98,13 +98,13 @@ export function BuilderToolbar({
       </div>
 
       {/* Center: Panel toggles + Viewport Selector */}
-      <div className="hidden lg:flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {/* Sidebar toggles */}
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1.5">
           <button
             onClick={onToggleLeft}
             title={`${leftOpen ? 'Hide' : 'Show'} Sections panel`}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-2xs font-bold transition ${
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-2xs font-bold transition ${
               leftOpen
                 ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 : 'border-slate-200 bg-slate-100 text-slate-400 hover:text-slate-700'
@@ -116,7 +116,7 @@ export function BuilderToolbar({
           <button
             onClick={onToggleRight}
             title={`${rightOpen ? 'Hide' : 'Show'} Design panel`}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-2xs font-bold transition ${
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-2xs font-bold transition ${
               rightOpen
                 ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 : 'border-slate-200 bg-slate-100 text-slate-400 hover:text-slate-700'
@@ -136,15 +136,15 @@ export function BuilderToolbar({
             <button
               key={key}
               onClick={() => onViewportChange(key)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-2xs font-extrabold transition ${
+              className={`flex items-center gap-1 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-2xs font-extrabold transition ${
                 viewport === key
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
               title={label}
             >
-              <Icon className="h-3.5 w-3.5" />
-              <span className="capitalize">{key}</span>
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline capitalize">{key}</span>
             </button>
           ))}
         </div>
