@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@bharatstore/database';
 import { signJWT, SESSION_COOKIE_NAME } from '@/lib/auth';
 import { hashPassword } from '@/lib/password';
+import { SYSTEM_ROLES, ROLE_PERMISSIONS } from '@bharatstore/shared/constants';
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
@@ -46,19 +47,32 @@ export async function POST(request: Request) {
     const slug = (businessSlug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')) + '-' + Math.floor(1000 + Math.random() * 9000);
     const passwordHash = await hashPassword(password);
 
-    // Find Owner role or fallback to system role
+    // Find the system OWNER role (case-insensitive) or create it with full permissions
     let ownerRole = await prisma.role.findFirst({
-      where: { name: 'Owner' },
+      where: { name: SYSTEM_ROLES.OWNER, isSystemRole: true, tenantId: null },
     });
 
     if (!ownerRole) {
       ownerRole = await prisma.role.create({
         data: {
-          name: 'Owner',
+          name: SYSTEM_ROLES.OWNER,
           isSystemRole: true,
           description: 'Business owner with full access privileges',
         },
       });
+
+      // Link all owner permissions so DB stays authoritative even on a fresh (non-seeded) DB
+      const ownerPermissionIds = await prisma.permission.findMany({
+        where: { code: { in: ROLE_PERMISSIONS.OWNER } },
+        select: { id: true },
+      });
+
+      if (ownerPermissionIds.length > 0) {
+        await prisma.rolePermission.createMany({
+          data: ownerPermissionIds.map((p) => ({ roleId: ownerRole!.id, permissionId: p.id })),
+          skipDuplicates: true,
+        });
+      }
     }
 
     // Transaction to create User, Tenant, and UserTenant
