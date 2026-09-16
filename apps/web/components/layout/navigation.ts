@@ -13,6 +13,7 @@ import {
   History,
   Settings,
   Store,
+  Tags,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -40,6 +41,7 @@ export const navigationGroups: NavGroup[] = [
     group: 'Commerce',
     items: [
       { label: 'Products', href: '/products', icon: Package },
+      { label: 'Categories', href: '/categories', icon: Tags },
       { label: 'Inventory', href: '/inventory', icon: Boxes, badge: '1 Alert' },
       { label: 'Orders', href: '/orders', icon: ShoppingCart, badge: '1' },
       { label: 'Marketing & Promo', href: '/marketing', icon: Layers },

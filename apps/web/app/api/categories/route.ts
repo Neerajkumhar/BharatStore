@@ -14,9 +14,20 @@ export async function GET(request: Request) {
     const tenantDb = getTenantDb(auth.tenantId);
 
     const categories = await tenantDb.category.findMany({
-      orderBy: { displayOrder: 'asc' },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       include: {
-        children: true,
+        children: {
+          orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+          include: {
+            children: {
+              orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+              include: {
+                _count: { select: { products: true } },
+              },
+            },
+            _count: { select: { products: true } },
+          },
+        },
         _count: {
           select: { products: true },
         },
