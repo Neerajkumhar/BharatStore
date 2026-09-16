@@ -1,5 +1,5 @@
 import React from 'react';
-import { DashboardShell } from '@/components/layout/AppShell';
+import { DashboardShell } from '@/components/layout/DashboardShell';
 
 export default function DashboardLayout({
   children,
