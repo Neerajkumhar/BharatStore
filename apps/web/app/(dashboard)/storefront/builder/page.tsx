@@ -8,6 +8,7 @@ import { BuilderCanvas } from '@/components/builder/builder-canvas';
 import { BuilderSettings } from '@/components/builder/builder-settings';
 import { BuilderWorkspace, type BuilderWorkspaceHandle } from '@/components/builder/builder-workspace';
 import { SectionPickerModal } from '@/components/builder/section-picker-modal';
+import { GoLivePublishModal } from '@/components/builder/go-live-publish-modal';
 import type { SectionAddPayload } from '@/components/builder/component-preview-modal';
 import { createDefaultSection, getTemplateById, buildTemplatePageConfig, type SectionType, type TemplateCategory } from '@bharatstore/shared/constants';
 import { Layers, Sliders, Palette, Eye, X } from 'lucide-react';
@@ -76,6 +77,7 @@ export default function StorefrontBuilderPage() {
   const workspaceRef = useRef<BuilderWorkspaceHandle>(null);
   const [storeData, setStoreData] = useState<any>(null);
   const [slug, setSlug] = useState('rajesh-fabrics');
+  const [showPublish, setShowPublish] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load builder state
@@ -226,29 +228,19 @@ export default function StorefrontBuilderPage() {
   };
 
   const handlePublish = async () => {
-    if (!confirm('Publish draft to live store? This will make your storefront live.')) return;
+    // 1. Ensure latest builderState is saved to draft before opening Go-Live
     setSaveState('saving');
     try {
-      // 1. Ensure latest builderState is saved to draft
       await fetch('/api/admin/storefront/builder', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ config: builderState }),
       });
       setSaveState('saved');
-
-      // 2. Publish draft to live store
-      const res = await fetch('/api/admin/storefront/builder/publish', { method: 'POST' });
-      const json = await res.json();
-      if (json.success) {
-        setHasPublished(true);
-        alert('Published successfully! Your store is now live.');
-      } else {
-        alert(json.error || 'Failed to publish');
-      }
-    } catch (err) {
-      alert('Network error while publishing');
+    } catch {
+      setSaveState('unsaved');
     }
+    setShowPublish(true);
   };
 
   const handlePreview = () => {
@@ -497,6 +489,16 @@ export default function StorefrontBuilderPage() {
         onClose={() => setIsAddModalOpen(false)}
         onAddSection={handleAddSection}
         storeCategory={getTemplateById(builderState.templateId ?? '')?.category ?? 'general'}
+      />
+
+      {/* Go Live Publish Modal */}
+      <GoLivePublishModal
+        open={showPublish}
+        onClose={() => setShowPublish(false)}
+        store={storeData}
+        onPublished={() => {
+          setHasPublished(true);
+        }}
       />
     </div>
   );
