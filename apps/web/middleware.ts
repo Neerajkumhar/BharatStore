@@ -1,15 +1,64 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyJWT, SESSION_COOKIE_NAME } from '@/lib/auth';
+import { normalizeStoreHost, getPlatformHost } from '@/lib/storefront-resolver';
 
 const protectedRoutes = ['/dashboard', '/products', '/orders', '/customers', '/inventory', '/settings'];
 const authRoutes = ['/login', '/register'];
 const superAdminRoutes = ['/superadmin'];
 const superAdminApiRoutes = ['/api/superadmin'];
 
+export function resolveTenantRequest(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const incoming = normalizeStoreHost(request.headers.get('host'));
+  const platformHost = getPlatformHost();
+
+  let customDomain: string | null = null;
+  let storeKey: string | null = null;
+  let rewritePath: string | null = null;
+
+  const isApex = !incoming || incoming === platformHost;
+  const isSubdomain = !isApex && hostMapsToSubdomain(incoming, platformHost);
+
+  if (isSubdomain) {
+    storeKey = incoming.slice(0, incoming.length - platformHost.length - 1).toLowerCase();
+    if (pathname.startsWith('/store/') || pathname.startsWith('/api/store/')) {
+      // Internal link or API call on the subdomain — path already carries the key.
+      customDomain = null;
+    } else if (!pathname.startsWith('/api')) {
+      rewritePath = `/store/${storeKey}${pathname === '/' ? '' : pathname}`;
+    }
+  } else if (!isApex) {
+    // Any other host is a connected custom domain.
+    customDomain = incoming;
+    if (!pathname.startsWith('/store/') && !pathname.startsWith('/api')) {
+      rewritePath = `/store/${incoming}${pathname === '/' ? '' : pathname}`;
+    }
+  }
+
+  return { storeKey, customDomain, rewritePath };
+}
+
+function hostMapsToSubdomain(host: string, platformHost: string): boolean {
+  if (!platformHost) return false;
+  if (host === platformHost) return false;
+  return host.length > platformHost.length + 1 && host.endsWith(`.${platformHost}`);
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+
+  // Resolve tenant-scoped storefront requests arriving on a subdomain or custom domain.
+  const tenantRequest = resolveTenantRequest(request);
+  if (tenantRequest.rewritePath) {
+    const url = request.nextUrl.clone();
+    url.pathname = tenantRequest.rewritePath;
+    const res = NextResponse.rewrite(url);
+    if (tenantRequest.customDomain) res.headers.set('x-custom-domain', tenantRequest.customDomain);
+    if (tenantRequest.storeKey) res.headers.set('x-store-key', tenantRequest.storeKey);
+    return res;
+  }
 
   let session = null;
   if (sessionToken) {
@@ -55,6 +104,12 @@ export async function middleware(request: NextRequest) {
 
   // Clone headers to inject ambient tenant context
   const requestHeaders = new Headers(request.headers);
+  if (tenantRequest.storeKey) {
+    requestHeaders.set('x-store-key', tenantRequest.storeKey);
+  }
+  if (tenantRequest.customDomain) {
+    requestHeaders.set('x-custom-domain', tenantRequest.customDomain);
+  }
   if (session?.tenantId) {
     requestHeaders.set('x-tenant-id', session.tenantId);
   }
@@ -83,7 +138,6 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes, except where needed)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
