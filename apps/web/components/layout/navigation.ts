@@ -14,6 +14,7 @@ import {
   Settings,
   Store,
   Tags,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,6 +23,8 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   badge?: string;
+  /** When set, the item shows a locked state if the plan lacks this feature. */
+  feature?: string;
 }
 
 export interface NavGroup {
@@ -34,7 +37,7 @@ export const navigationGroups: NavGroup[] = [
     group: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Analytics BI', href: '/analytics', icon: BarChart3, badge: 'Live' },
+      { label: 'Analytics BI', href: '/analytics', icon: BarChart3, badge: 'Live', feature: 'advanced_analytics' },
     ],
   },
   {
@@ -44,14 +47,14 @@ export const navigationGroups: NavGroup[] = [
       { label: 'Categories', href: '/categories', icon: Tags },
       { label: 'Inventory', href: '/inventory', icon: Boxes, badge: '1 Alert' },
       { label: 'Orders', href: '/orders', icon: ShoppingCart, badge: '1' },
-      { label: 'Marketing & Promo', href: '/marketing', icon: Layers },
+      { label: 'Marketing & Promo', href: '/marketing', icon: Layers, feature: 'whatsapp_broadcast' },
       { label: 'Customers & Khata', href: '/customers', icon: Users },
     ],
   },
   {
     group: 'Finance & Compliance',
     items: [
-      { label: 'Invoices (GST)', href: '/invoices', icon: FileText },
+      { label: 'Invoices (GST)', href: '/invoices', icon: FileText, feature: 'gst_invoicing' },
       { label: 'Payments', href: '/payments', icon: CreditCard },
     ],
   },
@@ -65,6 +68,7 @@ export const navigationGroups: NavGroup[] = [
   {
     group: 'Administration',
     items: [
+      { label: 'Plan & Billing', href: '/billing', icon: Wallet },
       { label: 'Notifications', href: '/notifications', icon: Bell },
       { label: 'Staff & Team RBAC', href: '/staff', icon: Users },
       { label: 'Security Center', href: '/security', icon: ShieldCheck },

@@ -16,6 +16,8 @@ import {
   Sparkles,
   RefreshCw,
 } from 'lucide-react';
+import { FeatureGate } from '@/components/entitlements/FeatureGate';
+import { FEATURE_FLAGS } from '@bharatstore/shared/constants';
 import { KpiCard } from '@/components/analytics/kpi-card';
 import { BusinessAlerts, BusinessAlertItem } from '@/components/analytics/business-alerts';
 
@@ -364,8 +366,14 @@ function OverviewContent() {
 
 export default function AnalyticsOverviewPage() {
   return (
-    <Suspense fallback={<div className="h-64 bg-slate-100 rounded-xl animate-pulse" />}>
-      <OverviewContent />
-    </Suspense>
+    <FeatureGate
+      feature={FEATURE_FLAGS.ADVANCED_ANALYTICS}
+      title="Advanced Analytics"
+      description="Business intelligence, sales trends and customer insights are available on higher plans."
+    >
+      <Suspense fallback={<div className="h-64 bg-slate-100 rounded-xl animate-pulse" />}>
+        <OverviewContent />
+      </Suspense>
+    </FeatureGate>
   );
 }

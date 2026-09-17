@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { KpiCard } from '@/components/analytics/kpi-card';
+import { FeatureGate } from '@/components/entitlements/FeatureGate';
+import { FEATURE_FLAGS } from '@bharatstore/shared/constants';
 
 const TYPE_TABS = [
   { value: 'ALL', label: 'All Invoices' },
@@ -50,7 +52,7 @@ function InvoiceTypeBadge({ type }: { type: string }) {
   return <Badge variant={variant} size="sm">{invoiceTypeLabel(type)}</Badge>;
 }
 
-export default function InvoicesPage() {
+function InvoicesPageContent() {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeType, setActiveType] = useState('ALL');
@@ -304,5 +306,17 @@ export default function InvoicesPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function InvoicesPage() {
+  return (
+    <FeatureGate
+      feature={FEATURE_FLAGS.GST_INVOICING}
+      title="GST Invoicing"
+      description="GST-compliant invoices are available on paid plans. Upgrade to create and download tax invoices."
+    >
+      <InvoicesPageContent />
+    </FeatureGate>
   );
 }

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { createCampaignSchema } from '@bharatstore/shared/schemas';
 import { authorizeRequest } from '@/lib/authorization';
-import { PERMISSIONS } from '@bharatstore/shared/constants';
+import { requireFeature } from '@/lib/plan-enforcement';
+import { PERMISSIONS, FEATURE_FLAGS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
@@ -10,6 +11,9 @@ export async function GET(request: Request) {
     if (!auth.authorized || !auth.tenantId) {
       return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const featureDenied = await requireFeature(auth.tenantId, FEATURE_FLAGS.WHATSAPP_BROADCAST);
+    if (featureDenied) return featureDenied;
 
     const tenantDb = getTenantDb(auth.tenantId);
 
@@ -51,6 +55,9 @@ export async function POST(request: Request) {
     if (!auth.authorized || !auth.tenantId) {
       return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const featureDenied = await requireFeature(auth.tenantId, FEATURE_FLAGS.WHATSAPP_BROADCAST);
+    if (featureDenied) return featureDenied;
 
     const tenantId = auth.tenantId;
     const body = await request.json();

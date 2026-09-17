@@ -3,8 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, ExternalLink } from 'lucide-react';
+import { ChevronDown, ExternalLink, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEntitlements } from '@/components/entitlements/EntitlementProvider';
 import {
   navigationGroups,
   isItemActive,
@@ -21,8 +22,11 @@ function countBadges(group: NavGroup): number {
 
 export function NavBar() {
   const pathname = usePathname();
+  const { entitlements } = useEntitlements();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
+
+  const isLocked = (feature?: string) => !!feature && !entitlements.features.includes(feature);
 
   useEffect(() => {
     setOpenGroup(null);
@@ -96,6 +100,7 @@ export function NavBar() {
                     {group.items.map((item) => {
                       const itemActive = isItemActive(pathname, item.href);
                       const Icon = item.icon;
+                      const locked = isLocked(item.feature);
 
                       return (
                         <Link
@@ -106,7 +111,8 @@ export function NavBar() {
                             'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors mx-1',
                             itemActive
                               ? 'bg-amber-50 text-slate-900'
-                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                            locked && !itemActive && 'text-slate-400'
                           )}
                         >
                           <div className="flex items-center gap-3">
@@ -114,6 +120,12 @@ export function NavBar() {
                               className={cn('h-4 w-4', itemActive ? 'text-amber-600' : 'text-slate-400')}
                             />
                             <span>{item.label}</span>
+                            {locked && (
+                              <span className="inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+                                <Lock className="h-2.5 w-2.5" />
+                                Upgrade
+                              </span>
+                            )}
                           </div>
                           {item.badge && (
                             <span
@@ -143,6 +155,10 @@ export function NavBar() {
 
 export function VerticalNav() {
   const pathname = usePathname();
+  const { entitlements, session } = useEntitlements();
+
+  const isLocked = (feature?: string) => !!feature && !entitlements.features.includes(feature);
+  const storeDomain = session.tenantSlug ? `${session.tenantSlug}.bharatstore.in` : null;
 
   return (
     <div className="flex flex-col h-full">
@@ -156,6 +172,7 @@ export function VerticalNav() {
               {group.items.map((item) => {
                 const itemActive = isItemActive(pathname, item.href);
                 const Icon = item.icon;
+                const locked = isLocked(item.feature);
 
                 return (
                   <Link
@@ -165,12 +182,14 @@ export function VerticalNav() {
                       'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors border-l-2',
                       itemActive
                         ? 'border-amber-500 bg-amber-50 text-slate-900 shadow-xs'
-                        : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                      locked && !itemActive && 'text-slate-400'
                     )}
                   >
                     <div className="flex items-center gap-3">
                       <Icon className={cn('h-4 w-4', itemActive ? 'text-amber-600' : 'text-slate-400')} />
                       <span>{item.label}</span>
+                      {locked && <Lock className="h-3.5 w-3.5 text-amber-500" />}
                     </div>
                     {item.badge && (
                       <span
@@ -194,19 +213,21 @@ export function VerticalNav() {
 
       <div className="p-3 border-t border-slate-100 bg-slate-50">
         <div className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 text-xs">
-          <div className="flex flex-col">
-            <span className="font-semibold text-slate-800 truncate">rajesh-sarees.in</span>
-            <span className="text-emerald-700 text-2xs font-medium">● Live & Online</span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-semibold text-slate-800 truncate">{storeDomain ?? 'Storefront'}</span>
+            <span className="text-emerald-700 text-2xs font-medium">● Live &amp; Online</span>
           </div>
-          <a
-            href="https://rajesh-sarees.bharatstore.in"
-            target="_blank"
-            rel="noreferrer"
-            className="p-1 text-slate-400 hover:text-slate-700 transition"
-            title="View Public Store"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          {storeDomain && (
+            <a
+              href={`https://${storeDomain}`}
+              target="_blank"
+              rel="noreferrer"
+              className="p-1 text-slate-400 hover:text-slate-700 transition"
+              title="View Public Store"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
         </div>
       </div>
     </div>

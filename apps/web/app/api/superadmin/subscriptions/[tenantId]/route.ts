@@ -116,7 +116,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
         tenant: { select: { tradeName: true, slug: true } },
       },
     });
-    if (!existing) return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
+    // change_plan may also assign the first plan to a tenant that currently
+    // defaults to the Free plan (no subscription row yet).
+    if (!existing && parsed.data.action !== 'change_plan') {
+      return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
+    }
 
     let result;
 
@@ -129,25 +133,42 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
         const billingPeriod = parsed.data.billingPeriod === 'annual' ? 'ANNUAL' : 'MONTHLY';
         const currentPeriodEnd =
           billingPeriod === 'ANNUAL'
-            ? new Date(now.setFullYear(now.getFullYear() + 1))
+            ? new Date(now.getFullYear() + 1)
             : new Date(now.setMonth(now.getMonth() + 1));
 
-        // Prorate: reset the period on plan change (admin action, documented in audit log)
+        // Reset the period on plan change (admin action, documented in audit log)
         result = await prisma.$transaction(async (tx) => {
           await tx.tenantFeatureOverride.deleteMany({ where: { tenantId } });
-          const sub = await tx.tenantSubscription.update({
-            where: { tenantId },
-            data: {
-              planId: nextPlan.id,
-              billingPeriod,
-              currentPeriodStart: new Date(),
-              currentPeriodEnd,
-              status: 'ACTIVE',
-              cancelAt: null,
-              cancelledAt: null,
-            },
-            include: { plan: true },
-          });
+          const sub = existing
+            ? await tx.tenantSubscription.update({
+                where: { tenantId },
+                data: {
+                  planId: nextPlan.id,
+                  billingPeriod,
+                  currentPeriodStart: new Date(),
+                  currentPeriodEnd,
+                  status: 'ACTIVE',
+                  cancelAt: null,
+                  cancelledAt: null,
+                },
+                include: { plan: true },
+              })
+            : await tx.tenantSubscription.create({
+                data: {
+                  tenantId,
+                  planId: nextPlan.id,
+                  billingPeriod,
+                  status: 'ACTIVE',
+                  currentPeriodStart: new Date(),
+                  currentPeriodEnd,
+                  paymentMethod: 'manual',
+                },
+                include: { plan: true },
+              });
+          const tenantName =
+            existing?.tenant.tradeName ??
+            (await tx.tenant.findUnique({ where: { id: tenantId }, select: { tradeName: true } }))?.tradeName ??
+            null;
           await tx.platformAuditLog.create({
             data: {
               actorId: auth.userId!,
@@ -155,8 +176,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
               action: 'subscription.change_plan',
               targetType: 'tenant',
               targetId: tenantId,
-              targetName: existing.tenant.tradeName,
-              beforeState: { plan: existing.plan.slug },
+              targetName: tenantName,
+              beforeState: { plan: existing?.plan.slug ?? null },
               afterState: { plan: nextPlan.slug, billingPeriod },
               ipAddress: clientIp(request),
             },
@@ -166,7 +187,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
         break;
       }
       case 'extend_trial': {
-        const base = existing.trialEndsAt && existing.trialEndsAt > new Date() ? existing.trialEndsAt : new Date();
+        const base = existing!.trialEndsAt && existing!.trialEndsAt > new Date() ? existing!.trialEndsAt : new Date();
         const newTrialEnd = new Date(base);
         newTrialEnd.setDate(newTrialEnd.getDate() + parsed.data.days);
 
@@ -188,8 +209,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
               action: 'subscription.extend_trial',
               targetType: 'tenant',
               targetId: tenantId,
-              targetName: existing.tenant.tradeName,
-              beforeState: { trialEndsAt: existing.trialEndsAt },
+              targetName: existing!.tenant.tradeName,
+              beforeState: { trialEndsAt: existing!.trialEndsAt },
               afterState: { trialEndsAt: newTrialEnd },
               ipAddress: clientIp(request),
             },
@@ -217,8 +238,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
               action: 'subscription.cancel',
               targetType: 'tenant',
               targetId: tenantId,
-              targetName: existing.tenant.tradeName,
-              beforeState: { status: existing.status },
+              targetName: existing!.tenant.tradeName,
+              beforeState: { status: existing!.status },
               afterState: { status: 'CANCELLED' },
               details: cancelReason ? { reason: cancelReason } : undefined,
               ipAddress: clientIp(request),
@@ -251,8 +272,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ tena
               action: 'subscription.reactivate',
               targetType: 'tenant',
               targetId: tenantId,
-              targetName: existing.tenant.tradeName,
-              beforeState: { status: existing.status },
+              targetName: existing!.tenant.tradeName,
+              beforeState: { status: existing!.status },
               afterState: { status: 'ACTIVE' },
               ipAddress: clientIp(request),
             },

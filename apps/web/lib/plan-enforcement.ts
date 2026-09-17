@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
-import { checkTenantLimit } from '@/lib/feature-check';
+import { checkTenantLimit, getTenantEntitlements } from '@/lib/feature-check';
 import { currentUsagePeriod, trackUsage } from '@/lib/usage';
+
+const UPGRADE_URL = '/billing';
 
 export type EnforceableResource = 'products' | 'orders' | 'staff' | 'storage';
 
@@ -52,6 +54,31 @@ export async function enforcePlanLimit(
         limit: check.limit,
         planSlug: check.planSlug,
         subscriptionStatus: check.status,
+        upgradeUrl: UPGRADE_URL,
+      },
+    },
+    { status: 403 }
+  );
+}
+
+/**
+ * Blocks the request when the tenant's effective plan does not include a
+ * feature. Returns null when access is allowed. UI gating is never sufficient
+ * on its own — gated API routes must call this so locks cannot be bypassed.
+ */
+export async function requireFeature(tenantId: string, featureSlug: string): Promise<NextResponse | null> {
+  const entitlements = await getTenantEntitlements(tenantId);
+  if (entitlements.features.includes(featureSlug)) return null;
+
+  return NextResponse.json(
+    {
+      error: 'This feature is not included in your current plan',
+      data: {
+        code: 'FEATURE_NOT_IN_PLAN',
+        feature: featureSlug,
+        planSlug: entitlements.plan.slug,
+        subscriptionStatus: entitlements.status,
+        upgradeUrl: UPGRADE_URL,
       },
     },
     { status: 403 }

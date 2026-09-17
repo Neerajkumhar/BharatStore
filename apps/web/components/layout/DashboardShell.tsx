@@ -14,9 +14,15 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EntitlementProvider } from '@/components/entitlements/EntitlementProvider';
+import { UpgradePromptHost } from '@/components/entitlements/UpgradePrompt';
+import { PlanStatusBanner } from '@/components/entitlements/PlanStatusBanner';
+import type { EntitlementSnapshot, SessionSummary } from '@/lib/entitlement-types';
 
 interface DashboardShellProps {
   children: React.ReactNode;
+  entitlements: EntitlementSnapshot;
+  session: SessionSummary;
   breadcrumbs?: { label: string; href?: string }[];
   title?: string;
   subtitle?: string;
@@ -25,6 +31,8 @@ interface DashboardShellProps {
 
 export function DashboardShell({
   children,
+  entitlements,
+  session,
   breadcrumbs,
   title,
   subtitle,
@@ -38,7 +46,11 @@ export function DashboardShell({
   const isBuilderRoute = pathname?.startsWith('/storefront/builder');
 
   return (
+    <EntitlementProvider entitlements={entitlements} session={session}>
     <div className="min-h-screen bg-slate-50 flex flex-col pb-16 sm:pb-0">
+      {/* Plan status banner — shows when EXPIRED/CANCELLED/SUSPENDED/PAST_DUE/trial expired */}
+      {!isBuilderRoute && <PlanStatusBanner />}
+
       {/* Top Navigation */}
       {!isBuilderRoute && <TopNav onToggleMobileMenu={() => setMobileMenuOpen(true)} />}
 
@@ -161,6 +173,8 @@ export function DashboardShell({
         </Link>
       </nav>
       )}
+      <UpgradePromptHost />
     </div>
+    </EntitlementProvider>
   );
 }
