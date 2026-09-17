@@ -14,12 +14,28 @@ import {
   Sparkles,
   Menu,
 } from 'lucide-react';
+import { useEntitlements } from '@/components/entitlements/EntitlementProvider';
 
 interface TopNavProps {
   onToggleMobileMenu?: () => void;
 }
 
+function initialsOf(name: string | null): string {
+  if (!name) return 'BS';
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  return parts.map((p) => p.charAt(0).toUpperCase()).join('') || 'BS';
+}
+
+function roleLabel(role: string | null): string {
+  if (!role) return 'Member';
+  return role
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
+  const { entitlements, session } = useEntitlements();
   const [businessMenuOpen, setBusinessMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -87,15 +103,17 @@ export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
               setProfileMenuOpen(false);
               setBusinessMenuOpen((open) => !open);
             }}
-            aria-label="Switch business: Rajesh Saree Emporium"
+            aria-label={`Switch business: ${session.tenantName ?? 'Business'}`}
             className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition text-left text-xs sm:text-sm font-medium text-slate-800"
           >
             <Building2 className="h-4 w-4 text-amber-600 shrink-0" />
             <div className="flex flex-col leading-tight min-w-0">
               <span className="font-semibold text-slate-900 truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[180px]">
-                Rajesh Saree Emporium
+                {session.tenantName ?? 'Your Business'}
               </span>
-              <span className="text-2xs text-slate-500 font-normal hidden sm:block">GSTIN: 09AAECR1234F1Z5</span>
+              <span className="text-2xs text-slate-500 font-normal hidden sm:block">
+                {session.gstin ? `GSTIN: ${session.gstin}` : entitlements.plan.name + ' plan'}
+              </span>
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           </button>
@@ -104,8 +122,18 @@ export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
             <div className="absolute left-0 mt-2 w-64 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="text-2xs uppercase tracking-wider text-slate-500 font-bold">Active Organization</p>
-                <p className="text-sm font-semibold text-slate-900 mt-0.5 truncate">Rajesh Saree Emporium</p>
-                <p className="text-xs text-emerald-600 font-medium">● Varanasi, UP (09)</p>
+                <p className="text-sm font-semibold text-slate-900 mt-0.5 truncate">
+                  {session.tenantName ?? 'Your Business'}
+                </p>
+                <p className="text-xs text-emerald-600 font-medium">
+                  {session.location ? `● ${session.location}` : '● Active'}
+                </p>
+                <p className="text-2xs text-slate-500 mt-1">
+                  {entitlements.plan.name} plan
+                  {entitlements.status !== 'FREE' && entitlements.status !== 'ACTIVE'
+                    ? ` · ${roleLabel(entitlements.status)}`
+                    : ''}
+                </p>
               </div>
               <div className="p-1">
                 <Link
@@ -211,11 +239,11 @@ export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
             className="flex items-center gap-2 p-1 sm:pl-2 rounded-lg hover:bg-slate-100 transition"
           >
             <div className="h-7 w-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
-              SK
+              {initialsOf(session.userName)}
             </div>
             <div className="hidden lg:flex flex-col text-left leading-tight">
-              <span className="text-xs font-semibold text-slate-900">Sunil Verma</span>
-              <span className="text-2xs text-amber-600 font-bold uppercase">Owner</span>
+              <span className="text-xs font-semibold text-slate-900">{session.userName ?? 'Account'}</span>
+              <span className="text-2xs text-amber-600 font-bold uppercase">{roleLabel(session.role)}</span>
             </div>
             <ChevronDown className="h-3 w-3 text-slate-400 hidden lg:block shrink-0" />
           </button>
@@ -223,8 +251,8 @@ export function TopNav({ onToggleMobileMenu }: TopNavProps = {}) {
           {profileMenuOpen && (
             <div className="absolute right-0 mt-2 w-52 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-lg py-1 z-50 text-xs">
               <div className="px-3 py-2 border-b border-slate-100">
-                <p className="font-bold text-slate-900">Sunil Kumar Verma</p>
-                <p className="text-slate-500 text-2xs truncate">sunil@bharatstore.in</p>
+                <p className="font-bold text-slate-900">{session.userName ?? 'Account'}</p>
+                <p className="text-slate-500 text-2xs truncate">{session.userEmail ?? ''}</p>
               </div>
               <Link
                 href="/security"

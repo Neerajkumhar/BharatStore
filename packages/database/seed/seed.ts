@@ -1660,10 +1660,10 @@ async function main() {
       description: 'For new businesses to get started with BharatStore.',
       monthlyPrice: 0,
       annualPrice: 0,
-      maxProducts: 50,
-      maxOrders: 500,
-      maxStaff: 3,
-      maxStorageMb: 500,
+      maxProducts: 5,
+      maxOrders: 10,
+      maxStaff: 1,
+      maxStorageMb: 100,
     },
     {
       slug: 'starter',
@@ -1702,7 +1702,7 @@ async function main() {
 
   const featureDefs = [
     { slug: 'pos_counter', name: 'POS Counter', description: 'Counter billing terminal for walk-in sales.', category: 'commerce', isPlatformWide: true },
-    { slug: 'gst_invoicing', name: 'GST Invoicing', description: 'GST-compliant tax invoices with CGST/SGST/IGST breakdown.', category: 'finance', isPlatformWide: true },
+    { slug: 'gst_invoicing', name: 'GST Invoicing', description: 'GST-compliant tax invoices with CGST/SGST/IGST breakdown.', category: 'finance', isPlatformWide: false },
     { slug: 'storefront_builder', name: 'Storefront Builder', description: 'No-code visual storefront page builder.', category: 'storefront', isPlatformWide: true },
     { slug: 'thermal_receipt', name: 'Thermal Receipt Printing', description: '80mm thermal receipt printing for POS counters.', category: 'commerce', isPlatformWide: false },
     { slug: 'custom_domain', name: 'Custom Domain', description: 'Connect your own domain with auto-SSL.', category: 'storefront', isPlatformWide: false },
@@ -1718,7 +1718,7 @@ async function main() {
   ];
 
   const planFeatureMatrix: Record<string, string[]> = {
-    free: ['pos_counter', 'gst_invoicing', 'storefront_builder'],
+    free: ['pos_counter', 'storefront_builder'],
     starter: [
       'pos_counter', 'gst_invoicing', 'storefront_builder',
       'thermal_receipt', 'whatsapp_broadcast', 'abandoned_cart',

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getTenantDb } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
-import { PERMISSIONS } from '@bharatstore/shared/constants';
+import { requireFeature } from '@/lib/plan-enforcement';
+import { PERMISSIONS, FEATURE_FLAGS } from '@bharatstore/shared/constants';
 
 export async function GET(request: Request) {
   try {
@@ -9,6 +10,9 @@ export async function GET(request: Request) {
     if (!auth.authorized || !auth.tenantId) {
       return auth.response || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const featureDenied = await requireFeature(auth.tenantId, FEATURE_FLAGS.GST_INVOICING);
+    if (featureDenied) return featureDenied;
 
     const tenantDb = getTenantDb(auth.tenantId);
 

@@ -8,6 +8,7 @@ import {
   User,
   BadgeCheck,
   ToggleLeft,
+  AlertCircle,
   Package,
   ShoppingCart,
   Users,
@@ -21,9 +22,11 @@ import {
   Activity,
   Database,
   CircleDollarSign,
+  CreditCard,
   Calendar,
   Mail,
   Phone,
+  X,
 } from 'lucide-react';
 
 interface TenantDetail {
@@ -78,6 +81,9 @@ const statusBadge: Record<string, string> = {
   EXPIRED: 'bg-slate-100 text-slate-500 border-slate-200',
 };
 
+const inputCls = 'w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500';
+const labelCls = 'block text-2xs font-bold text-slate-600 uppercase tracking-wider mb-1';
+
 export default function SuperAdminTenantDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -117,6 +123,54 @@ export default function SuperAdminTenantDetailPage() {
       setMessage({ type: 'error', text: e.message });
     } finally {
       setActing(null);
+    }
+  };
+
+  const [subModalOpen, setSubModalOpen] = useState(false);
+  const [plans, setPlans] = useState<Array<{ id: string; name: string; slug: string; monthlyPrice: number; annualPrice: number }>>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const [trialDays, setTrialDays] = useState('14');
+  const [cancelReason, setCancelReason] = useState('');
+  const [savingSub, setSavingSub] = useState(false);
+  const [subError, setSubError] = useState<string | null>(null);
+
+  const openSubModal = () => {
+    setBillingPeriod('monthly');
+    setTrialDays('14');
+    setCancelReason('');
+    setSubError(null);
+    setSubModalOpen(true);
+    fetch('/api/superadmin/plans')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setPlans(d.data);
+          setSelectedPlanId((prev) => prev || d.data[0]?.id || '');
+        }
+      })
+      .catch(() => setSubError('Failed to load plans'));
+  };
+
+  const runSubAction = async (payload: Record<string, unknown>, successMsg: string) => {
+    if (!tenant) return;
+    setSavingSub(true);
+    setSubError(null);
+    try {
+      const res = await fetch(`/api/superadmin/subscriptions/${tenant.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Action failed');
+      setMessage({ type: 'success', text: successMsg });
+      setSubModalOpen(false);
+      load();
+    } catch (e: any) {
+      setSubError(e.message);
+    } finally {
+      setSavingSub(false);
     }
   };
 
@@ -317,9 +371,9 @@ export default function SuperAdminTenantDetailPage() {
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <BadgeCheck className="h-4 w-4 text-slate-400" /> Subscription
             </h2>
-            <Link href={`/superadmin/subscriptions?tenant=${tenant.id}`} className="text-xs font-semibold text-amber-600 hover:text-amber-700">
-              Change Plan
-            </Link>
+            <button onClick={openSubModal} className="text-xs font-semibold text-amber-600 hover:text-amber-700">
+              Manage
+            </button>
           </div>
           {tenant.subscription ? (
             <div className="p-4 space-y-3 text-xs">
@@ -345,9 +399,9 @@ export default function SuperAdminTenantDetailPage() {
           ) : (
             <div className="p-4">
               <p className="text-xs text-slate-400">No active subscription. Tenant defaults to the Free plan.</p>
-              <Link href={`/superadmin/subscriptions?tenant=${tenant.id}`} className="text-xs font-semibold text-amber-600 mt-2 inline-block">
+              <button onClick={openSubModal} className="text-xs font-semibold text-amber-600 mt-2 inline-block">
                 Assign a plan →
-              </Link>
+              </button>
             </div>
           )}
         </div>
@@ -444,6 +498,158 @@ export default function SuperAdminTenantDetailPage() {
           ← Back to all businesses
         </Link>
       </div>
+
+      {/* Manage Subscription Modal */}
+      {subModalOpen && tenant && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-amber-500" />
+                Manage Subscription
+              </h2>
+              <button onClick={() => setSubModalOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-6">
+              {subError && (
+                <div className="p-3 rounded-lg text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {subError}
+                </div>
+              )}
+
+              {/* Current plan */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider">Current Plan</p>
+                  <p className="text-lg font-black text-slate-900 mt-0.5">
+                    {tenant.subscription ? tenant.subscription.planName : 'Free'}
+                    {tenant.subscription && (
+                      <span className={`ml-2 align-middle text-2xs font-bold px-2 py-0.5 rounded-full border ${statusBadge[tenant.subscription.status] ?? 'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                        {tenant.subscription.status}
+                      </span>
+                    )}
+                  </p>
+                  {tenant.subscription && (
+                    <>
+                      <p className="text-xs text-slate-500 mt-0.5">₹{tenant.subscription.monthlyPrice.toLocaleString('en-IN')}/month</p>
+                      {tenant.subscription.trialEndsAt && (
+                        <p className="text-2xs text-blue-600 flex items-center gap-1 mt-0.5">
+                          <Calendar className="h-3 w-3" /> Trial ends{' '}
+                          {new Date(tenant.subscription.trialEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      )}
+                    </>
+                  )}
+                  {!tenant.subscription && (
+                    <p className="text-xs text-slate-500 mt-0.5">Defaults to the Free plan until a plan is assigned.</p>
+                  )}
+                </div>
+                <CreditCard className="h-8 w-8 text-slate-300 shrink-0" />
+              </div>
+
+              {/* Change / Assign Plan */}
+              <div className="space-y-3">
+                <p className={labelCls}>{tenant.subscription ? 'Change Plan' : 'Assign a Plan'}</p>
+                <select
+                  value={selectedPlanId}
+                  onChange={(e) => setSelectedPlanId(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="" disabled>Select a plan...</option>
+                  {plans.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ₹{p.monthlyPrice.toLocaleString('en-IN')}/mo
+                    </option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-4">
+                  {(['monthly', 'annual'] as const).map((bp) => (
+                    <label key={bp} className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={billingPeriod === bp}
+                        onChange={() => setBillingPeriod(bp)}
+                        className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                      />
+                      {bp === 'monthly' ? 'Monthly' : 'Annual'}
+                    </label>
+                  ))}
+                </div>
+                <button
+                  onClick={() => runSubAction({ action: 'change_plan', planId: selectedPlanId, billingPeriod }, tenant.subscription ? 'Plan updated.' : 'Plan assigned.')}
+                  disabled={!selectedPlanId || savingSub}
+                  className="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg disabled:opacity-50"
+                >
+                  {savingSub ? 'Saving...' : tenant.subscription ? 'Change Plan' : 'Assign Plan'}
+                </button>
+              </div>
+
+              {/* Subscribed tenant actions */}
+              {tenant.subscription && (
+                <div className="pt-4 border-t border-slate-100 space-y-5">
+                  {['TRIAL', 'ACTIVE', 'PAST_DUE'].includes(tenant.subscription.status) && (
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="flex-1 min-w-[10rem]">
+                        <label className={labelCls}>Extend Trial (days)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={90}
+                          value={trialDays}
+                          onChange={(e) => setTrialDays(e.target.value)}
+                          className={inputCls}
+                        />
+                      </div>
+                      <button
+                        onClick={() => runSubAction({ action: 'extend_trial', days: parseInt(trialDays) || 14 }, 'Trial extended.')}
+                        disabled={savingSub}
+                        className="px-4 py-2 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg disabled:opacity-50"
+                      >
+                        Extend Trial
+                      </button>
+                    </div>
+                  )}
+
+                  {tenant.subscription.status !== 'CANCELLED' && tenant.subscription.status !== 'SUSPENDED' && (
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="flex-1 min-w-[10rem]">
+                        <label className={labelCls}>Cancel Reason (optional)</label>
+                        <input
+                          value={cancelReason}
+                          onChange={(e) => setCancelReason(e.target.value)}
+                          placeholder="e.g. requested by owner, unpaid..."
+                          className={inputCls}
+                        />
+                      </div>
+                      <button
+                        onClick={() => runSubAction({ action: 'cancel', reason: cancelReason.trim() || undefined }, 'Subscription cancelled.')}
+                        disabled={savingSub}
+                        className="px-4 py-2 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg disabled:opacity-50"
+                      >
+                        Cancel Subscription
+                      </button>
+                    </div>
+                  )}
+
+                  {(tenant.subscription.status === 'CANCELLED' || tenant.subscription.status === 'SUSPENDED') && (
+                    <button
+                      onClick={() => runSubAction({ action: 'reactivate' }, 'Subscription reactivated.')}
+                      disabled={savingSub}
+                      className="px-4 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg disabled:opacity-50"
+                    >
+                      Reactivate Subscription
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

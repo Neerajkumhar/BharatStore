@@ -11,6 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { amountToWords, inr, stateName, formatDate } from '@/lib/invoice';
 import { cn } from '@/lib/utils';
+import { FeatureGate } from '@/components/entitlements/FeatureGate';
+import { FEATURE_FLAGS } from '@bharatstore/shared/constants';
 
 const INVOICE_TITLES: Record<string, string> = {
   TAX_INVOICE: 'Tax Invoice',
@@ -37,7 +39,7 @@ function getInitials(name?: string | null) {
     .toUpperCase();
 }
 
-export default function TaxInvoicePage() {
+function TaxInvoicePageContent() {
   const params = useParams();
   const id = params.id as string;
 

@@ -20,6 +20,8 @@ import {
   Layers,
   ArrowUpRight,
 } from 'lucide-react';
+import { FeatureGate } from '@/components/entitlements/FeatureGate';
+import { FEATURE_FLAGS } from '@bharatstore/shared/constants';
 
 interface Campaign {
   id: string;
@@ -77,7 +79,7 @@ interface MarketingAnalytics {
   }[];
 }
 
-export default function MarketingPage() {
+function MarketingPageContent() {
   const [activeTab, setActiveTab] = useState<'coupons' | 'campaigns' | 'analytics'>('coupons');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -1006,5 +1008,17 @@ export default function MarketingPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MarketingPage() {
+  return (
+    <FeatureGate
+      feature={FEATURE_FLAGS.WHATSAPP_BROADCAST}
+      title="Marketing & Promotions"
+      description="WhatsApp broadcasts, campaigns and coupon management are available on higher plans."
+    >
+      <MarketingPageContent />
+    </FeatureGate>
   );
 }

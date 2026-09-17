@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
+import { TenantGreeting, TenantLocation } from '@/components/entitlements/TenantGreeting';
 
 const sampleOrders = [
   {
@@ -63,16 +64,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={
-          <>
-            Namaste, Rajesh Saree Emporium <span aria-hidden="true">🙏</span>
-          </>
-        }
+        title={<TenantGreeting />}
         subtitle={
           <span className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
               <Circle className="h-2.5 w-2.5 fill-emerald-500 text-emerald-500" aria-hidden="true" />
-              Varanasi storefront · Live & synced
+              <TenantLocation />
             </span>
             Today&apos;s commerce &amp; inventory overview.
           </span>
