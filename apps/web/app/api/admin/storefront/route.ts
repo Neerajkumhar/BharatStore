@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getTenantDb, prisma } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
+import { buildLiveUrl } from '@/lib/storefront-resolver';
+import { normalizeSubdomain, normalizeCustomDomain, validateSubdomain, validateCustomDomain } from '@/lib/storefront-domain';
 
 export async function GET(request: Request) {
   try {
@@ -30,6 +32,9 @@ export async function GET(request: Request) {
           legalName: tenant.legalName,
           tradeName: tenant.tradeName,
           slug: tenant.slug,
+          subdomain: tenant.subdomain,
+          customDomain: tenant.customDomain,
+          liveUrl: buildLiveUrl(tenant),
           gstin: tenant.gstin,
           phone: tenant.phone,
           email: tenant.email,
@@ -75,6 +80,8 @@ export async function PUT(request: Request) {
     const {
       tradeName,
       slug,
+      subdomain,
+      customDomain,
       phone,
       email,
       addressLine1,
@@ -95,12 +102,43 @@ export async function PUT(request: Request) {
       isPublished,
     } = body;
 
+    const normalizedSubdomain = normalizeSubdomain(subdomain);
+    const normalizedCustomDomain = normalizeCustomDomain(customDomain);
+
+    const subdomainError = validateSubdomain(normalizedSubdomain);
+    if (subdomainError) return NextResponse.json({ error: subdomainError }, { status: 400 });
+
+    const customDomainError = validateCustomDomain(normalizedCustomDomain);
+    if (customDomainError) return NextResponse.json({ error: customDomainError }, { status: 400 });
+
+    if (normalizedSubdomain) {
+      const clash = await prisma.tenant.findFirst({
+        where: { subdomain: normalizedSubdomain, id: { not: tenantId } },
+        select: { id: true },
+      });
+      if (clash) {
+        return NextResponse.json({ error: `Subdomain "${normalizedSubdomain}" is already taken by another store.` }, { status: 409 });
+      }
+    }
+
+    if (normalizedCustomDomain) {
+      const clash = await prisma.tenant.findFirst({
+        where: { customDomain: normalizedCustomDomain, id: { not: tenantId } },
+        select: { id: true },
+      });
+      if (clash) {
+        return NextResponse.json({ error: `Custom domain "${normalizedCustomDomain}" is already connected to another store.` }, { status: 409 });
+      }
+    }
+
     // 1. Update Tenant details
     const updatedTenant = await tenantDb.tenant.update({
       where: { id: tenantId },
       data: {
         ...(tradeName && { tradeName }),
         ...(slug && { slug }),
+        ...(normalizedSubdomain && { subdomain: normalizedSubdomain }),
+        ...(normalizedCustomDomain && { customDomain: normalizedCustomDomain }),
         ...(phone && { phone }),
         ...(email !== undefined && { email }),
         ...(addressLine1 && { addressLine1 }),

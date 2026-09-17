@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
 import { validateCouponSchema } from '@bharatstore/shared/schemas';
 import { validateCouponForCart } from '@/lib/marketing-engine';
+import { getRequestStoreLookupFromRequest, findStorefrontTenant } from '@/lib/storefront-resolver';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +13,8 @@ export async function POST(request: Request) {
     let tenantId = headerTenantId;
 
     if (!tenantId && tenantSlug) {
-      const tenant = await prisma.tenant.findUnique({ where: { slug: tenantSlug } });
+      const lookup = getRequestStoreLookupFromRequest(request, tenantSlug);
+      const tenant = await findStorefrontTenant(lookup, { select: { id: true } });
       if (tenant) tenantId = tenant.id;
     }
 
