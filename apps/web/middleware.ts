@@ -23,7 +23,8 @@ export async function middleware(request: NextRequest) {
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  const isSuperAdminRoute = superAdminRoutes.some((route) => pathname.startsWith(route));
+  const isSuperAdminLoginRoute = pathname === '/superadmin/login';
+  const isSuperAdminRoute = superAdminRoutes.some((route) => pathname.startsWith(route)) && !isSuperAdminLoginRoute;
   const isSuperAdminApiRoute = superAdminApiRoutes.some((route) => pathname.startsWith(route));
 
   // A signed JWT is only meaningful if the user still has an active tenant
