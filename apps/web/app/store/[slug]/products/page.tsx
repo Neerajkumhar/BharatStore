@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@bharatstore/database';
+import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-resolver';
 import { ProductCard } from '@/components/storefront/product-card';
 import { Filter, Layers, Search, ShoppingBag } from 'lucide-react';
 
@@ -21,8 +22,8 @@ export default async function StorefrontProductCatalogPage({
   const page = parseInt(sParams.page || '1', 10);
   const limit = 12;
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { slug },
+  const lookup = await getRequestStoreLookup(slug);
+  const tenant = await findStorefrontTenant(lookup, {
     select: { id: true, tradeName: true, isActive: true },
   });
 
