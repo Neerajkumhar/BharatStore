@@ -5,6 +5,8 @@ import { verifyJWT, SESSION_COOKIE_NAME } from '@/lib/auth';
 
 const protectedRoutes = ['/dashboard', '/products', '/orders', '/customers', '/inventory', '/settings'];
 const authRoutes = ['/login', '/register'];
+const superAdminRoutes = ['/superadmin'];
+const superAdminApiRoutes = ['/api/superadmin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,6 +23,8 @@ export async function middleware(request: NextRequest) {
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isSuperAdminRoute = superAdminRoutes.some((route) => pathname.startsWith(route));
+  const isSuperAdminApiRoute = superAdminApiRoutes.some((route) => pathname.startsWith(route));
 
   // A signed JWT is only meaningful if the user still has an active tenant
   // membership. After a DB reset or a departed staff member, a previously
@@ -55,6 +59,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
+  // Super admin route protection
+  if ((isSuperAdminRoute || isSuperAdminApiRoute) && !session) {
+    const loginUrl = new URL('/superadmin/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if ((isSuperAdminRoute || isSuperAdminApiRoute) && session && !session.isSuperAdmin) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Plain /superadmin (no trailing path) with a super admin session -> dashboard landing
+  if (pathname === '/superadmin' && session?.isSuperAdmin) {
+    return NextResponse.redirect(new URL('/superadmin/overview', request.url));
+  }
+
   // Clone headers to inject ambient tenant context
   const requestHeaders = new Headers(request.headers);
   if (session?.tenantId) {
@@ -65,6 +85,12 @@ export async function middleware(request: NextRequest) {
   }
   if (session?.role) {
     requestHeaders.set('x-user-role', session.role);
+  }
+  if (session?.isSuperAdmin) {
+    requestHeaders.set('x-is-superadmin', 'true');
+  }
+  if (session?.isImpersonation) {
+    requestHeaders.set('x-impersonation', 'true');
   }
 
   return NextResponse.next({

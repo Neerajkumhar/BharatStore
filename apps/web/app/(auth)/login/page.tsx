@@ -35,7 +35,8 @@ function LoginForm() {
         return;
       }
 
-      window.location.href = redirectTo;
+      const target = data.user?.isSuperAdmin ? '/superadmin/overview' : redirectTo;
+      window.location.href = target;
     } catch (err) {
       setIsLoading(false);
       setError('An unexpected network error occurred. Please try again.');
@@ -63,7 +64,8 @@ function LoginForm() {
         return;
       }
 
-      window.location.href = redirectTo;
+      const target = data.user?.isSuperAdmin ? '/superadmin/overview' : redirectTo;
+      window.location.href = target;
     } catch (err) {
       setIsLoading(false);
       setError('An unexpected network error occurred during demo login.');

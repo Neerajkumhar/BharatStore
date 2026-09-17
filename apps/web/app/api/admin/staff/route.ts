@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { prisma } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS, SYSTEM_ROLES } from '@bharatstore/shared/constants';
+import { enforcePlanLimit, recordUsage } from '@/lib/plan-enforcement';
 
 export async function GET(request: Request) {
   try {
@@ -65,6 +66,9 @@ export async function POST(request: Request) {
     if (!auth.authorized || !auth.tenantId || !auth.userId) {
       return auth.response!;
     }
+
+    const limitViolation = await enforcePlanLimit(auth.tenantId, 'staff');
+    if (limitViolation) return limitViolation;
 
     const body = await request.json();
     const { email, roleName } = body;
@@ -134,6 +138,8 @@ export async function POST(request: Request) {
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
     const inviteUrl = `${origin}/accept-invite?token=${rawToken}`;
+
+    await recordUsage(auth.tenantId, { staffCount: 1 });
 
     return NextResponse.json({
       success: true,

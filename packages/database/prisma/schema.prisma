@@ -28,6 +28,7 @@ model User {
   auditLogs     AuditLog[]
   inventoryLogs InventoryLedger[]
   campaigns     Campaign[]
+  platformLogs  PlatformAuditLog[]
 
   @@map("users")
 }
@@ -90,6 +91,9 @@ model Tenant {
   notifications          Notification[]
   notificationTemplates  NotificationTemplate[]
   notificationPreferences NotificationPreference[]
+  subscription           TenantSubscription?
+  featureOverrides       TenantFeatureOverride[]
+  usage                  TenantUsage[]
 
   @@index([slug])
   @@index([stateCode])
@@ -826,5 +830,164 @@ model NotificationPreference {
   @@unique([tenantId, customerId])
   @@index([tenantId])
   @@map("notification_preferences")
+}
+
+// -----------------------------------------------------------------------------
+// Super Admin Platform: Plans, Subscriptions, Feature Flags & Usage (M11)
+// -----------------------------------------------------------------------------
+
+model SubscriptionPlan {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String    @db.VarChar(50)
+  slug          String    @unique @db.VarChar(50)
+  description   String?
+  monthlyPrice  Decimal   @map("monthly_price") @db.Decimal(10, 2)
+  annualPrice   Decimal   @map("annual_price") @db.Decimal(10, 2)
+  currency      String    @default("INR") @db.VarChar(3)
+  maxProducts   Int       @default(50) @map("max_products")
+  maxOrders     Int       @default(500) @map("max_orders")
+  maxStaff      Int       @default(3) @map("max_staff")
+  maxStorageMb  Int       @default(500) @map("max_storage_mb")
+  features      String[]  @default([])
+  isActive      Boolean   @default(true) @map("is_active")
+  displayOrder  Int       @default(0) @map("display_order")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  subscriptions TenantSubscription[]
+  planFeatures  PlanFeature[]
+
+  @@index([isActive])
+  @@map("subscription_plans")
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  SUSPENDED
+  EXPIRED
+}
+
+enum BillingPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+model TenantSubscription {
+  id                  String             @id @default(uuid()) @db.Uuid
+  tenantId            String             @unique @map("tenant_id") @db.Uuid
+  planId              String             @map("plan_id") @db.Uuid
+  status              SubscriptionStatus @default(TRIAL)
+  trialEndsAt         DateTime?          @map("trial_ends_at")
+  currentPeriodStart  DateTime?          @map("current_period_start")
+  currentPeriodEnd    DateTime?          @map("current_period_end")
+  cancelAt            DateTime?          @map("cancel_at")
+  cancelledAt         DateTime?          @map("cancelled_at")
+  paymentMethod       String?            @map("payment_method") @db.VarChar(50)
+  gatewaySubId        String?            @map("gateway_sub_id") @db.VarChar(100)
+  billingPeriod       BillingPeriod      @default(MONTHLY) @map("billing_period")
+  notes               String?
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan                SubscriptionPlan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([planId])
+  @@index([status])
+  @@map("tenant_subscriptions")
+}
+
+model FeatureFlag {
+  id             String                   @id @default(uuid()) @db.Uuid
+  slug           String                   @unique @db.VarChar(100)
+  name           String                   @db.VarChar(100)
+  description    String?
+  category       String                   @db.VarChar(50)
+  isPlatformWide Boolean                  @default(false) @map("is_platform_wide")
+  isActive       Boolean                  @default(true) @map("is_active")
+  displayOrder   Int                      @default(0) @map("display_order")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+
+  planFeatures   PlanFeature[]
+  overrides      TenantFeatureOverride[]
+
+  @@index([category])
+  @@index([isPlatformWide])
+  @@index([isActive])
+  @@map("feature_flags")
+}
+
+model PlanFeature {
+  planId    String       @map("plan_id") @db.Uuid
+  featureId String       @map("feature_id") @db.Uuid
+
+  plan      SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  feature   FeatureFlag      @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@id([planId, featureId])
+  @@index([featureId])
+  @@map("plan_features")
+}
+
+model TenantFeatureOverride {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  featureId   String    @map("feature_id") @db.Uuid
+  enabled     Boolean   @default(true)
+  grantedById String?   @map("granted_by_id") @db.Uuid
+  reason      String?
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  feature     FeatureFlag @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, featureId])
+  @@index([featureId])
+  @@map("tenant_feature_overrides")
+}
+
+model PlatformAuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String   @map("actor_id") @db.Uuid
+  actorEmail  String   @map("actor_email")
+  action      String   @db.VarChar(100)
+  targetType  String   @map("target_type") @db.VarChar(50)
+  targetId    String?  @map("target_id") @db.Uuid
+  targetName  String?  @map("target_name")
+  beforeState Json?    @map("before_state")
+  afterState  Json?    @map("after_state")
+  details     Json?
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  actor       User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("platform_audit_logs")
+}
+
+model TenantUsage {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  period        String   @db.VarChar(7)
+  productsCount Int      @default(0) @map("products_count")
+  ordersCount   Int      @default(0) @map("orders_count")
+  staffCount    Int      @default(0) @map("staff_count")
+  storageUsedMb Decimal  @default(0) @map("storage_used_mb") @db.Decimal(10, 2)
+  apiCalls      Int      @default(0) @map("api_calls")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, period])
+  @@index([tenantId])
+  @@map("tenant_usage")
 }
 

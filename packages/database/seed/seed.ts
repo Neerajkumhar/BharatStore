@@ -1650,6 +1650,156 @@ async function main() {
     },
   });
 
+  // 12. Super Admin Platform: Subscription Plans & Feature Flags (M11)
+  console.log('\n🧩 Seeding subscription plans and feature flags...');
+
+  const planDefs = [
+    {
+      slug: 'free',
+      name: 'Free',
+      description: 'For new businesses to get started with BharatStore.',
+      monthlyPrice: 0,
+      annualPrice: 0,
+      maxProducts: 50,
+      maxOrders: 500,
+      maxStaff: 3,
+      maxStorageMb: 500,
+    },
+    {
+      slug: 'starter',
+      name: 'Starter',
+      description: 'For growing retailers with higher catalog and order volumes.',
+      monthlyPrice: 499,
+      annualPrice: 4990,
+      maxProducts: 500,
+      maxOrders: 5000,
+      maxStaff: 10,
+      maxStorageMb: 5000,
+    },
+    {
+      slug: 'pro',
+      name: 'Pro',
+      description: 'For established businesses and wholesale distributors.',
+      monthlyPrice: 1499,
+      annualPrice: 14990,
+      maxProducts: 5000,
+      maxOrders: 50000,
+      maxStaff: 50,
+      maxStorageMb: 50000,
+    },
+    {
+      slug: 'enterprise',
+      name: 'Enterprise',
+      description: 'Unlimited everything for large-scale operations.',
+      monthlyPrice: 4999,
+      annualPrice: 49990,
+      maxProducts: -1,
+      maxOrders: -1,
+      maxStaff: -1,
+      maxStorageMb: -1,
+    },
+  ];
+
+  const featureDefs = [
+    { slug: 'pos_counter', name: 'POS Counter', description: 'Counter billing terminal for walk-in sales.', category: 'commerce', isPlatformWide: true },
+    { slug: 'gst_invoicing', name: 'GST Invoicing', description: 'GST-compliant tax invoices with CGST/SGST/IGST breakdown.', category: 'finance', isPlatformWide: true },
+    { slug: 'storefront_builder', name: 'Storefront Builder', description: 'No-code visual storefront page builder.', category: 'storefront', isPlatformWide: true },
+    { slug: 'thermal_receipt', name: 'Thermal Receipt Printing', description: '80mm thermal receipt printing for POS counters.', category: 'commerce', isPlatformWide: false },
+    { slug: 'custom_domain', name: 'Custom Domain', description: 'Connect your own domain with auto-SSL.', category: 'storefront', isPlatformWide: false },
+    { slug: 'whatsapp_broadcast', name: 'WhatsApp Broadcast', description: 'WhatsApp campaign broadcasts to customers.', category: 'marketing', isPlatformWide: false },
+    { slug: 'abandoned_cart', name: 'Abandoned Cart Recovery', description: 'Automated WhatsApp nudges for abandoned carts.', category: 'marketing', isPlatformWide: false },
+    { slug: 'advanced_analytics', name: 'Advanced Analytics', description: 'Deep sales, product, and cohort analytics reports.', category: 'analytics', isPlatformWide: false },
+    { slug: 'gstr1_export', name: 'GSTR-1 Export', description: 'Monthly GSTR-1 filing-ready CSV export.', category: 'finance', isPlatformWide: false },
+    { slug: 'bulk_import_export', name: 'Bulk Import/Export', description: 'Bulk CSV import and export of product catalog.', category: 'commerce', isPlatformWide: false },
+    { slug: 'api_access', name: 'API Access', description: 'Programmatic REST API access with scoped keys.', category: 'platform', isPlatformWide: false },
+    { slug: 'white_label', name: 'White Label', description: 'Remove BharatStore branding from storefront and invoices.', category: 'platform', isPlatformWide: false },
+    { slug: 'priority_support', name: 'Priority Support', description: 'Dedicated support with faster response times.', category: 'platform', isPlatformWide: false },
+    { slug: 'custom_roles', name: 'Custom Roles', description: 'Create custom roles with granular permissions.', category: 'platform', isPlatformWide: false },
+  ];
+
+  const planFeatureMatrix: Record<string, string[]> = {
+    free: ['pos_counter', 'gst_invoicing', 'storefront_builder'],
+    starter: [
+      'pos_counter', 'gst_invoicing', 'storefront_builder',
+      'thermal_receipt', 'whatsapp_broadcast', 'abandoned_cart',
+      'advanced_analytics', 'gstr1_export', 'bulk_import_export',
+    ],
+    pro: [
+      'pos_counter', 'gst_invoicing', 'storefront_builder',
+      'thermal_receipt', 'custom_domain', 'whatsapp_broadcast',
+      'abandoned_cart', 'advanced_analytics', 'gstr1_export',
+      'bulk_import_export', 'api_access', 'priority_support',
+    ],
+    enterprise: featureDefs.map((f) => f.slug),
+  };
+
+  const featureIdBySlug: Record<string, string> = {};
+  const planIdBySlug: Record<string, string> = {};
+
+  for (let i = 0; i < featureDefs.length; i++) {
+    const f = featureDefs[i];
+    const feature = await prisma.featureFlag.upsert({
+      where: { slug: f.slug },
+      update: { name: f.name, description: f.description, category: f.category, isPlatformWide: f.isPlatformWide },
+      create: { ...f, isActive: true, displayOrder: i * 10 },
+    });
+    featureIdBySlug[f.slug] = feature.id;
+  }
+  console.log(`✅ Seeded ${featureDefs.length} feature flags`);
+
+  for (let i = 0; i < planDefs.length; i++) {
+    const p = planDefs[i];
+    const plan = await prisma.subscriptionPlan.upsert({
+      where: { slug: p.slug },
+      update: { ...p, isActive: true, displayOrder: i * 10 },
+      create: { ...p, currency: 'INR', isActive: true, displayOrder: i * 10, features: planFeatureMatrix[p.slug] },
+    });
+    planIdBySlug[p.slug] = plan.id;
+
+    const featureIds = planFeatureMatrix[p.slug].map((slug) => featureIdBySlug[slug]).filter(Boolean);
+    await prisma.planFeature.deleteMany({ where: { planId: plan.id } });
+    await prisma.planFeature.createMany({
+      data: featureIds.map((featureId) => ({ planId: plan.id, featureId })),
+    });
+
+    if (featureIds.length) {
+      await prisma.subscriptionPlan.update({ where: { id: plan.id }, data: { features: planFeatureMatrix[p.slug] } });
+    }
+  }
+  console.log(`✅ Seeded ${planDefs.length} subscription plans with feature links`);
+
+  // 13. Default subscriptions for seeded tenants
+  const now = new Date();
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const inRequestedDays = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const subscriptionDefs = [
+    { tenantId: tenant1.id, planSlug: 'pro', status: 'ACTIVE' as const, trialEndsAt: null, currentPeriodStart: now, currentPeriodEnd: in30Days },
+    { tenantId: tenant2.id, planSlug: 'starter', status: 'TRIAL' as const, trialEndsAt: inRequestedDays, currentPeriodStart: now, currentPeriodEnd: null },
+  ];
+
+  for (const s of subscriptionDefs) {
+    await prisma.tenantSubscription.upsert({
+      where: { tenantId: s.tenantId },
+      update: { planId: planIdBySlug[s.planSlug], status: s.status, trialEndsAt: s.trialEndsAt },
+      create: {
+        tenantId: s.tenantId,
+        planId: planIdBySlug[s.planSlug],
+        status: s.status,
+        trialEndsAt: s.trialEndsAt,
+        currentPeriodStart: s.currentPeriodStart,
+        currentPeriodEnd: s.currentPeriodEnd,
+        paymentMethod: 'manual',
+      },
+    });
+  }
+
+  const subscribedTenant = await prisma.tenant.findUnique({
+    where: { id: tenant1.id },
+    include: { subscription: { include: { plan: true } } },
+  });
+  console.log(`✅ Seeded subscriptions: ${subscribedTenant?.subscription?.plan?.name ?? 'free'} for ${subscribedTenant?.tradeName}, starter (trial) for Varanasi Sarees`);
+
   console.log('\n🎉 Multi-tenant database seed completed successfully!');
   console.log('----------------------------------------------------');
   console.log('Common Password for all test users: Password@123 (Bcrypt Hash)\n');
