@@ -53,6 +53,8 @@ model Tenant {
   legalName         String   @map("legal_name")
   tradeName         String   @map("trade_name")
   slug              String   @unique
+  subdomain         String?  @unique
+  customDomain      String?  @unique @map("custom_domain")
   gstin             String?  @db.VarChar(15)
   pan               String?  @db.VarChar(10)
   isCompositeScheme Boolean  @default(false) @map("is_composite_scheme")
