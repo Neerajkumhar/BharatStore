@@ -2,6 +2,7 @@ import React from 'react';
 import { prisma } from '@bharatstore/database';
 import { isValidSectionType, SECTION_TYPES, getTemplateById } from '@bharatstore/shared/constants';
 import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
+import { SectionBlock } from './section-block';
 
 import { SECTION_COMPONENT_MAP, getSectionExtraProps } from './section-component-map';
 
@@ -218,12 +219,13 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
         });
 
         return (
-          <Component
-            key={section.id}
-            config={section.config as never}
-            slug={slug}
-            {...extraProps}
-          />
+          <SectionBlock key={section.id} type={section.type} config={section.config}>
+            <Component
+              config={section.config as never}
+              slug={slug}
+              {...extraProps}
+            />
+          </SectionBlock>
         );
       })}
     </div>
