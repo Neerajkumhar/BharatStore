@@ -405,3 +405,26 @@ section[id],
 .is-mobile-preview .lg\:grid-cols-6 {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
+
+/* ─── Universal Section Block Design (WordPress-style) ───────── */
+/* The wrapper carries the block-level design tokens. When a user sets a
+   background/text color, we force it onto the section's own root element so
+   it overrides any hardcoded Tailwind bg/text color baked into the section. */
+
+.section-block {
+  position: relative;
+}
+
+/* Background override: paint the section root (cover its own bg utility/theme bg) */
+.section-block[data-sb-bg] {
+  background-color: var(--sb-bg);
+}
+.section-block[data-sb-bg] > *:first-child {
+  background-color: var(--sb-bg) !important;
+}
+
+/* Text override: recolor the section root so inherited text follows the choice.
+   Elements with their own explicit color (buttons, badges) are left untouched. */
+.section-block[data-sb-text] > *:first-child {
+  color: var(--sb-text) !important;
+}
