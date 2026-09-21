@@ -123,7 +123,7 @@ function AreaChart({
           strokeDasharray="3 3"
         />
       ))}
-      <polygon points={area} fill={`url(#${id}-fill)`} />
+      <path d={area} fill={`url(#${id}-fill)`} />
       <polyline
         points={line}
         fill="none"
