@@ -2,7 +2,15 @@
 
 import React, { useState } from 'react';
 import { COMPONENT_REGISTRY, type SectionType } from '@bharatstore/shared/constants';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, RotateCcw } from 'lucide-react';
+import {
+  normalizeSectionBlockStyle,
+  BLOCK_WIDTH_OPTIONS,
+  MIN_HEIGHT_OPTIONS,
+  SPACING_OPTIONS,
+  RADIUS_OPTIONS,
+  type SectionBlockStyle,
+} from '@/lib/section-block-style';
 
 interface SectionItem {
   id: string;
@@ -351,6 +359,77 @@ function SectionSettings({ section, onUpdate }: { section: SectionItem; onUpdate
           <p className="text-2xs text-slate-500 leading-snug">{def.description}</p>
         </div>
       )}
+
+      {/* 0. Universal Design & Layout (applies to EVERY section, WordPress-style) */}
+      <div className="space-y-3">
+        <h5 className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">Section Design</h5>
+        {(() => {
+          handledKeys.add('style');
+          const design = normalizeSectionBlockStyle((merged.style as SectionBlockStyle) || null);
+          const updateDesign = (key: string, val: unknown) => {
+            onUpdate({ ...merged, style: { ...design, [key]: val } });
+          };
+          return (
+            <>
+              <FieldGroup label="Block Width">
+                <SelectInput value={design.blockWidth} onChange={(v) => updateDesign('blockWidth', v)} options={BLOCK_WIDTH_OPTIONS} />
+              </FieldGroup>
+              <FieldGroup label="Section Height">
+                <SelectInput value={design.minHeight} onChange={(v) => updateDesign('minHeight', v)} options={MIN_HEIGHT_OPTIONS} />
+              </FieldGroup>
+              <FieldGroup label="Vertical Spacing">
+                <SelectInput value={design.paddingY} onChange={(v) => updateDesign('paddingY', v)} options={SPACING_OPTIONS} />
+              </FieldGroup>
+              <FieldGroup label="Corner Radius">
+                <SelectInput value={design.radius} onChange={(v) => updateDesign('radius', v)} options={RADIUS_OPTIONS} />
+              </FieldGroup>
+              <FieldGroup label="Background Color">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <ColorInput value={design.bgColor} onChange={(v) => updateDesign('bgColor', v)} />
+                  </div>
+                  {design.bgColor && (
+                    <button
+                      type="button"
+                      onClick={() => updateDesign('bgColor', '')}
+                      title="Reset to default"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </FieldGroup>
+              <FieldGroup label="Text Color">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <ColorInput value={design.textColor} onChange={(v) => updateDesign('textColor', v)} />
+                  </div>
+                  {design.textColor && (
+                    <button
+                      type="button"
+                      onClick={() => updateDesign('textColor', '')}
+                      title="Reset to default"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </FieldGroup>
+              <div className="space-y-1.5 pt-1">
+                <label className="block text-2xs font-bold text-slate-500 uppercase tracking-wider">Responsive Visibility</label>
+                <Toggle checked={!!design.hideOnMobile} onChange={(v) => updateDesign('hideOnMobile', v)} label="Hide on Mobile (< 640px)" />
+                <Toggle checked={!!design.hideOnTablet} onChange={(v) => updateDesign('hideOnTablet', v)} label="Hide on Tablet (640–1024px)" />
+                <Toggle checked={!!design.hideOnDesktop} onChange={(v) => updateDesign('hideOnDesktop', v)} label="Hide on Desktop (>= 1024px)" />
+                <p className="text-3xs text-slate-400 leading-snug pt-0.5">
+                  Hidden sections preview correctly in each device view via the toolbar toggle.
+                </p>
+              </div>
+            </>
+          );
+        })()}
+      </div>
 
       {/* 1. Primary Text & Content */}
       <div className="space-y-3">
