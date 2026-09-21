@@ -60,14 +60,14 @@ export function resolveStoreLookup(lookup: StoreLookup) {
 
 export async function findStorefrontTenant<T extends Record<string, unknown>>(
   lookup: StoreLookup,
-  include?: T
+  options?: T
 ): Promise<any> {
   const where = resolveStoreLookup(lookup);
   if (!where.slug && !where.subdomain && !where.customDomain) return null;
 
   return (prisma.tenant.findUnique as any)({
     where,
-    ...(include ? { include } : {}),
+    ...(options || {}),
   });
 }
 
