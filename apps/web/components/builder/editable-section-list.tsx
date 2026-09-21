@@ -10,6 +10,7 @@ import {
 } from '@bharatstore/shared/constants';
 import { getPreviewLoader } from '../storefront/section-preview-loader';
 import { getSectionExtraProps } from '../storefront/section-component-map';
+import { SectionBlock } from '../storefront/section-block';
 import { CartProvider } from '../storefront/cart-context';
 import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
 import { EditableSection } from './editable-section';
@@ -441,7 +442,9 @@ export function EditableSectionList({
                   onToggleVisibility={() => onToggleVisibility(section.id)}
                   onDelete={() => onDeleteSection(section.id)}
                 >
-                  <Component config={section.config as never} slug={slug} {...extraProps} />
+                  <SectionBlock type={section.type} config={section.config} viewport={viewport} builder>
+                    <Component config={section.config as never} slug={slug} {...extraProps} />
+                  </SectionBlock>
                 </EditableSection>
               );
             })
