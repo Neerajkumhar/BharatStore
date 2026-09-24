@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { buildLiveUrl } from '@/lib/storefront-url';
 import {
   Store,
   ExternalLink,
@@ -173,8 +174,12 @@ export default function StorefrontSettingsPage() {
   }
 
   const pathUrl = `/store/${formData.slug}`;
-  const fallbackLiveUrl = `${protocol}://${platformHost}/store/${formData.slug || 'your-store'}`;
-  const displayLiveUrl = liveUrl || (formData.customDomain ? `https://${formData.customDomain}` : formData.subdomain ? `${protocol}://${formData.subdomain}.${platformHost}` : fallbackLiveUrl);
+  const fallbackLiveUrl = buildLiveUrl({ slug: formData.slug || 'your-store' });
+  const displayLiveUrl = liveUrl || buildLiveUrl({
+    customDomain: formData.customDomain || undefined,
+    subdomain: formData.subdomain || undefined,
+    slug: formData.slug || 'your-store',
+  });
 
   const handleCopyLiveUrl = async () => {
     try {
@@ -186,11 +191,12 @@ export default function StorefrontSettingsPage() {
     }
   };
 
-  const nextUrlForDomain = (subdomain: string, customDomain: string) => {
-    if (customDomain) return `https://${customDomain.replace(/^www\./, '')}`;
-    if (subdomain) return `${protocol}://${subdomain}.${platformHost}`;
-    return fallbackLiveUrl;
-  };
+  const nextUrlForDomain = (subdomain: string, customDomain: string) =>
+    buildLiveUrl({
+      customDomain: customDomain || undefined,
+      subdomain: subdomain || undefined,
+      slug: formData.slug || 'your-store',
+    });
 
   return (
     <div className="space-y-6 w-full">
