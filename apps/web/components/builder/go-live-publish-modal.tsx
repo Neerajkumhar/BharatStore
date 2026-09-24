@@ -351,7 +351,7 @@ export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLive
                     <label className={labelClass}>Select your subdomain</label>
                     <div className="flex items-center">
                       <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">
-                        https://
+                        {protocol}://
                       </span>
                       <input
                         type="text"
@@ -371,7 +371,7 @@ export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLive
                   <div>
                     <label className={labelClass}>Custom domain (optional)</label>
                     <div className="flex items-center">
-                      <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">https://</span>
+                      <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">{protocol}://</span>
                       <input
                         type="text"
                         name="customDomain"
