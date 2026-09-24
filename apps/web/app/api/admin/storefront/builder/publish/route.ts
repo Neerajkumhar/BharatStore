@@ -3,6 +3,7 @@ import { getTenantDb, prisma } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
 import { buildLiveUrl } from '@/lib/storefront-resolver';
+import { syncLegacyThemeFromConfig } from '@/lib/storefront-config';
 import {
   normalizeSubdomain,
   normalizeCustomDomain,
@@ -103,6 +104,10 @@ export async function POST(request: Request) {
         publishedAt: new Date(),
       },
     });
+
+    // Keep the legacy StorefrontTheme columns (settings page, fallback hero,
+    // layout) in sync with the published builder theme.
+    await syncLegacyThemeFromConfig(auth.tenantId, theme.draftConfig as any);
 
     const liveTenant = await prisma.tenant.findUnique({
       where: { id: auth.tenantId },
