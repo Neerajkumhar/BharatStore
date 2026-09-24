@@ -110,6 +110,15 @@ export async function middleware(request: NextRequest) {
   if (tenantRequest.customDomain) {
     requestHeaders.set('x-custom-domain', tenantRequest.customDomain);
   }
+
+  // Let the storefront layout serve the draft for ?preview=true / ?draft=true,
+  // even when the store is not yet published (maintenance gate must not block it).
+  const isPreviewRequest =
+    request.nextUrl.searchParams.get('preview') === 'true' ||
+    request.nextUrl.searchParams.get('draft') === 'true';
+  if (isPreviewRequest) {
+    requestHeaders.set('x-store-preview', 'true');
+  }
   if (session?.tenantId) {
     requestHeaders.set('x-tenant-id', session.tenantId);
   }
