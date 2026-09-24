@@ -243,7 +243,20 @@ export default function StorefrontBuilderPage() {
     setShowPublish(true);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
+    // Persist the latest builder state to draft first so the preview (which
+    // renders draftConfig) reflects current edits — auto-save is debounced.
+    setSaveState('saving');
+    try {
+      await fetch('/api/admin/storefront/builder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: builderState }),
+      });
+      setSaveState('saved');
+    } catch {
+      setSaveState('unsaved');
+    }
     if (slug) {
       window.open(`/store/${slug}?preview=true`, '_blank');
     }
