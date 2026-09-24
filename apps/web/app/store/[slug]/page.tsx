@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@bharatstore/database';
+import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-resolver';
 import { ArrowRight, ShoppingBag, Layers, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { ProductCard } from '@/components/storefront/product-card';
 import { StorefrontRenderer } from '@/components/storefront/storefront-renderer';
@@ -17,11 +18,9 @@ export default async function StorefrontHomePage({
   const sParams = (await searchParams) || {};
   const isPreviewMode = sParams.preview === 'true' || sParams.draft === 'true';
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { slug },
-    include: {
-      storefrontTheme: true,
-    },
+  const lookup = await getRequestStoreLookup(slug);
+  const tenant = await findStorefrontTenant(lookup, {
+    include: { storefrontTheme: true },
   });
 
   if (!tenant || !tenant.isActive) {

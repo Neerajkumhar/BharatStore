@@ -53,6 +53,8 @@ model Tenant {
   legalName         String   @map("legal_name")
   tradeName         String   @map("trade_name")
   slug              String   @unique
+  subdomain         String?  @unique
+  customDomain      String?  @unique @map("custom_domain")
   gstin             String?  @db.VarChar(15)
   pan               String?  @db.VarChar(10)
   isCompositeScheme Boolean  @default(false) @map("is_composite_scheme")
@@ -81,6 +83,7 @@ model Tenant {
   payments          Payment[]
   invoices          Invoice[]
   storefrontTheme   StorefrontTheme?
+  storefrontPages   StorefrontPage[]
   campaigns         Campaign[]
   promotionRules    PromotionRule[]
   coupons           Coupon[]
@@ -541,6 +544,31 @@ model StorefrontTheme {
   tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("storefront_themes")
+}
+
+// Builder-driven pages (home, about, contact, faq, policies, ...). Each page
+// has its own draft (preview) + published (live) config, independent of the
+// global StorefrontTheme which only holds store-level metadata.
+model StorefrontPage {
+  id              String    @id @default(uuid()) @db.Uuid
+  tenantId        String    @map("tenant_id") @db.Uuid
+  slug            String    @db.VarChar(100)
+  title           String    @db.VarChar(200)
+  navLabel        String?   @map("nav_label") @db.VarChar(100)
+  showInMenu      Boolean   @default(false) @map("show_in_menu")
+  isHome          Boolean   @default(false) @map("is_home")
+  status          String    @default("DRAFT") // DRAFT | PUBLISHED
+  draftConfig     Json?     @map("draft_config")
+  publishedConfig Json?     @map("published_config")
+  order           Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("storefront_pages")
 }
 
 enum CampaignStatus {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@bharatstore/database';
+import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-resolver';
 import { CartProvider } from '@/components/storefront/cart-context';
 import { CartDrawer } from '@/components/storefront/cart-drawer';
 import { StoreHeader } from '@/components/storefront/store-header';
@@ -15,11 +16,9 @@ export default async function PublicStoreLayout({
 }) {
   const { slug } = await params;
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { slug },
-    include: {
-      storefrontTheme: true,
-    },
+  const lookup = await getRequestStoreLookup(slug);
+  const tenant = await findStorefrontTenant(lookup, {
+    include: { storefrontTheme: true },
   });
 
   if (!tenant || !tenant.isActive) {

@@ -31,7 +31,7 @@ export function getTenantDb(tenantId: string) {
           const tenantModels = [
             'UserTenant', 'Role', 'Product', 'ProductVariant', 'Category', 'InventoryLedger',
             'Customer', 'KhataLedger', 'Order', 'OrderItem', 'Payment',
-            'Invoice', 'StorefrontTheme', 'Campaign', 'PromotionRule', 'Coupon', 'CouponRedemption',
+            'Invoice', 'StorefrontTheme', 'StorefrontPage', 'Campaign', 'PromotionRule', 'Coupon', 'CouponRedemption',
             'Notification', 'NotificationTemplate', 'NotificationPreference',
             'AuditLog', 'SecurityEvent'
           ];

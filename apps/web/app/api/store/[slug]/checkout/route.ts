@@ -3,6 +3,7 @@ import { prisma } from '@bharatstore/database';
 import { calculateGstTaxSplit } from '@bharatstore/shared/utils';
 import { validateCouponForCart } from '@/lib/marketing-engine';
 import { enforcePlanLimit, recordUsage } from '@/lib/plan-enforcement';
+import { getRequestStoreLookupFromRequest, findStorefrontTenant } from '@/lib/storefront-resolver';
 
 export async function POST(
   request: Request,
@@ -11,9 +12,9 @@ export async function POST(
   try {
     const { slug } = await params;
 
-    // 1. Resolve storefront tenant by slug
-    const tenant = await prisma.tenant.findUnique({
-      where: { slug },
+    // 1. Resolve storefront tenant by slug / subdomain / custom domain
+    const lookup = getRequestStoreLookupFromRequest(request, slug);
+    const tenant = await findStorefrontTenant(lookup, {
       include: { storefrontTheme: true },
     });
 

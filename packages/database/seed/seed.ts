@@ -160,11 +160,16 @@ async function main() {
   // 4. Tenant 1: rajesh-fabrics
   const tenant1 = await prisma.tenant.upsert({
     where: { slug: 'rajesh-fabrics' },
-    update: {},
+    update: {
+      subdomain: 'rajesh-fabrics',
+      customDomain: 'rajeshfabrics.in',
+    },
     create: {
       legalName: 'Rajesh Fabrics Private Limited',
       tradeName: 'Rajesh Fabrics',
       slug: 'rajesh-fabrics',
+      subdomain: 'rajesh-fabrics',
+      customDomain: 'rajeshfabrics.in',
       gstin: '09AAECR1234F1Z5',
       pan: 'AAECR1234F',
       isCompositeScheme: false,
@@ -1368,11 +1373,16 @@ async function main() {
   // 5. Tenant 2: varanasi-sarees
   const tenant2 = await prisma.tenant.upsert({
     where: { slug: 'varanasi-sarees' },
-    update: {},
+    update: {
+      subdomain: 'varanasi-sarees',
+      customDomain: 'varanasisarees.in',
+    },
     create: {
       legalName: 'Varanasi Sarees & Textiles Private Limited',
       tradeName: 'Varanasi Sarees',
       slug: 'varanasi-sarees',
+      subdomain: 'varanasi-sarees',
+      customDomain: 'varanasisarees.in',
       gstin: '09BBBDS9876G1Z2',
       pan: 'BBBDS9876G',
       isCompositeScheme: false,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@bharatstore/database';
+import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-resolver';
 import { ProductDetailView } from '@/components/storefront/product-detail-view';
 
 export default async function StorefrontProductDetailPage({
@@ -10,8 +11,8 @@ export default async function StorefrontProductDetailPage({
 }) {
   const { slug, id } = await params;
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { slug },
+  const lookup = await getRequestStoreLookup(slug);
+  const tenant = await findStorefrontTenant(lookup, {
     select: { id: true, tradeName: true, isActive: true },
   });
 

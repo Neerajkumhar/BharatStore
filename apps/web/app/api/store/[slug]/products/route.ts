@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@bharatstore/database';
+import { getRequestStoreLookupFromRequest, findStorefrontTenant } from '@/lib/storefront-resolver';
 
 export async function GET(
   request: Request,
@@ -15,8 +16,8 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '12', 10);
 
-    const tenant = await prisma.tenant.findUnique({
-      where: { slug },
+    const lookup = getRequestStoreLookupFromRequest(request, slug);
+    const tenant = await findStorefrontTenant(lookup, {
       select: { id: true, isActive: true },
     });
 
