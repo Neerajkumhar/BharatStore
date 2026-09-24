@@ -5,12 +5,12 @@ import { prisma } from '@bharatstore/database';
 import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-resolver';
 import { CartProvider } from '@/components/storefront/cart-context';
 import { CartDrawer } from '@/components/storefront/cart-drawer';
-import { StoreHeader } from '@/components/storefront/store-header';
-import { StoreFooter } from '@/components/storefront/store-footer';
+import { StoreHeaderGate, StoreFooterGate } from '@/components/storefront/store-layout-chrome';
 
 // Section types that provide their own page chrome. When the active config
-// contains one of these, the layout header/footer must NOT render too,
-// otherwise the store shows duplicate headers/footers.
+// contains one of these, the layout header/footer must NOT render too on the
+// home page, otherwise the store shows duplicate headers/footers.
+// (Sub-pages render the section chrome never, so the default chrome stays.)
 const HEADER_REPLACEMENT_SECTIONS = new Set(['sticky-header', 'mega-menu']);
 
 export default async function PublicStoreLayout({
@@ -65,33 +65,31 @@ export default async function PublicStoreLayout({
     <CartProvider slug={slug}>
       <div className="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-amber-500 selection:text-white font-sans">
         <div>
-          {!hasHeaderSection && (
-            <StoreHeader
-              slug={slug}
-              tradeName={tenant.tradeName}
-              logoUrl={theme?.logoUrl || undefined}
-              phone={theme?.contactPhone || tenant.phone}
-              city={tenant.city}
-            />
-          )}
+          <StoreHeaderGate
+            slug={slug}
+            tradeName={tenant.tradeName}
+            logoUrl={(activeConfig?.theme as any)?.logoUrl || theme?.logoUrl || undefined}
+            phone={theme?.contactPhone || tenant.phone}
+            city={tenant.city}
+            replacedBySection={hasHeaderSection}
+          />
           <main>{children}</main>
         </div>
 
         <CartDrawer slug={slug} />
 
-        {!hasFooterSection && (
-          <StoreFooter
-            slug={slug}
-            tradeName={tenant.tradeName}
-            phone={theme?.contactPhone || tenant.phone}
-            email={theme?.contactEmail || tenant.email || undefined}
-            addressLine1={tenant.addressLine1}
-            city={tenant.city}
-            pincode={tenant.pincode}
-            gstin={tenant.gstin || undefined}
-            businessHours={theme?.businessHours || undefined}
-          />
-        )}
+        <StoreFooterGate
+          slug={slug}
+          tradeName={tenant.tradeName}
+          phone={theme?.contactPhone || tenant.phone}
+          email={theme?.contactEmail || tenant.email || undefined}
+          addressLine1={tenant.addressLine1}
+          city={tenant.city}
+          pincode={tenant.pincode}
+          gstin={tenant.gstin || undefined}
+          businessHours={theme?.businessHours || undefined}
+          replacedBySection={hasFooterSection}
+        />
       </div>
     </CartProvider>
   );
