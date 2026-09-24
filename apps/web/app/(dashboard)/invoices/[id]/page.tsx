@@ -414,3 +414,15 @@ function TaxInvoicePageContent() {
     </div>
   );
 }
+
+export default function TaxInvoicePage() {
+  return (
+    <FeatureGate
+      feature={FEATURE_FLAGS.GST_INVOICING}
+      title="GST Invoicing"
+      description="GST-compliant invoices are available on paid plans. Upgrade to create and download tax invoices."
+    >
+      <TaxInvoicePageContent />
+    </FeatureGate>
+  );
+}
