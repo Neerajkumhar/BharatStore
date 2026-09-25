@@ -9,6 +9,7 @@ import { BuilderSettings } from '@/components/builder/builder-settings';
 import { BuilderWorkspace, type BuilderWorkspaceHandle } from '@/components/builder/builder-workspace';
 import { SectionPickerModal } from '@/components/builder/section-picker-modal';
 import { GoLivePublishModal } from '@/components/builder/go-live-publish-modal';
+import { NewPageModal } from '@/components/builder/new-page-modal';
 import type { SectionAddPayload } from '@/components/builder/component-preview-modal';
 import { createDefaultSection, getTemplateById, buildTemplatePageConfig, type SectionType, type TemplateCategory } from '@bharatstore/shared/constants';
 import { Layers, Sliders, Palette, Eye, X } from 'lucide-react';
@@ -26,6 +27,17 @@ interface BuilderState {
   theme: Record<string, unknown>;
   seo: Record<string, unknown>;
   templateId: string | null;
+}
+
+interface PageMeta {
+  id: string;
+  title: string;
+  slug: string;
+  navLabel: string | null;
+  showInMenu: boolean;
+  order: number;
+  status: string;
+  updatedAt: string;
 }
 
 export default function StorefrontBuilderPage() {
@@ -79,6 +91,12 @@ export default function StorefrontBuilderPage() {
   const [slug, setSlug] = useState('rajesh-fabrics');
   const [showPublish, setShowPublish] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Multi-page state: the pages list, the page currently being edited, and the
+  // new-page modal trigger. Home is the default active page.
+  const [pages, setPages] = useState<PageMeta[]>([]);
+  const [activePage, setActivePage] = useState<{ type: 'home' } | { type: 'page'; id: string; slug: string }>({ type: 'home' });
+  const [showNewPageModal, setShowNewPageModal] = useState(false);
 
   // Load builder state
   useEffect(() => {
@@ -150,6 +168,10 @@ export default function StorefrontBuilderPage() {
             setSlug(storeJson.data.tenant.slug);
           }
         }
+
+        const pagesRes = await fetch('/api/admin/storefront/pages');
+        const pagesJson = await pagesRes.json();
+        if (pagesJson.success) setPages(pagesJson.data.pages || []);
       } catch (err) {
         console.error('Failed to load builder:', err);
         if (themeParam) {
@@ -172,6 +194,20 @@ export default function StorefrontBuilderPage() {
     load();
   }, []);
 
+  // Persist the active page's builder state to its own draft. Home → theme
+  // builder route; a page → pages/[id] route with { config } (same shape).
+  const persistCurrentDraft = useCallback(async (): Promise<boolean> => {
+    const url = activePage.type === 'home'
+      ? '/api/admin/storefront/builder'
+      : `/api/admin/storefront/pages/${activePage.id}`;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: builderState }),
+    });
+    return res.ok && (await res.json())?.success === true;
+  }, [builderState, activePage]);
+
   // Auto-save with debounce
   const scheduleSave = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -179,19 +215,13 @@ export default function StorefrontBuilderPage() {
     saveTimeoutRef.current = setTimeout(async () => {
       setSaveState('saving');
       try {
-        const res = await fetch('/api/admin/storefront/builder', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ config: builderState }),
-        });
-        const json = await res.json();
-        if (json.success) setSaveState('saved');
-        else setSaveState('unsaved');
+        const ok = await persistCurrentDraft();
+        setSaveState(ok ? 'saved' : 'unsaved');
       } catch {
         setSaveState('unsaved');
       }
     }, 1000);
-  }, [builderState]);
+  }, [persistCurrentDraft]);
 
   useEffect(() => {
     if (!loading) scheduleSave();
@@ -201,28 +231,18 @@ export default function StorefrontBuilderPage() {
   const handleSave = async () => {
     setSaveState('saving');
     try {
-      const res = await fetch('/api/admin/storefront/builder', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config: builderState }),
-      });
-      const json = await res.json();
-      if (json.success) setSaveState('saved');
-      else setSaveState('unsaved');
+      const ok = await persistCurrentDraft();
+      setSaveState(ok ? 'saved' : 'unsaved');
     } catch {
       setSaveState('unsaved');
     }
   };
 
   const handlePublish = async () => {
-    // 1. Ensure latest builderState is saved to draft before opening Go-Live
+    // 1. Ensure latest builder state is saved to draft before opening Go-Live
     setSaveState('saving');
     try {
-      await fetch('/api/admin/storefront/builder', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config: builderState }),
-      });
+      await persistCurrentDraft();
       setSaveState('saved');
     } catch {
       setSaveState('unsaved');
@@ -235,18 +255,67 @@ export default function StorefrontBuilderPage() {
     // renders draftConfig) reflects current edits — auto-save is debounced.
     setSaveState('saving');
     try {
-      await fetch('/api/admin/storefront/builder', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config: builderState }),
-      });
+      await persistCurrentDraft();
       setSaveState('saved');
     } catch {
       setSaveState('unsaved');
     }
+    const pagePath = activePage.type === 'home' ? '' : `/${activePage.slug}`;
     if (slug) {
-      window.open(`/store/${slug}?preview=true`, '_blank');
+      window.open(`/store/${slug}${pagePath}?preview=true`, '_blank');
     }
+  };
+
+  // Load a page's draft into the builder (switching away from Home).
+  const loadPageDraft = async (pageId: string) => {
+    const res = await fetch(`/api/admin/storefront/pages/${pageId}`);
+    const json = await res.json();
+    if (json.success && json.data.page) {
+      const d = json.data.page.draftConfig;
+      setBuilderState({
+        sections: d?.sections || [],
+        theme: d?.theme || {},
+        seo: d?.seo || {},
+        templateId: d?.templateId || null,
+      });
+      setHistoryStack([]);
+      setRedoStack([]);
+    }
+  };
+
+  // Reload the Home theme draft (switching back from a page).
+  const loadHomeDraft = async () => {
+    const res = await fetch('/api/admin/storefront/builder');
+    const json = await res.json();
+    if (json.success && json.data.draftConfig) {
+      setBuilderState({
+        sections: json.data.draftConfig.sections || [],
+        theme: json.data.draftConfig.theme || {},
+        seo: json.data.draftConfig.seo || {},
+        templateId: json.data.draftConfig.templateId || null,
+      });
+      setHistoryStack([]);
+      setRedoStack([]);
+    }
+  };
+
+  const handleSelectPage = async (value: string) => {
+    await persistCurrentDraft();
+    if (value === 'home') {
+      await loadHomeDraft();
+      setActivePage({ type: 'home' });
+    } else {
+      const p = pages.find((x) => x.id === value);
+      if (!p) return;
+      await loadPageDraft(p.id);
+      setActivePage({ type: 'page', id: p.id, slug: p.slug });
+    }
+  };
+
+  const handlePageCreated = async (page: PageMeta) => {
+    setPages((prev) => [...prev, page].sort((a, b) => a.order - b.order));
+    setActivePage({ type: 'page', id: page.id, slug: page.slug });
+    await loadPageDraft(page.id);
   };
 
   const handleAddSection = (payload: SectionAddPayload) => {
@@ -353,6 +422,10 @@ export default function StorefrontBuilderPage() {
         onToggleRight={() => workspaceRef.current?.toggleRight()}
         fullscreen={fullscreen}
         onToggleFullscreen={() => setFullscreen((v) => !v)}
+        pages={pages}
+        activePageValue={activePage.type === 'home' ? 'home' : activePage.id}
+        onSelectPage={(value) => handleSelectPage(value)}
+        onNewPage={() => setShowNewPageModal(true)}
       />
 
       {/* Main Resizable Studio Builder Workspace */}
@@ -499,6 +572,14 @@ export default function StorefrontBuilderPage() {
         onPublished={() => {
           setHasPublished(true);
         }}
+      />
+
+      {/* New Page Modal */}
+      <NewPageModal
+        open={showNewPageModal}
+        onClose={() => setShowNewPageModal(false)}
+        onCreated={handlePageCreated}
+        defaultOrder={pages.length}
       />
     </div>
   );
