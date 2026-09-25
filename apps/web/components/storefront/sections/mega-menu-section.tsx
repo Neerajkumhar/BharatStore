@@ -14,6 +14,7 @@ export interface MegaMenuSectionProps {
     layout?: 'classic' | 'bricks' | 'masonry' | 'tabs';
   };
   slug: string;
+  pages?: Array<{ label: string; slug: string }>;
 }
 
 const defaultGroups = [
@@ -24,7 +25,7 @@ const defaultGroups = [
 
 const tileColors = ['bg-slate-800', 'bg-slate-800/60', 'bg-amber-900/40'];
 
-export function MegaMenuSection({ config, slug }: MegaMenuSectionProps) {
+export function MegaMenuSection({ config, slug, pages }: MegaMenuSectionProps) {
   const groups = config.groups?.length ? config.groups : defaultGroups;
   const layout = config.layout || 'classic';
   const [activeTab, setActiveTab] = useState(0);
@@ -170,6 +171,20 @@ export function MegaMenuSection({ config, slug }: MegaMenuSectionProps) {
           <Sparkles className="h-4 w-4" />
           <span>{config.title || 'Explore Catalog Departments'}</span>
         </h3>
+
+        {(pages && pages.length > 0) && (
+          <nav className="flex flex-wrap gap-3 mb-8" aria-label="Store pages">
+            {pages.map((p) => (
+              <Link
+                key={p.slug}
+                href={`/store/${slug}/${p.slug}`}
+                className="text-xs font-bold text-slate-200 hover:text-amber-400 transition px-3 py-1.5 rounded-lg border border-slate-700 hover:border-amber-500/50 bg-slate-800/60 whitespace-nowrap"
+              >
+                {p.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {renderGroups()}

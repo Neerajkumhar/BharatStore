@@ -3,6 +3,7 @@ import { prisma } from '@bharatstore/database';
 import { isValidSectionType, SECTION_TYPES, getTemplateById } from '@bharatstore/shared/constants';
 import { resolveSectionProducts, resolveSectionCategories } from '@bharatstore/shared/utils';
 import { getPreviewDemoPayload } from '@/lib/storefront-demo-data';
+import { getStorefrontNavPages } from '@/lib/storefront-nav';
 import { SectionBlock } from './section-block';
 
 import { SECTION_COMPONENT_MAP, getSectionExtraProps } from './section-component-map';
@@ -135,6 +136,8 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
     .filter((s) => s.visible && isValidSectionType(s.type))
     .sort((a, b) => a.order - b.order);
 
+  const navPages = await getStorefrontNavPages(tenantId, !!isPreview);
+
   const font = getFontFamily(theme.fontFamily as string);
   const borderRadius = getBorderRadius(theme.borderRadius as string);
 
@@ -168,6 +171,7 @@ export async function StorefrontRenderer({ config, slug, tenantId, storeData, is
           data,
           theme: sectionTheme,
           storeData,
+          pages: navPages,
         });
 
         return (

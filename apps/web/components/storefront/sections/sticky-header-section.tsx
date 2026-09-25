@@ -16,10 +16,11 @@ export interface StickyHeaderSectionProps {
   };
   slug: string;
   storeData?: any;
+  pages?: Array<{ label: string; slug: string }>;
   isMobilePreview?: boolean;
 }
 
-export function StickyHeaderSection({ config, slug, storeData, isMobilePreview }: StickyHeaderSectionProps) {
+export function StickyHeaderSection({ config, slug, storeData, pages, isMobilePreview }: StickyHeaderSectionProps) {
   const { totalItems, setIsOpen } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -27,8 +28,9 @@ export function StickyHeaderSection({ config, slug, storeData, isMobilePreview }
 
   const headerStyle = config.style || 'classic';
   const brand = storeData?.tradeName || 'BharatStore';
-  const links = config.navLinks?.length
-    ? config.navLinks
+  const pageLinks = (pages || []).map((p) => ({ label: p.label, url: `/store/${slug}/${p.slug}` }));
+  const links = pageLinks.length
+    ? pageLinks
     : [
         { label: 'Home', url: `/store/${slug}` },
         { label: 'Shop Catalog', url: `/store/${slug}/products` },

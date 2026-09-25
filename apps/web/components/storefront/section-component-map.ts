@@ -1,5 +1,6 @@
 import React from 'react';
 import { SECTION_TYPES, type SectionType } from '@bharatstore/shared/constants';
+import type { StorefrontNavItem } from '@/lib/storefront-nav';
 
 import { AnnouncementSection } from './sections/announcement-section';
 import { StickyHeaderSection } from './sections/sticky-header-section';
@@ -126,6 +127,7 @@ export interface SectionRenderExtraProps {
   categories?: unknown;
   theme?: { primaryColor?: string; accentColor?: string };
   storeData?: unknown;
+  pages?: StorefrontNavItem[];
 }
 
 export interface SectionRenderDigest {
@@ -133,6 +135,7 @@ export interface SectionRenderDigest {
   data?: Record<string, unknown>;
   theme?: { primaryColor?: string; accentColor?: string };
   storeData?: unknown;
+  pages?: StorefrontNavItem[];
 }
 
 const SECTIONS_NEEDING_THEME = new Set<string>([
@@ -152,6 +155,11 @@ const SECTIONS_NEEDING_STORE_DATA = new Set<string>([
   SECTION_TYPES.STICKY_HEADER,
   SECTION_TYPES.CONTACT,
   SECTION_TYPES.FOOTER,
+]);
+
+const SECTIONS_NEEDING_PAGES = new Set<string>([
+  SECTION_TYPES.STICKY_HEADER,
+  SECTION_TYPES.MEGA_MENU,
 ]);
 
 
@@ -184,5 +192,6 @@ export function getSectionExtraProps(digest: SectionRenderDigest): SectionRender
   if (SECTIONS_NEEDING_STORE_DATA.has(digest.type)) extra.storeData = digest.storeData;
   if (SECTIONS_NEEDING_PRODUCTS.has(digest.type)) extra.products = digest.data?.products;
   if (SECTIONS_NEEDING_CATEGORIES.has(digest.type)) extra.categories = digest.data?.categories;
+  if (SECTIONS_NEEDING_PAGES.has(digest.type)) extra.pages = digest.pages;
   return extra;
 }
