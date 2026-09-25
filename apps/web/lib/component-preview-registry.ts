@@ -19,6 +19,70 @@ export const ALL_INDUSTRIES: TemplateCategory[] = [
   'home',
 ];
 
+export type PageType = 'home' | 'about' | 'contact' | 'product' | 'promo' | 'content';
+
+export const PAGE_TYPE_OPTIONS: Array<{ id: PageType | 'all'; label: string }> = [
+  { id: 'all', label: 'All Pages' },
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'product', label: 'Product' },
+  { id: 'promo', label: 'Promo' },
+  { id: 'content', label: 'Content' },
+];
+
+const SECTION_PAGE_TYPES: Record<string, PageType[]> = {
+  announcement: ['home', 'promo'],
+  'sticky-header': ['home', 'content'],
+  'mega-menu': ['home', 'content'],
+  'mobile-nav': ['home', 'content'],
+  'search-overlay': ['home', 'product'],
+  hero: ['home', 'promo'],
+  'hero-fullscreen': ['home', 'promo'],
+  'hero-split': ['home', 'promo'],
+  'hero-editorial': ['home', 'promo'],
+  'hero-product': ['product', 'home'],
+  'hero-minimal': ['home', 'promo'],
+  categories: ['home', 'product'],
+  'category-circular': ['home', 'product'],
+  'category-mega': ['home', 'product'],
+  'featured-products': ['product', 'home'],
+  'product-grid': ['product', 'home'],
+  'product-carousel': ['product', 'home'],
+  'product-rail': ['product', 'home'],
+  'product-spotlight': ['product', 'home'],
+  'product-trending': ['product', 'home'],
+  'product-tabs': ['product', 'home'],
+  'product-comparison': ['product', 'home'],
+  banner: ['promo', 'home'],
+  'promo-split': ['promo', 'home'],
+  'countdown-sale': ['promo', 'home'],
+  'flash-sale': ['promo', 'product'],
+  'coupon-strip': ['promo', 'home'],
+  'free-shipping-bar': ['promo', 'home'],
+  'offer-marquee': ['promo', 'home'],
+  about: ['about'],
+  'editorial-split': ['about', 'content'],
+  'editorial-fullwidth': ['about', 'content'],
+  lookbook: ['about', 'content'],
+  'asymmetric-gallery': ['about', 'content'],
+  'brand-story': ['about'],
+  'routine-builder': ['about', 'content'],
+  trust: ['home', 'content'],
+  testimonials: ['content', 'home'],
+  'reviews-summary': ['content', 'home'],
+  'brand-logos': ['content', 'home'],
+  faq: ['contact', 'content'],
+  contact: ['contact'],
+  'delivery-info': ['contact'],
+  newsletter: ['content', 'contact'],
+  footer: ['content', 'home'],
+  'size-guide': ['product', 'contact'],
+  'shop-by-concern': ['product', 'home'],
+  'shop-by-room': ['product', 'home'],
+  'ingredient-highlights': ['about', 'content'],
+};
+
 export interface ComponentPreviewEntry {
   id: string;
   sectionType: string;
@@ -31,6 +95,7 @@ export interface ComponentPreviewEntry {
   demoCategory: TemplateCategory;
   config: Record<string, unknown>;
   tags: string[];
+  pageTypes: PageType[];
   isNew?: boolean;
 }
 
@@ -76,6 +141,7 @@ function buildEntry(draft: VariantDraft): ComponentPreviewEntry {
       ...draft.configOverrides,
     },
     tags: draft.tags && draft.tags.length ? draft.tags : [],
+    pageTypes: SECTION_PAGE_TYPES[draft.sectionType] ?? ['content'],
     isNew: draft.isNew,
   };
 }
@@ -907,6 +973,411 @@ export const COMPONENT_PREVIEW_REGISTRY: ComponentPreviewEntry[] = [
     tags: ['grocery', 'clean-label'],
     isNew: true,
   }),
+
+  // ─── Extra page-oriented variants (Contact / About / FAQ / Trust / etc.) ──
+  entryFromDraft({
+    sectionType: SECTION_TYPES.CONTACT,
+    name: 'Contact Section',
+    variant: 'map',
+    variantLabel: 'Store Visit Info',
+    configOverrides: {
+      title: 'Visit Our Store',
+      showPhone: false,
+      showEmail: false,
+      showAddress: true,
+      showHours: true,
+    },
+    tags: ['location', 'visiting', 'address', 'hours'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.CONTACT,
+    name: 'Contact Section',
+    variant: 'wall',
+    variantLabel: 'Full Contact Wall',
+    configOverrides: { title: 'We Are Here to Help' },
+    tags: ['support', 'help', 'assistance'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.ABOUT,
+    name: 'About Store',
+    variant: 'stats',
+    variantLabel: 'Story with Highlights',
+    configOverrides: {
+      title: 'Crafting Trust Since Day One',
+      layout: 'center',
+      description: 'A family-rooted store that has served the community for generations with authentic products.',
+    },
+    tags: ['story', 'highlights', 'mission', 'heritage'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.ABOUT,
+    name: 'About Store',
+    variant: 'collage',
+    variantLabel: 'Image-First Story',
+    configOverrides: {
+      title: 'Behind the Weave',
+      layout: 'right',
+      description: 'Every piece in our collection carries the craft of skilled artisans and honest materials.',
+    },
+    tags: ['gallery', 'images', 'artisans'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.FAQ,
+    name: 'FAQ Accordion',
+    variant: 'help',
+    variantLabel: 'Help Guides',
+    configOverrides: {
+      title: 'Help & Buying Guides',
+      items: [
+        { question: 'How do I place an order?', answer: 'Add items to the cart, choose delivery, and pay via UPI, card, COD, or Khata credit.' },
+        { question: 'How quickly will I receive my order?', answer: 'Orders ship within 24 hours and reach you in 2-4 business days.' },
+        { question: 'What is your return policy?', answer: 'You may raise a return within 7 days of delivery for a refund or exchange.' },
+        { question: 'Can I get a GST invoice?', answer: 'Yes — every order includes a valid B2B/B2C GST tax invoice.' },
+      ],
+    },
+    tags: ['help', 'guides', 'support', 'orders', 'returns'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.FAQ,
+    name: 'FAQ Accordion',
+    variant: 'two-col',
+    variantLabel: 'Two-Column',
+    configOverrides: {
+      title: 'Quick Answers',
+      items: [
+        { question: 'Which payment methods do you accept?', answer: 'COD, UPI, Credit/Debit cards, and Khata credit.' },
+        { question: 'Is my data safe?', answer: 'Yes, payments are fully encrypted and PCI-DSS compliant.' },
+        { question: 'Do you deliver across India?', answer: 'We ship pan-India with free delivery above ₹999.' },
+      ],
+    },
+    tags: ['questions', 'answers', 'support'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.TESTIMONIALS,
+    name: 'Customer Testimonials',
+    variant: 'wall',
+    variantLabel: 'Customer Wall',
+    configOverrides: {
+      title: 'Wall of Love',
+      autoplay: false,
+      testimonials: [
+        { name: 'Meera J.', text: 'The quality of fabric is unmatched. My boutique orders keep getting bigger!', rating: 5 },
+        { name: 'Arjun V.', text: 'Genuine GST invoice and lightning-fast dispatch. Highly recommended.', rating: 5 },
+        { name: 'Sunita R.', text: 'Easy returns and real customer support. Shopping here feels safe.', rating: 5 },
+        { name: 'Farhan K.', text: 'Great festive collection — received everything well packed in 2 days.', rating: 4 },
+      ],
+    },
+    tags: ['wall', 'reviews', 'love', 'praise'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.TESTIMONIALS,
+    name: 'Customer Testimonials',
+    variant: 'press',
+    variantLabel: 'Press & Reviews',
+    configOverrides: { title: 'In the Press & From Our Customers' },
+    tags: ['press', 'media', 'featured'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.TRUST,
+    name: 'Trust Badges',
+    variant: 'row',
+    variantLabel: 'Compact Badges',
+    configOverrides: {
+      badges: [
+        { icon: 'ShieldCheck', title: 'Secure Payments', description: 'Encrypted checkout' },
+        { icon: 'FileText', title: 'GST Invoices', description: 'Tax compliant' },
+        { icon: 'Truck', title: 'Express Delivery', description: 'Rush dispatch' },
+        { icon: 'Headphones', title: 'Real Support', description: 'Humans, not bots' },
+      ],
+    },
+    tags: ['badges', 'compact', 'security'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.TRUST,
+    name: 'Trust Badges',
+    variant: 'guarantees',
+    variantLabel: 'Shipping & Returns Promise',
+    configOverrides: {
+      badges: [
+        { icon: 'PackageCheck', title: 'Genuine Products', description: 'Straight from the store inventory' },
+        { icon: 'RotateCcw', title: '7-Day Returns', description: 'Hassle-free exchanges' },
+        { icon: 'Truck', title: 'Free Delivery', description: 'On orders above ₹999' },
+        { icon: 'BadgeCheck', title: 'COD & Khata', description: 'Flexible payment options' },
+      ],
+    },
+    tags: ['guarantee', 'returns', 'shipping', 'promise'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.BRAND_STORY,
+    name: 'Brand Story',
+    variant: 'mission',
+    variantLabel: 'Mission & Values',
+    configOverrides: {
+      title: 'Our Mission',
+      story: 'To bring honest, high-quality products from local makers to every doorstep, without middlemen.',
+      milestones: [
+        { year: '2012', event: 'Founded as a single neighbourhood store' },
+        { year: '2019', event: 'Direct sourcing from 200+ local artisans' },
+        { year: '2026', event: 'Pan-India online storefront' },
+      ],
+    },
+    tags: ['mission', 'values', 'purpose'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.BRAND_STORY,
+    name: 'Brand Story',
+    variant: 'timeline',
+    variantLabel: 'Legacy Timeline',
+    configOverrides: {
+      title: 'Three Generations of Trust',
+      story: 'Passed down through the family, the store has stayed true to its promise of authenticity.',
+      milestones: [
+        { year: '1985', event: 'Grandfather opens the original stall' },
+        { year: '2001', event: 'Second generation expands the catalogue' },
+        { year: '2026', event: 'Heritage brand goes digital' },
+      ],
+    },
+    tags: ['legacy', 'timeline', 'generations'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.NEWSLETTER,
+    name: 'Newsletter Signup',
+    variant: 'center',
+    variantLabel: 'Centered Offer',
+    configOverrides: {
+      title: 'Get 10% Off Your First Order',
+      subtitle: 'Join for secret discounts, early drop access and seasonal updates.',
+      buttonText: 'Claim My Offer',
+    },
+    tags: ['offer', 'discount', 'capture', 'subscribe'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.NEWSLETTER,
+    name: 'Newsletter Signup',
+    variant: 'split',
+    variantLabel: 'VIP Early Access',
+    configOverrides: {
+      title: 'Join the VIP Circle',
+      subtitle: 'Be first to know about flash sales and limited-edition drops.',
+      buttonText: 'Subscribe Now',
+    },
+    tags: ['vip', 'early', 'access', 'exclusive'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.SIZE_GUIDE,
+    name: 'Size Guide Table',
+    variant: 'clothing',
+    variantLabel: 'Apparel Fit',
+    configOverrides: {
+      title: 'Apparel Size Guide',
+      subtitle: 'Measure carefully — find your perfect fit',
+      columns: ['Size', 'Chest', 'Length', 'Waist'],
+      rows: [
+        { label: 'S', values: ['38"', '28"', '30"'] },
+        { label: 'M', values: ['40"', '29"', '32"'] },
+        { label: 'L', values: ['42"', '30"', '34"'] },
+        { label: 'XL', values: ['44"', '31"', '36"'] },
+        { label: 'XXL', values: ['46"', '32"', '38"'] },
+      ],
+    },
+    tags: ['apparel', 'clothing', 'fit', 'chest'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.SIZE_GUIDE,
+    name: 'Size Guide Table',
+    variant: 'shoes',
+    variantLabel: 'Footwear Sizing',
+    configOverrides: {
+      title: 'Footwear Size Guide',
+      subtitle: 'Find your UK/EU/US match and insole length',
+      columns: ['UK', 'EU', 'US', 'Insole'],
+      rows: [
+        { label: '6', values: ['39', '7', '25 cm'] },
+        { label: '7', values: ['40', '8', '26 cm'] },
+        { label: '8', values: ['41', '9', '27 cm'] },
+        { label: '9', values: ['42', '10', '28 cm'] },
+      ],
+    },
+    tags: ['footwear', 'shoes', 'sneakers'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.BANNER,
+    name: 'Banner Offer',
+    variant: 'festive',
+    variantLabel: 'Festive Sale',
+    configOverrides: {
+      heading: 'Festival Mega Sale',
+      description: 'Up to 60% off across sarees, kurta sets and festive essentials.',
+      bgColor: '#7c2d12',
+      textColor: '#fed7aa',
+      ctaText: 'Shop Festive Deals',
+      layout: 'center',
+    },
+    tags: ['festive', 'sale', 'offer'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.PROMO_SPLIT,
+    name: 'Promo Split',
+    variant: 'seasonal',
+    variantLabel: 'Seasonal Duo',
+    configOverrides: {
+      leftHeading: 'Summer Edit',
+      leftSub: 'Light cottons & linens from ₹499',
+      leftCta: 'Shop Summer',
+      rightHeading: 'Monsoon Pickups',
+      rightSub: 'Water-repellent essentials on sale',
+      rightCta: 'Shop Rain Ready',
+    },
+    tags: ['seasonal', 'summer', 'monsoon'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.BRAND_LOGOS,
+    name: 'Brand Logos',
+    variant: 'marquee',
+    variantLabel: 'Scrolling Logos',
+    configOverrides: {
+      title: 'Trusted By Leading Labels',
+      logos: ['FSSAI Certified', 'ISO 9001', 'Make in India', '100% Organic', 'GST Compliant', 'Store Verified'],
+    },
+    tags: ['marquee', 'press', 'certifications'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.REVIEWS_SUMMARY,
+    name: 'Reviews Summary',
+    variant: 'verified',
+    variantLabel: 'Verified Reviews',
+    configOverrides: {
+      rating: '4.8',
+      reviewCount: '8,200+',
+      headline: 'Rated 4.8 by Verified Buyers',
+      stats: [
+        { number: '8,200+', label: 'Verified Reviews' },
+        { number: '96%', label: 'Would Recommend' },
+        { number: '4.8 ★', label: 'Average Rating' },
+      ],
+    },
+    tags: ['verified', 'rating', 'trust'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.LOOKBOOK,
+    name: 'Lookbook Gallery',
+    variant: 'editorial',
+    variantLabel: 'Editorial Looks',
+    configOverrides: {
+      title: 'The Heritage Edit',
+      subtitle: 'Styled looks from our latest collection',
+      columns: 3,
+      looks: [
+        { title: 'Banarasi Nights', image: '', tag: 'Festive' },
+        { title: 'Chanderi Days', image: '', tag: 'Office' },
+        { title: 'Cotton Sabbath', image: '', tag: 'Casual' },
+        { title: 'Muslin Minimal', image: '', tag: 'Everyday' },
+        { title: 'Katan Royals', image: '', tag: 'Wedding' },
+        { title: 'Linen Stories', image: '', tag: 'Summer' },
+      ],
+    },
+    tags: ['editorial', 'looks', 'outfits', 'styled'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.LOOKBOOK,
+    name: 'Lookbook Gallery',
+    variant: 'rooms',
+    variantLabel: 'Room Inspiration',
+    configOverrides: {
+      title: 'Room Inspiration',
+      subtitle: 'Curated setups for every corner of your home',
+      columns: 3,
+      looks: [
+        { title: 'Cozy Living', image: '', tag: 'Living Room' },
+        { title: 'Serene Bedroom', image: '', tag: 'Bedroom' },
+        { title: 'Efficient Study', image: '', tag: 'Study' },
+        { title: 'Polished Kitchen', image: '', tag: 'Kitchen' },
+      ],
+    },
+    tags: ['rooms', 'interiors', 'home', 'decor'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.DELIVERY_INFO,
+    name: 'Delivery Info',
+    variant: 'returns',
+    variantLabel: 'Returns & Exchange',
+    configOverrides: {
+      title: 'Returns & Exchange Promise',
+      items: [
+        { title: '7-Day Returns', desc: 'Initiate a return from your orders page' },
+        { title: 'Instant Refunds', desc: 'Refund processed within 48 hours' },
+        { title: 'Free Pickup', desc: 'Doorstep pickup for defective items' },
+      ],
+    },
+    tags: ['returns', 'exchange', 'refund', 'policy'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.DELIVERY_INFO,
+    name: 'Delivery Info',
+    variant: 'payment',
+    variantLabel: 'Payments Accepted',
+    configOverrides: {
+      title: 'Flexible Payments',
+      items: [
+        { title: 'Cash on Delivery', desc: 'Pay when your order arrives' },
+        { title: 'UPI & Cards', desc: 'Instant and secure online payments' },
+        { title: 'Khata Credit', desc: 'Settle in-store on your monthly khata' },
+      ],
+    },
+    tags: ['payment', 'cod', 'upi', 'khata', 'credit'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.SHOP_BY_ROOM,
+    name: 'Shop by Room',
+    variant: 'cozy',
+    variantLabel: 'Cozy Homes',
+    configOverrides: {
+      title: 'Designed for Living',
+      subtitle: 'Warm, comfortable setups for everyday Indian homes',
+      rooms: [
+        { name: 'Living Room', items: ['Sofas', 'Rugs', 'Coffee Tables', 'Lighting'] },
+        { name: 'Bedroom', items: ['Beds', 'Bedsheets', 'Wardrobes', 'Nightstands'] },
+        { name: 'Dining', items: ['Dining Sets', 'Table Linen', 'Serveware', 'Stools'] },
+        { name: 'Balcony', items: ['Seating', 'Planters', 'Outdoor Cushions', 'Lanterns'] },
+      ],
+    },
+    tags: ['cozy', 'home', 'interiors'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.INGREDIENT_HIGHLIGHTS,
+    name: 'Ingredient Highlights',
+    variant: 'cards',
+    variantLabel: 'Ingredient Cards',
+    configOverrides: {
+      title: 'Clean-Label Promise',
+      subtitle: 'Every ingredient earns its place — nothing synthetic',
+      ingredients: [
+        { name: 'Ayurvedic Herbs', benefit: 'Sourced from certified organic farms', tag: 'Organic' },
+        { name: 'Cold-Pressed Oils', benefit: 'Pressure-extracted, never heat-treated', tag: '100% Pure' },
+        { name: 'Traditional Grains', benefit: 'Stone-milled and minimally processed', tag: 'House Special' },
+      ],
+    },
+    tags: ['ingredients', 'clean-label', 'organic'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.HERO_MINIMAL,
+    name: 'Minimal Hero',
+    variant: 'brand',
+    variantLabel: 'Brand Statement',
+    configOverrides: {
+      title: 'Honest Products, Fair Prices',
+      subtitle: 'Sourced directly from local makers across India.',
+    },
+    tags: ['brand', 'statement', 'minimal'],
+  }),
+  entryFromDraft({
+    sectionType: SECTION_TYPES.FEATURED_PRODUCTS,
+    name: 'Featured Products',
+    variant: 'bestsellers',
+    variantLabel: 'Bestsellers Edit',
+    configOverrides: { title: 'Our Bestselling Picks' },
+    tags: ['bestsellers', 'popular', 'trending'],
+  }),
 ];
 
 const REGISTRY_BY_ID = new Map(COMPONENT_PREVIEW_REGISTRY.map((entry) => [entry.id, entry]));
@@ -924,32 +1395,77 @@ export interface PreviewSearchOptions {
   query?: string;
   category?: ComponentCategory | 'all';
   industry?: TemplateCategory | 'all';
+  pageType?: PageType | 'all';
 }
 
 function normalize(value: string): string {
   return value.toLowerCase().replace(/[-_.]+/g, ' ');
 }
 
+const SEARCH_STOPWORDS = new Set([
+  'us', 'the', 'a', 'an', 'page', 'section', 'info', 'information',
+  'for', 'our', 'your', 'and', 'with', 'on', 'of', 'to', 'or',
+]);
+
+function significantTokens(value: string): string[] {
+  return value.split(/\s+/).filter((t) => t && !SEARCH_STOPWORDS.has(t));
+}
+
+function searchHaystack(entry: ComponentPreviewEntry): string {
+  return [
+    entry.name,
+    entry.variantLabel || '',
+    entry.sectionType,
+    entry.icon,
+    ...entry.pageTypes,
+    ...entry.tags,
+  ]
+    .join(' ')
+    .toLowerCase()
+    .replace(/[-_.]+/g, ' ');
+}
+
 export function searchComponentPreviews(options: PreviewSearchOptions = {}): ComponentPreviewEntry[] {
-  const { query = '', category = 'all', industry = 'all' } = options;
+  const { query = '', category = 'all', industry = 'all', pageType = 'all' } = options;
   const q = normalize(query.trim());
+  const tokens = significantTokens(q);
+  const phrase = q.replace(/\s+/g, ' ');
 
-  return COMPONENT_PREVIEW_REGISTRY.filter((entry) => {
-    if (category !== 'all' && entry.category !== category) return false;
-    if (industry !== 'all' && !entry.industries.includes(industry)) return false;
-    if (!q) return true;
+  const scored: Array<{ entry: ComponentPreviewEntry; score: number }> = [];
+  for (const entry of COMPONENT_PREVIEW_REGISTRY) {
+    if (category !== 'all' && entry.category !== category) continue;
+    if (industry !== 'all' && !entry.industries.includes(industry)) continue;
+    if (pageType !== 'all' && !entry.pageTypes.includes(pageType)) continue;
+    if (!q) {
+      scored.push({ entry, score: 0 });
+      continue;
+    }
 
-    const haystack = [
-      entry.name,
-      entry.variantLabel || '',
-      entry.sectionType,
-      entry.icon,
-      ...entry.tags,
-    ]
-      .join(' ')
-      .toLowerCase()
-      .replace(/[-_.]+/g, ' ');
+    const haystack = searchHaystack(entry);
+    if (!tokens.length) {
+      if (haystack.includes(phrase)) scored.push({ entry, score: 1 });
+      continue;
+    }
 
-    return q.split(/\s+/).every((token) => haystack.includes(token));
-  });
+    const everyToken = tokens.every((token) => haystack.includes(token));
+    const name = normalize(entry.name);
+    const nameTokens = significantTokens(name);
+
+    let score = 0;
+    if (everyToken) {
+      score += 1;
+      if (tokens.every((token) => name.includes(token))) score += 4;
+      if (nameTokens.length > 0 && nameTokens.every((t) => tokens.includes(t))) score += 2;
+    }
+    if (name.includes(phrase)) score += 3;
+    if (normalize(entry.variantLabel || '').includes(phrase)) score += 1;
+    if (score > 0) scored.push({ entry, score });
+  }
+
+  return scored
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.entry.name.localeCompare(b.entry.name);
+    })
+    .map((s) => s.entry);
 }

@@ -12,10 +12,12 @@ import {
 } from '@bharatstore/shared/constants';
 import {
   COMPONENT_PREVIEW_REGISTRY,
+  PAGE_TYPE_OPTIONS,
   ALL_INDUSTRIES,
   getRecommendedEntriesForIndustry,
   searchComponentPreviews,
   type ComponentPreviewEntry,
+  type PageType,
 } from '@/lib/component-preview-registry';
 import { StorefrontSectionPreview } from '@/components/storefront/storefront-section-preview';
 import { getStoreSectionIcon } from './component-icons';
@@ -129,6 +131,7 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | 'all'>('all');
   const [selectedIndustry, setSelectedIndustry] = useState<TemplateCategory | 'all'>(storeCategory ?? 'all');
+  const [selectedPageType, setSelectedPageType] = useState<PageType | 'all'>('all');
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   const recommended = useMemo(
@@ -144,13 +147,17 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
 
   const categories = [{ id: 'all' as const, label: 'All Components' }, ...COMPONENT_CATEGORIES];
   const industries = [{ id: 'all' as const, label: 'All Industries' }, ...STOREFRONT_GALLERY_CATEGORIES];
+  const pageTypes = PAGE_TYPE_OPTIONS;
+  const pageTypeLabel = (id: PageType) => PAGE_TYPE_OPTIONS.find((c) => c.id === id)?.label ?? id;
   const industryId = (c: string) => c as TemplateCategory | 'all';
   const catId = (c: string) => c as ComponentCategory | 'all';
+  const pageId = (c: string) => c as PageType | 'all';
 
   const filtered = searchComponentPreviews({
     query: search,
     category: selectedCategory,
     industry: selectedIndustry,
+    pageType: selectedPageType,
   });
 
   const handleUse = (entry: ComponentPreviewEntry) => {
@@ -197,6 +204,23 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
               className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
               autoFocus
             />
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <span className="text-3xs font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap">For pages:</span>
+            {pageTypes.map((pt) => (
+              <button
+                key={pt.id}
+                onClick={() => setSelectedPageType(pageId(pt.id))}
+                className={`text-2xs font-bold px-3 py-1.5 rounded-full border whitespace-nowrap transition ${
+                  selectedPageType === pt.id
+                    ? 'bg-amber-500 text-white border-amber-500 shadow-2xs'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
+                }`}
+              >
+                {pt.label}
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
@@ -264,14 +288,16 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
           <section>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-2xs font-extrabold uppercase tracking-wider text-slate-500">
-                {selectedIndustry !== 'all' && selectedCategory === 'all' && !search
-                  ? `${industryLabel(selectedIndustry)} components`
-                  : 'All components'}
+                {selectedPageType !== 'all' && !search && selectedCategory === 'all'
+                  ? `${pageTypeLabel(selectedPageType)} ${selectedIndustry !== 'all' ? `· ${industryLabel(selectedIndustry)}` : ''} components`
+                  : selectedIndustry !== 'all' && selectedCategory === 'all' && !search
+                    ? `${industryLabel(selectedIndustry)} components`
+                    : 'All components'}
                 <span className="ml-1.5 text-slate-300 font-semibold">({filtered.length})</span>
               </h3>
-              {(search || selectedCategory !== 'all' || selectedIndustry !== 'all') && (
+              {(search || selectedCategory !== 'all' || selectedIndustry !== 'all' || selectedPageType !== 'all') && (
                 <button
-                  onClick={() => { setSearch(''); setSelectedCategory('all'); setSelectedIndustry(storeCategory ?? 'all'); }}
+                  onClick={() => { setSearch(''); setSelectedCategory('all'); setSelectedIndustry(storeCategory ?? 'all'); setSelectedPageType('all'); }}
                   className="text-3xs font-bold text-slate-400 hover:text-amber-600 inline-flex items-center gap-1"
                 >
                   <RotateCcw className="h-3 w-3" /> Reset filters
@@ -294,7 +320,7 @@ export function SectionPickerModal({ isOpen, onClose, onAddSection, storeCategor
               <div className="col-span-full py-12 text-center text-slate-400 space-y-2 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                 <p className="text-xs font-medium">No components match your filters.</p>
                 <button
-                  onClick={() => { setSearch(''); setSelectedCategory('all'); setSelectedIndustry(storeCategory ?? 'all'); }}
+                  onClick={() => { setSearch(''); setSelectedCategory('all'); setSelectedIndustry(storeCategory ?? 'all'); setSelectedPageType('all'); }}
                   className="text-2xs font-bold text-amber-600 hover:underline inline-flex items-center gap-1"
                 >
                   <RotateCcw className="h-3 w-3" /> Reset Filters
