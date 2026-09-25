@@ -26,6 +26,10 @@ interface BuilderToolbarProps {
   onToggleRight?: () => void;
   fullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  pages?: Array<{ id: string; title: string; navLabel?: string | null }>;
+  activePageValue?: string;
+  onSelectPage?: (value: string) => void;
+  onNewPage?: () => void;
 }
 
 export function BuilderToolbar({
@@ -47,6 +51,10 @@ export function BuilderToolbar({
   onToggleRight,
   fullscreen = false,
   onToggleFullscreen,
+  pages = [],
+  activePageValue = 'home',
+  onSelectPage,
+  onNewPage,
 }: BuilderToolbarProps) {
   return (
     <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-2.5 sm:px-4 shrink-0 shadow-2xs z-20">
@@ -95,6 +103,26 @@ export function BuilderToolbar({
             </button>
           </div>
         )}
+
+        {/* Page Switcher */}
+        <div className="hidden sm:flex items-center gap-1 border-l border-slate-200 pl-2">
+          <select
+            value={activePageValue}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === '__new__') onNewPage?.();
+              else onSelectPage?.(v);
+            }}
+            aria-label="Select page to edit"
+            className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/30 max-w-[140px]"
+          >
+            <option value="home">Home Page</option>
+            {pages.map((p) => (
+              <option key={p.id} value={p.id}>{p.navLabel || p.title}</option>
+            ))}
+            <option value="__new__">+ New Page…</option>
+          </select>
+        </div>
       </div>
 
       {/* Center: Panel toggles + Viewport Selector */}
