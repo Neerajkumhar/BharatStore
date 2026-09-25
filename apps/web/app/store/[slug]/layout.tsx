@@ -6,6 +6,7 @@ import { getRequestStoreLookup, findStorefrontTenant } from '@/lib/storefront-re
 import { CartProvider } from '@/components/storefront/cart-context';
 import { CartDrawer } from '@/components/storefront/cart-drawer';
 import { StoreHeaderGate, StoreFooterGate } from '@/components/storefront/store-layout-chrome';
+import { getStorefrontNavPages } from '@/lib/storefront-nav';
 
 // Section types that provide their own page chrome. When the active config
 // contains one of these, the layout header/footer must NOT render too on the
@@ -50,6 +51,12 @@ export default async function PublicStoreLayout({
     (s) => s.visible !== false && HEADER_REPLACEMENT_SECTIONS.has(s.type)
   );
 
+  // Resolve navbar pages for the default header. Hidden when the store has not
+  // been published yet (except preview), so dead links never appear live.
+  const navPages = theme?.isPublished || isPreviewMode
+    ? await getStorefrontNavPages(tenant.id, isPreviewMode)
+    : [];
+
   // Maintenance gate: unpublished stores stay hidden — unless this is a preview
   // request (x-store-preview is set by middleware for ?preview=true / ?draft=true).
   if (theme && theme.isPublished === false && !isPreviewMode) {
@@ -72,6 +79,7 @@ export default async function PublicStoreLayout({
             phone={theme?.contactPhone || tenant.phone}
             city={tenant.city}
             replacedBySection={hasHeaderSection}
+            pages={navPages}
           />
           <main>{children}</main>
         </div>

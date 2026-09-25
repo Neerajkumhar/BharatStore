@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Store, Search, ShoppingBag, Phone, MapPin } from 'lucide-react';
+import { Store, Search, ShoppingBag, Phone, MapPin, Menu } from 'lucide-react';
 import { useCart } from './cart-context';
 
 interface StoreHeaderProps {
@@ -12,13 +12,17 @@ interface StoreHeaderProps {
   logoUrl?: string;
   phone?: string;
   city?: string;
+  pages?: Array<{ label: string; slug: string }>;
 }
 
-export function StoreHeader({ slug, tradeName, logoUrl, phone, city }: StoreHeaderProps) {
+export function StoreHeader({ slug, tradeName, logoUrl, phone, city, pages }: StoreHeaderProps) {
   const router = useRouter();
   const { totalItems, setIsOpen } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
+
+  const pageLinks = (pages || []).map((p) => ({ label: p.label, slug: p.slug }));
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,8 +85,30 @@ export function StoreHeader({ slug, tradeName, logoUrl, phone, city }: StoreHead
           <Search className="h-4 w-4 text-slate-400 absolute left-3 pointer-events-none" />
         </form>
 
+        {/* Store Pages (Desktop) */}
+        <nav className="hidden lg:flex items-center gap-1 shrink-0" aria-label="Store pages">
+          {pageLinks.map((p) => (
+            <Link
+              key={p.slug}
+              href={`/store/${slug}/${p.slug}`}
+              className="text-xs font-bold text-slate-700 hover:text-amber-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition whitespace-nowrap"
+            >
+              {p.label}
+            </Link>
+          ))}
+        </nav>
+
         {/* Header Actions */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Mobile Nav Toggle */}
+          <button
+            onClick={() => setShowMobileNav(!showMobileNav)}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg md:hidden transition"
+            title="Store Pages"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+
           {/* Mobile Search Icon Toggle */}
           <button
             onClick={() => setShowMobileSearch(!showMobileSearch)}
@@ -129,6 +155,28 @@ export function StoreHeader({ slug, tradeName, logoUrl, phone, city }: StoreHead
             <Search className="h-4 w-4 text-slate-400 absolute left-3 pointer-events-none" />
           </form>
         </div>
+      )}
+    {/* Expandable Mobile Nav Panel */}
+      {showMobileNav && (
+        <nav className="md:hidden px-3 py-2 border-t border-slate-100 bg-slate-50 space-y-1" aria-label="Store pages">
+          <Link
+            href={`/store/${slug}/products`}
+            onClick={() => setShowMobileNav(false)}
+            className="block text-xs font-bold text-slate-700 hover:text-amber-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition"
+          >
+            All Products
+          </Link>
+          {pageLinks.map((p) => (
+            <Link
+              key={p.slug}
+              href={`/store/${slug}/${p.slug}`}
+              onClick={() => setShowMobileNav(false)}
+              className="block text-xs font-bold text-slate-700 hover:text-amber-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition"
+            >
+              {p.label}
+            </Link>
+          ))}
+        </nav>
       )}
     </header>
   );

@@ -23,12 +23,13 @@ interface StoreHeaderGateProps {
   phone?: string;
   city?: string;
   replacedBySection: boolean;
+  pages?: Array<{ label: string; slug: string }>;
 }
 
-export function StoreHeaderGate({ slug, tradeName, logoUrl, phone, city, replacedBySection }: StoreHeaderGateProps) {
+export function StoreHeaderGate({ slug, tradeName, logoUrl, phone, city, replacedBySection, pages }: StoreHeaderGateProps) {
   const pathname = usePathname();
   if (replacedBySection && isStoreHome(pathname, slug)) return null;
-  return <StoreHeader slug={slug} tradeName={tradeName} logoUrl={logoUrl} phone={phone} city={city} />;
+  return <StoreHeader slug={slug} tradeName={tradeName} logoUrl={logoUrl} phone={phone} city={city} pages={pages} />;
 }
 
 interface StoreFooterGateProps {
