@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTenantDb, prisma } from '@bharatstore/database';
+import { getTenantDb, prisma, Prisma } from '@bharatstore/database';
 import { authorizeRequest } from '@/lib/authorization';
 import { PERMISSIONS } from '@bharatstore/shared/constants';
 import { buildLiveUrl } from '@/lib/storefront-resolver';
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
     //    carries a draft config, so edits to already-published pages also go
     //    live on republish — not just first-time DRAFT pages.
     const draftPages = await tenantDb.storefrontPage.findMany({
-      where: { draftConfig: { not: null } },
+      where: { draftConfig: { not: Prisma.DbNull } },
       select: { id: true, slug: true, draftConfig: true },
     });
 
