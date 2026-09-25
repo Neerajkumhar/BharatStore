@@ -109,6 +109,23 @@ export async function POST(request: Request) {
     // layout) in sync with the published builder theme.
     await syncLegacyThemeFromConfig(auth.tenantId, theme.draftConfig as any);
 
+    // 3. Publish all builder pages (draft → published) so the whole storefront
+    //    goes live atomically with the home page.
+    const draftPages = await tenantDb.storefrontPage.findMany({
+      where: { tenantId: auth.tenantId, status: 'DRAFT' },
+      select: { id: true, slug: true, draftConfig: true },
+    });
+
+    for (const page of draftPages) {
+      await tenantDb.storefrontPage.update({
+        where: { id: page.id },
+        data: {
+          publishedConfig: page.draftConfig as any,
+          status: 'PUBLISHED',
+        },
+      });
+    }
+
     const liveTenant = await prisma.tenant.findUnique({
       where: { id: auth.tenantId },
       select: { subdomain: true, customDomain: true, slug: true },
@@ -126,6 +143,7 @@ export async function POST(request: Request) {
         beforeState: previousPublished ? { hasConfig: true } : { hasConfig: false },
         afterState: {
           sectionCount: (theme.draftConfig as any)?.sections?.length || 0,
+          publishedPageCount: draftPages.length,
           subdomain,
           customDomain,
           publishedAt: new Date().toISOString(),
