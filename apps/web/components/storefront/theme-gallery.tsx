@@ -38,7 +38,9 @@ export function ThemeGallery({ currentTemplateId }: ThemeGalleryProps) {
 
   const handleApplied = (templateId: string) => {
     setApplyTemplate(null);
-    router.push(`/storefront/builder?theme=${templateId}&applied=1`);
+    // Apply only saves the builder draft (see apply-theme API); never publish.
+    // Go-Live remains an explicit user action with domain/store details.
+    router.push(`/storefront/builder?theme=${templateId}`);
   };
 
   return (

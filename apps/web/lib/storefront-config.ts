@@ -9,6 +9,41 @@ interface SaveStorefrontDraftOptions {
   ipAddress: string;
 }
 
+/**
+ * Builder theme lives in config.theme (per template) but the legacy
+ * StorefrontTheme columns (primaryColor/accentColor/...) are still read by the
+ * settings page, the fallback hero and other legacy surfaces. Keep them in sync
+ * so changing color in the builder shows up everywhere and vice versa.
+ */
+const THEME_TO_LEGACY_FIELD: Record<string, string> = {
+  primaryColor: 'primaryColor',
+  accentColor: 'accentColor',
+  logoUrl: 'logoUrl',
+  heroTitle: 'heroTitle',
+  heroSubtitle: 'heroSubtitle',
+  heroBannerUrl: 'heroBannerUrl',
+  description: 'description',
+  businessHours: 'businessHours',
+  contactPhone: 'contactPhone',
+  contactEmail: 'contactEmail',
+};
+
+export async function syncLegacyThemeFromConfig(tenantId: string, config: any) {
+  const theme = config?.theme;
+  if (!theme || typeof theme !== 'object') return;
+
+  const data: Record<string, string> = {};
+  for (const [configKey, field] of Object.entries(THEME_TO_LEGACY_FIELD)) {
+    const value = (theme as Record<string, unknown>)[configKey];
+    if (typeof value === 'string' && value.trim() !== '') data[field] = value;
+  }
+
+  if (Object.keys(data).length === 0) return;
+
+  const tenantDb = getTenantDb(tenantId);
+  await tenantDb.storefrontTheme.update({ where: { tenantId }, data });
+}
+
 export async function saveStorefrontDraft(opts: SaveStorefrontDraftOptions) {
   const tenantDb = getTenantDb(opts.tenantId);
   const config = { ...opts.config, updatedAt: new Date().toISOString() };
@@ -23,6 +58,8 @@ export async function saveStorefrontDraft(opts: SaveStorefrontDraftOptions) {
       draftConfig: config,
     },
   });
+
+  await syncLegacyThemeFromConfig(opts.tenantId, opts.config);
 
   await prisma.auditLog.create({
     data: {

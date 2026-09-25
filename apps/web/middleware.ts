@@ -50,15 +50,25 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
+  // Let the storefront layout serve the draft for ?preview=true / ?draft=true,
+  // even when the store is not yet published (maintenance gate must not block it).
+  const isPreviewRequest =
+    request.nextUrl.searchParams.get('preview') === 'true' ||
+    request.nextUrl.searchParams.get('draft') === 'true';
+
   // Resolve tenant-scoped storefront requests arriving on a subdomain or custom domain.
   const tenantRequest = resolveTenantRequest(request);
   if (tenantRequest.rewritePath) {
     const url = request.nextUrl.clone();
     url.pathname = tenantRequest.rewritePath;
-    const res = NextResponse.rewrite(url);
-    if (tenantRequest.customDomain) res.headers.set('x-custom-domain', tenantRequest.customDomain);
-    if (tenantRequest.storeKey) res.headers.set('x-store-key', tenantRequest.storeKey);
-    return res;
+    const requestHeaders = new Headers(request.headers);
+    if (tenantRequest.customDomain) requestHeaders.set('x-custom-domain', tenantRequest.customDomain);
+    if (tenantRequest.storeKey) requestHeaders.set('x-store-key', tenantRequest.storeKey);
+    // The post-rewrite layout only sees these headers; without this the
+    // subdomain/custom-domain preview would hit the maintenance gate while the
+    // page itself would render the draft (page vs layout config mismatch).
+    if (isPreviewRequest) requestHeaders.set('x-store-preview', 'true');
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
   }
 
   let session = null;
@@ -132,6 +142,12 @@ export async function middleware(request: NextRequest) {
   }
   if (tenantRequest.customDomain) {
     requestHeaders.set('x-custom-domain', tenantRequest.customDomain);
+  }
+
+  // Let the storefront layout serve the draft for ?preview=true / ?draft=true
+  // even when the store is not yet published (maintenance gate must not block it).
+  if (isPreviewRequest) {
+    requestHeaders.set('x-store-preview', 'true');
   }
   if (session?.tenantId) {
     requestHeaders.set('x-tenant-id', session.tenantId);

@@ -5,6 +5,7 @@ import {
   X, Loader2, CheckCircle2, AlertTriangle, Globe, Copy, ExternalLink,
   Rocket, Check, Store, Phone, Mail, MapPin, Lock,
 } from 'lucide-react';
+import { buildLiveUrl, getPublicProtocol, getPlatformHostWithPort } from '@/lib/storefront-url';
 
 const indianStates = [
   { code: '09', name: 'Uttar Pradesh' },
@@ -44,19 +45,6 @@ interface GoLivePublishModalProps {
   onClose: () => void;
   store: GoLiveTenant | null;
   onPublished: (liveUrl: string) => void;
-}
-
-function getPlatformProtocol(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL.startsWith('https')) return 'https';
-  if (typeof window !== 'undefined' && window.location.protocol === 'https:') return 'https';
-  return 'http';
-}
-
-function getPlatformHostClient(): string {
-  const fromEnv = (process.env.NEXT_PUBLIC_PLATFORM_DOMAIN as string) || (process.env.NEXT_PUBLIC_APP_DOMAIN as string);
-  if (fromEnv) return fromEnv;
-  if (typeof window !== 'undefined') return window.location.host;
-  return 'localhost:3000';
 }
 
 export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLivePublishModalProps) {
@@ -125,14 +113,14 @@ export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLive
 
   const subdomain = normalizeSubdomain(form.subdomain);
   const customDomain = normalizeCustomDomain(form.customDomain);
-  const platformHost = getPlatformHostClient();
-  const protocol = getPlatformProtocol();
-  const fallbackUrl = `${protocol}://${platformHost}/store/${form.slug || 'your-store'}`;
+  const platformHost = getPlatformHostWithPort();
+  const protocol = getPublicProtocol();
+  const fallbackUrl = buildLiveUrl({ slug: form.slug || 'your-store' });
 
   const previewUrl = customDomain
-    ? `https://${customDomain}`
+    ? buildLiveUrl({ customDomain })
     : subdomain
-    ? `${protocol}://${subdomain}.${platformHost}`
+    ? buildLiveUrl({ subdomain })
     : fallbackUrl;
 
   const handleCopy = async () => {
@@ -363,7 +351,7 @@ export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLive
                     <label className={labelClass}>Select your subdomain</label>
                     <div className="flex items-center">
                       <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">
-                        https://
+                        {protocol}://
                       </span>
                       <input
                         type="text"
@@ -383,7 +371,7 @@ export function GoLivePublishModal({ open, onClose, store, onPublished }: GoLive
                   <div>
                     <label className={labelClass}>Custom domain (optional)</label>
                     <div className="flex items-center">
-                      <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">https://</span>
+                      <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">{protocol}://</span>
                       <input
                         type="text"
                         name="customDomain"

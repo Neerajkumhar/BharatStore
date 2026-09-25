@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { buildLiveUrl } from '@/lib/storefront-url';
 import {
   Store,
   ExternalLink,
@@ -172,9 +173,12 @@ export default function StorefrontSettingsPage() {
     );
   }
 
-  const pathUrl = `/store/${formData.slug}`;
-  const fallbackLiveUrl = `${protocol}://${platformHost}/store/${formData.slug || 'your-store'}`;
-  const displayLiveUrl = liveUrl || (formData.customDomain ? `https://${formData.customDomain}` : formData.subdomain ? `${protocol}://${formData.subdomain}.${platformHost}` : fallbackLiveUrl);
+  const fallbackLiveUrl = buildLiveUrl({ slug: formData.slug || 'your-store' });
+  const displayLiveUrl = liveUrl || buildLiveUrl({
+    customDomain: formData.customDomain || undefined,
+    subdomain: formData.subdomain || undefined,
+    slug: formData.slug || 'your-store',
+  });
 
   const handleCopyLiveUrl = async () => {
     try {
@@ -186,11 +190,12 @@ export default function StorefrontSettingsPage() {
     }
   };
 
-  const nextUrlForDomain = (subdomain: string, customDomain: string) => {
-    if (customDomain) return `https://${customDomain.replace(/^www\./, '')}`;
-    if (subdomain) return `${protocol}://${subdomain}.${platformHost}`;
-    return fallbackLiveUrl;
-  };
+  const nextUrlForDomain = (subdomain: string, customDomain: string) =>
+    buildLiveUrl({
+      customDomain: customDomain || undefined,
+      subdomain: subdomain || undefined,
+      slug: formData.slug || 'your-store',
+    });
 
   return (
     <div className="space-y-6 w-full">
@@ -325,7 +330,7 @@ export default function StorefrontSettingsPage() {
               <label className="block text-xs font-semibold text-slate-700 mb-1">Select Your Subdomain</label>
               <div className="flex items-center">
                 <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">
-                  https://
+                  {protocol}://
                 </span>
                 <input
                   type="text"
@@ -346,7 +351,7 @@ export default function StorefrontSettingsPage() {
               <label className="block text-xs font-semibold text-slate-700 mb-1">Custom Domain (Optional)</label>
               <div className="flex items-center">
                 <span className="bg-slate-100 border border-r-0 border-slate-300 text-slate-500 px-3 py-2 rounded-l-lg text-xs font-mono">
-                  https://
+                  {protocol}://
                 </span>
                 <input
                   type="text"

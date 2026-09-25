@@ -85,7 +85,6 @@ export default function StorefrontBuilderPage() {
     async function load() {
       const searchParams = new URLSearchParams(window.location.search);
       const themeParam = searchParams.get('theme');
-      const isApplied = searchParams.get('applied') === '1';
 
       try {
         const res = await fetch('/api/admin/storefront/builder');
@@ -93,7 +92,7 @@ export default function StorefrontBuilderPage() {
         if (json.success) {
           const { draftConfig, publishedConfig } = json.data;
 
-          if (themeParam && (isApplied || !draftConfig || !draftConfig.sections?.length || draftConfig.templateId !== themeParam)) {
+          if (themeParam && (!draftConfig || !draftConfig.sections?.length || draftConfig.templateId !== themeParam)) {
             try {
               const built = buildTemplatePageConfig(themeParam);
               const newConfig = {
@@ -104,18 +103,12 @@ export default function StorefrontBuilderPage() {
               };
               setBuilderState(newConfig);
 
-              // Persist applied URL theme to DB draft & publish immediately so Live Preview & Live Store match 100%
+              // Persist applied URL theme to DB draft so Live Preview matches.
               fetch('/api/admin/storefront/builder', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ config: newConfig }),
-              })
-                .then(() => {
-                  if (isApplied) {
-                    fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
-                  }
-                })
-                .catch(() => {});
+              }).catch(() => {});
             } catch (e) {
               console.error('Failed to build template from URL param:', e);
             }
@@ -143,13 +136,7 @@ export default function StorefrontBuilderPage() {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ config: newConfig }),
-            })
-              .then(() => {
-                if (isApplied) {
-                  fetch('/api/admin/storefront/builder/publish', { method: 'POST' }).catch(() => {});
-                }
-              })
-              .catch(() => {});
+            }).catch(() => {});
           } catch (e) {
             console.error('Failed to build template from URL param:', e);
           }
@@ -243,7 +230,20 @@ export default function StorefrontBuilderPage() {
     setShowPublish(true);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
+    // Persist the latest builder state to draft first so the preview (which
+    // renders draftConfig) reflects current edits — auto-save is debounced.
+    setSaveState('saving');
+    try {
+      await fetch('/api/admin/storefront/builder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: builderState }),
+      });
+      setSaveState('saved');
+    } catch {
+      setSaveState('unsaved');
+    }
     if (slug) {
       window.open(`/store/${slug}?preview=true`, '_blank');
     }

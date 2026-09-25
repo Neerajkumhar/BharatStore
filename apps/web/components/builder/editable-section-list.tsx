@@ -8,6 +8,7 @@ import {
   STOREFRONT_TEMPLATE_HEROES,
   type TemplateCategory,
 } from '@bharatstore/shared/constants';
+import { resolveSectionProducts, resolveSectionCategories } from '@bharatstore/shared/utils';
 import { getPreviewLoader } from '../storefront/section-preview-loader';
 import { getSectionExtraProps } from '../storefront/section-component-map';
 import { SectionBlock } from '../storefront/section-block';
@@ -145,7 +146,7 @@ interface ResolvedSection {
   ids: string[];
 }
 
-/** Mirrors apps/web/components/storefront/storefront-renderer.tsx resolveSectionData. */
+/** Uses the same shared resolution as the live storefront renderer. */
 function resolveSectionData(
   section: SectionItem,
   products: ResolvedProduct[],
@@ -158,52 +159,14 @@ function resolveSectionData(
 
   if (CATEGORY_SECTION_TYPES.has(section.type)) {
     const limit = Number(section.config.limit) || 8;
-    let items: ResolvedCategory[];
-    if (categories.length > 0) {
-      items = categories.slice(0, limit);
-    } else {
-      items = demoPayload.categories.slice(0, limit).map((c, idx) => ({
-        id: `demo_cat_${idx}`,
-        name: c.name,
-        slug: c.slug,
-        image: c.image,
-        count: c.count,
-      }));
-    }
-    const ids = items.map((c) => c.id);
-    const resolved = items.map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      image: overrides?.[c.id] || c.image,
-      _count: { products: c.count },
-    }));
-    return { data: { categories: resolved }, ids };
+    const resolved = resolveSectionCategories(categories, demoPayload.categories, limit, overrides);
+    return { data: { categories: resolved }, ids: resolved.map((c) => c.id) };
   }
 
   if (PRODUCT_SECTION_TYPES.has(section.type)) {
     const limit = Number(section.config.limit) || 12;
-    let items: ResolvedProduct[];
-    if (products.length > 0) {
-      items = products.slice(0, limit);
-    } else {
-      items = demoPayload.products.slice(0, limit).map((p, idx) => ({
-        id: `demo_prod_${idx}`,
-        title: p.title,
-        slug: `demo-prod-${idx}`,
-        sellingPrice: p.price,
-        mrp: p.mrp,
-        images: [p.image],
-        categoryName: p.category,
-        variants: [],
-      }));
-    }
-    const ids = items.map((p) => p.id);
-    const resolved = items.map((p) => ({
-      ...p,
-      images: overrides?.[p.id] ? [overrides[p.id]] : p.images,
-    }));
-    return { data: { products: resolved }, ids };
+    const resolved = resolveSectionProducts(products, demoPayload.products, limit, overrides);
+    return { data: { products: resolved }, ids: resolved.map((p) => p.id) };
   }
 
   return { data: {}, ids: [] };
