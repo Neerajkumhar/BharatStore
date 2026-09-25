@@ -57,8 +57,8 @@ export async function POST(request: Request) {
     if (slugError) return NextResponse.json({ error: slugError }, { status: 400 });
 
     const tenantDb = getTenantDb(auth.tenantId);
-    const existing = await tenantDb.storefrontPage.findUnique({
-      where: { tenantId_slug: { tenantId: auth.tenantId, slug } },
+    const existing = await tenantDb.storefrontPage.findFirst({
+      where: { slug },
       select: { id: true },
     });
     if (existing) {

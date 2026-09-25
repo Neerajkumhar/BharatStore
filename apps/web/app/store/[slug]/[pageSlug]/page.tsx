@@ -25,8 +25,8 @@ export default async function StorefrontPageRoute({
   }
 
   const tenantDb = getTenantDb(tenant.id);
-  const page = await tenantDb.storefrontPage.findUnique({
-    where: { tenantId_slug: { tenantId: tenant.id, slug: pageSlug } },
+  const page = await tenantDb.storefrontPage.findFirst({
+    where: { slug: pageSlug },
   });
 
   if (!page) {

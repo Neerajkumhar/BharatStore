@@ -70,8 +70,8 @@ export async function PUT(request: Request, ctx: RouteContext) {
         if (slug !== page.slug) {
           const slugError = validatePageSlug(slug);
           if (slugError) return NextResponse.json({ error: slugError }, { status: 400 });
-          const clash = await tenantDb.storefrontPage.findUnique({
-            where: { tenantId_slug: { tenantId: auth.tenantId, slug } },
+          const clash = await tenantDb.storefrontPage.findFirst({
+            where: { slug },
             select: { id: true },
           });
           if (clash && clash.id !== id) {
