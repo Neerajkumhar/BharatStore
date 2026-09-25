@@ -110,9 +110,11 @@ export async function POST(request: Request) {
     await syncLegacyThemeFromConfig(auth.tenantId, theme.draftConfig as any);
 
     // 3. Publish all builder pages (draft → published) so the whole storefront
-    //    goes live atomically with the home page.
+    //    goes live atomically with the home page. This syncs every page that
+    //    carries a draft config, so edits to already-published pages also go
+    //    live on republish — not just first-time DRAFT pages.
     const draftPages = await tenantDb.storefrontPage.findMany({
-      where: { tenantId: auth.tenantId, status: 'DRAFT' },
+      where: { draftConfig: { not: null } },
       select: { id: true, slug: true, draftConfig: true },
     });
 
