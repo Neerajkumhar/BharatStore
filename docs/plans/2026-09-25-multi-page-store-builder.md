@@ -57,7 +57,7 @@ npm run build --workspace=apps/web
 - Create: `apps/web/lib/storefront-nav.ts`
 - Test: `apps/web/lib/storefront-nav.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `apps/web/lib/storefront-nav.test.ts`:
 
@@ -139,12 +139,12 @@ describe('toStorefrontNavItems', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run apps/web/lib/storefront-nav.test.ts`
 Expected: FAIL — module `./storefront-nav` not found (`Cannot find module`).
 
-- [ ] **Step 3: Write the minimal implementation**
+- [x] **Step 3: Write the minimal implementation**
 
 Create `apps/web/lib/storefront-nav.ts`:
 
@@ -226,12 +226,12 @@ export async function getStorefrontNavPages(
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run apps/web/lib/storefront-nav.test.ts`
 Expected: 3 suites pass (13 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/lib/storefront-nav.ts apps/web/lib/storefront-nav.test.ts
@@ -243,7 +243,7 @@ git commit -m "feat: storefront nav pages helper with slug validation"
 **Files:**
 - Create: `apps/web/app/api/admin/storefront/pages/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 Create `apps/web/app/api/admin/storefront/pages/route.ts`:
 
@@ -364,14 +364,14 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Verify it compiles (REST smoke test against running server is optional here)**
+- [x] **Step 2: Verify it compiles (REST smoke test against running server is optional here)**
 
 The route is verified end-to-end in Task 11. For a quick syntax sanity check:
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new type errors introduced by this file.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/app/api/admin/storefront/pages/route.ts
@@ -385,7 +385,7 @@ git commit -m "feat: storefront pages list + create API"
 **Files:**
 - Create: `apps/web/app/api/admin/storefront/pages/[id]/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 Create `apps/web/app/api/admin/storefront/pages/[id]/route.ts`:
 
@@ -538,12 +538,12 @@ Notes:
 - `body` shape accepted by PUT: `{ config?: pageConfigSchema, meta?: { title?, navLabel?, showInMenu?, order?, slug? } }`, and/or `{ config }` alone (the shape the builder sends, matching the Home builder route). Either works in isolation.
 - `findPage` is scoped by `tenantId` so a cross-tenant id returns 404, not 403.
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new type errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/app/api/admin/storefront/pages/[id]/route.ts
@@ -557,7 +557,7 @@ git commit -m "feat: storefront page detail API (get/update/delete)"
 **Files:**
 - Create: `apps/web/app/store/[slug]/[pageSlug]/page.tsx`
 
-- [ ] **Step 1: Write the server component page**
+- [x] **Step 1: Write the server component page**
 
 Create `apps/web/app/store/[slug]/[pageSlug]/page.tsx`, mirroring the Home page's tenant resolution and `storeData` shape:
 
@@ -636,7 +636,7 @@ export default async function StorefrontPageRoute({
 
 Note: `getRequestStoreLookup` + `findStorefrontTenant` already handle subdomain/custom-domain routing, so `/store/{slug}/{pageSlug}` works identically on `{subdomain}.{platform}/{pageSlug}` and `{customDomain}/{pageSlug}` (the middleware rewrites those to `/store/{storeKey}/{pageSlug}`). Static routes (`products`, `checkout`, `orders`, `order-confirmation`) win over this dynamic segment; the create-API rejects those slugs as an extra guard.
 
-- [ ] **Step 2: Verify compile + page renders**
+- [x] **Step 2: Verify compile + page renders**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
@@ -644,7 +644,7 @@ Expected: no new errors.
 Manual smoke (needs dev server + seeded tenant `rajesh-fabrics` — see Task 11 for server start):
 - `GET /api/admin/storefront/pages` POST a page `slug: about` — then `/store/rajesh-fabrics/about?preview=true` renders the (empty) page → 404 (empty config), and after adding a section in the builder (Task 10) it renders. This is the end-to-end check in Task 11.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/app/store/[slug]/[pageSlug]/page.tsx
@@ -660,7 +660,7 @@ git commit -m "feat: public storefront page route"
 - Modify: `apps/web/components/storefront/store-layout-chrome.tsx`
 - Modify: `apps/web/components/storefront/store-header.tsx`
 
-- [ ] **Step 1: Resolve pages in the layout and pass to the header gate**
+- [x] **Step 1: Resolve pages in the layout and pass to the header gate**
 
 Edit `apps/web/app/store/[slug]/layout.tsx`:
 1. Add import: `import { getStorefrontNavPages } from '@/lib/storefront-nav';`
@@ -676,7 +676,7 @@ Edit `apps/web/app/store/[slug]/layout.tsx`:
 
 3. Pass `pages={navPages}` to `<StoreHeaderGate ... />` inside the layout return.
 
-- [ ] **Step 2: Thread `pages` through the header gate**
+- [x] **Step 2: Thread `pages` through the header gate**
 
 Edit `apps/web/components/storefront/store-layout-chrome.tsx`:
 1. Add to `StoreHeaderGateProps`:
@@ -685,7 +685,7 @@ Edit `apps/web/components/storefront/store-layout-chrome.tsx`:
 ```
 2. Destructure `pages` in `StoreHeaderGate` and pass it to `<StoreHeader ... pages={pages} />`.
 
-- [ ] **Step 3: Render page links in the default header**
+- [x] **Step 3: Render page links in the default header**
 
 Edit `apps/web/components/storefront/store-header.tsx`:
 1. Add to `StoreHeaderProps`:
@@ -699,14 +699,14 @@ Edit `apps/web/components/storefront/store-header.tsx`:
 3. Desktop — insert the page links between the search form and the header actions. Add a `<nav className="hidden lg:flex items-center gap-1 shrink-0" aria-label="Store pages">` rendering, for each page, a `<Link href={`/store/${slug}/${p.slug}`} className="text-xs font-bold text-slate-700 hover:text-amber-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition whitespace-nowrap">{p.label}</Link>`.
 4. Mobile — add a hamburger button (lucide `Menu`, `MenuIcon` import) next to the mobile search toggle that opens a slide-down panel listing the pages (and the existing "All Products" link). Use a `showMobileNav` state mirroring `showMobileSearch`; the panel renders `<nav className="px-3 py-2 border-t border-slate-100 bg-slate-50 space-y-1">` with a `Link` per page that closes the panel (`onClick={() => setShowMobileNav(false)}`).
 
-- [ ] **Step 4: Verify render + compile**
+- [x] **Step 4: Verify render + compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
 
 Manual: default header on `/store/rajesh-fabrics` shows page links for published pages; mobile menu lists them. Confirmed end-to-end in Task 11.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/app/store/[slug]/layout.tsx apps/web/components/storefront/store-layout-chrome.tsx apps/web/components/storefront/store-header.tsx
@@ -723,7 +723,7 @@ git commit -m "feat: show nav pages in default store header"
 - Modify: `apps/web/components/storefront/sections/sticky-header-section.tsx`
 - Modify: `apps/web/components/storefront/sections/mega-menu-section.tsx`
 
-- [ ] **Step 1: Add `pages` to the extra-prop contract**
+- [x] **Step 1: Add `pages` to the extra-prop contract**
 
 Edit `apps/web/components/storefront/section-component-map.ts`:
 
@@ -744,7 +744,7 @@ const SECTIONS_NEEDING_PAGES = new Set<string>([
   if (SECTIONS_NEEDING_PAGES.has(digest.type) && digest.pages) extra.pages = digest.pages;
 ```
 
-- [ ] **Step 2: Resolve pages in the renderer and pass them**
+- [x] **Step 2: Resolve pages in the renderer and pass them**
 
 Edit `apps/web/components/storefront/storefront-renderer.tsx`:
 
@@ -764,7 +764,7 @@ Edit `apps/web/components/storefront/storefront-renderer.tsx`:
         });
 ```
 
-- [ ] **Step 3: Merge pages into sticky-header links**
+- [x] **Step 3: Merge pages into sticky-header links**
 
 Edit `apps/web/components/storefront/sections/sticky-header-section.tsx`:
 
@@ -788,7 +788,7 @@ Edit `apps/web/components/storefront/sections/sticky-header-section.tsx`:
 ```
 The desktop nav (`renderNav`) and the mobile drawer already iterate `links`, so both get the pages automatically.
 
-- [ ] **Step 4: Render a Pages row in mega-menu**
+- [x] **Step 4: Render a Pages row in mega-menu**
 
 Edit `apps/web/components/storefront/sections/mega-menu-section.tsx`:
 
@@ -814,14 +814,14 @@ Edit `apps/web/components/storefront/sections/mega-menu-section.tsx`:
         )}
 ```
 
-- [ ] **Step 5: Verify compile**
+- [x] **Step 5: Verify compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
 
 Manual check: configs using sticky-header/mega-menu show the nav pages; pages render at `/store/{slug}/{pageSlug}?preview=true`. (Confirmed end-to-end in Task 11.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/components/storefront/section-component-map.ts apps/web/components/storefront/storefront-renderer.tsx apps/web/components/storefront/sections/sticky-header-section.tsx apps/web/components/storefront/sections/mega-menu-section.tsx
@@ -835,7 +835,7 @@ git commit -m "feat: inject nav pages into section headers"
 **Files:**
 - Modify: `apps/web/app/api/admin/storefront/builder/publish/route.ts`
 
-- [ ] **Step 1: Publish pages after theme publish**
+- [x] **Step 1: Publish pages after theme publish**
 
 Edit `apps/web/app/api/admin/storefront/builder/publish/route.ts`. After the theme update + `syncLegacyThemeFromConfig(...)` call (after line ~110), add:
 
@@ -876,12 +876,12 @@ Edit `apps/web/app/api/admin/storefront/builder/publish/route.ts`. After the the
 
 Also include `publishedPageCount` in the existing theme audit log's `afterState` (add `publishedPageCount` to the object passed to `prisma.auditLog.create` for `storefront:builder:go-live`) and in the success response (`data: { ..., publishedPageCount }`).
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/app/api/admin/storefront/builder/publish/route.ts
@@ -895,7 +895,7 @@ git commit -m "feat: publish all storefront pages in go-live"
 **Files:**
 - Modify: `apps/web/components/builder/builder-toolbar.tsx`
 
-- [ ] **Step 1: Add page-switcher props**
+- [x] **Step 1: Add page-switcher props**
 
 Edit `apps/web/components/builder/builder-toolbar.tsx`. Add to `BuilderToolbarProps`:
 
@@ -915,7 +915,7 @@ Destructure them in the function signature with safe defaults:
   onNewPage,
 ```
 
-- [ ] **Step 2: Render the page select**
+- [x] **Step 2: Render the page select**
 
 Edit the left group — insert directly after the `<h1>Store Builder</h1>` (after the undo/redo container). Add:
 
@@ -940,12 +940,12 @@ Edit the left group — insert directly after the `<h1>Store Builder</h1>` (afte
         </div>
 ```
 
-- [ ] **Step 3: Verify compile**
+- [x] **Step 3: Verify compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/web/components/builder/builder-toolbar.tsx
@@ -959,7 +959,7 @@ git commit -m "feat: page switcher in builder toolbar"
 **Files:**
 - Create: `apps/web/components/builder/new-page-modal.tsx`
 
-- [ ] **Step 1: Write the modal component**
+- [x] **Step 1: Write the modal component**
 
 Create `apps/web/components/builder/new-page-modal.tsx`:
 
@@ -1095,12 +1095,12 @@ export function NewPageModal({ open, onClose, onCreated, defaultOrder }: NewPage
 }
 ```
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/components/builder/new-page-modal.tsx
@@ -1114,7 +1114,7 @@ git commit -m "feat: new-page modal in storefront builder"
 **Files:**
 - Modify: `apps/web/app/(dashboard)/storefront/builder/page.tsx`
 
-- [ ] **Step 1: Add page-state + import the modal**
+- [x] **Step 1: Add page-state + import the modal**
 
 Edit `apps/web/app/(dashboard)/storefront/builder/page.tsx`:
 
@@ -1139,7 +1139,7 @@ interface PageMeta {
   const [showNewPageModal, setShowNewPageModal] = useState(false);
 ```
 
-- [ ] **Step 2: Load the pages list on mount**
+- [x] **Step 2: Load the pages list on mount**
 
 In the existing `load()` function, after the `storeRes`/`storeJson` block (before the `} catch`), add:
 
@@ -1149,7 +1149,7 @@ In the existing `load()` function, after the `storeRes`/`storeJson` block (befor
         if (pagesJson.success) setPages(pagesJson.data.pages || []);
 ```
 
-- [ ] **Step 3: Add draft-load and persist helpers**
+- [x] **Step 3: Add draft-load and persist helpers**
 
 Add these helpers right after the `handleSave`/`handlePublish`/`handlePreview` handlers (before `handleAddSection`):
 
@@ -1221,7 +1221,7 @@ Add these helpers right after the `handleSave`/`handlePublish`/`handlePreview` h
   };
 ```
 
-- [ ] **Step 4: Route auto-save, save, publish, and preview through the active page**
+- [x] **Step 4: Route auto-save, save, publish, and preview through the active page**
 
 Edit the existing handlers:
 
@@ -1246,7 +1246,7 @@ and update its `useCallback` deps to `[persistCurrentDraft]`.
     if (slug) window.open(`/store/${slug}${pagePath}?preview=true`, '_blank');
 ```
 
-- [ ] **Step 5: Wire the toolbar props + modal**
+- [x] **Step 5: Wire the toolbar props + modal**
 
 Edit the `<BuilderToolbar ... />` JSX — add:
 
@@ -1268,7 +1268,7 @@ And immediately after the `<GoLivePublishModal ... />` block, add:
       />
 ```
 
-- [ ] **Step 6: Verify compile + behavior**
+- [x] **Step 6: Verify compile + behavior**
 
 Run: `npx tsc --noEmit -p apps/web/tsconfig.json`
 Expected: no new errors.
@@ -1279,7 +1279,7 @@ Manual check (dev server + seeded tenant):
 - Switch back to Home → the Home sections return unchanged.
 - Auto-save fires against the page route (verify row `draft_config` in `storefront_pages` updated).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web/app/'(dashboard)'/storefront/builder/page.tsx
@@ -1293,12 +1293,12 @@ git commit -m "feat: per-page editing, save and preview in storefront builder"
 **Files:**
 - None (verification only)
 
-- [ ] **Step 1: Run the unit tests**
+- [x] **Step 1: Run the unit tests**
 
 Run: `npx vitest run apps/web/lib/storefront-nav.test.ts`
 Expected: all 13 tests pass.
 
-- [ ] **Step 2: Run the full gate**
+- [x] **Step 2: Run the full gate**
 
 Run:
 ```bash
@@ -1307,7 +1307,7 @@ npm run build --workspace=apps/web
 ```
 Expected: lint clean; build succeeds (no route conflicts between `store/[slug]/[pageSlug]` and static sub-routes).
 
-- [ ] **Step 3: Manual QA (dev server + seeded tenant `rajesh-fabrics`)**
+- [x] **Step 3: Manual QA (dev server + seeded tenant `rajesh-fabrics`)**
 
 Start the stack if not running:
 ```bash
@@ -1328,7 +1328,7 @@ Walk through:
 7. Subdomain/custom-domain check (optional, if configured): the page resolves at `{subdomain}.{platform}/about` (middleware rewrites to `/store/{storeKey}/about`).
 8. Delete a page from the DB via the API (`DELETE /api/admin/storefront/pages/{id}` as owner) → its navbar link disappears, `/store/rajesh-fabrics/{slug}` 404s.
 
-- [ ] **Step 4: Final commit**
+- [x] **Step 4: Final commit**
 
 ```bash
 git add -A
